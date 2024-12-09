@@ -5,18 +5,18 @@ import UserAddIcon from "../../Images/useradd.png";
 import DepartmentListIcon from "../../Images/department.png";
 import EditUserIcon from "../../Images/user.png";
 import ClubListIcon from "../../Images/club.png";
-import { navigateRouteByRole } from "../../services/RouteUtil";
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUser } from "../../states/slices/UserSlicer";
-import { getLoginStatus } from "../../services/TokenUtils";
+import { adminRole } from "../../services/UserUtil";
+import { navigateRouteByRole } from "../../services/RouteUtil";
 
 function AdminDashboard() {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState("");
 
   const dispatch = useDispatch();
-  const { user, status } = useSelector((state) => state.users);
+  const { user, status } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
 
@@ -31,45 +31,15 @@ function AdminDashboard() {
     setSelectedAction(event.target.value);
   };
 
-  const handleProceed = () => {
-    if (selectedAction === "") {
-      alert("Please select a valid action before proceeding.");
-      return;
-    }
-    if (selectedAction === "student-management") {
-      navigate("/admin/student-management");
-    } else if (selectedAction === "personnel-management") {
-      navigate("/admin/personnel-management");
-    } else if (selectedAction === "oic-management") {
-      navigate("/admin/oic-management");
-    } else {
-      alert("Invalid action selected.");
-    }
-  };
-
-
-
   useEffect(() => {
-    if(user){
-      navigateRouteByRole(user);
+    if (!user) {
+      dispatch(fetchUser())
     }
-  }, [status])
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       if (status === "Idle") {
-  //         dispatch(fetchUser())
-  //       }
-  //     } catch (err) {
-  //     }
-  //   }
-  //   if (getLoginStatus() === "true") {
-  //     fetchData();
-  //   } else {
-  //     navigate("/login-user");
-  //   }
-  // }, [status]);
+    if (user && !adminRole.includes(user.role)) {
+      navigate(navigateRouteByRole(user));
+    }
+  }, [dispatch, user]);
 
   return (
     <>
@@ -154,7 +124,7 @@ function AdminDashboard() {
                     Close
                   </button>
                   <button
-                    onClick={handleProceed}
+                    onClick={""}
                     className="bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded-lg"
                   >
                     Proceed

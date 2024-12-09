@@ -1,9 +1,13 @@
-import PendingTransaction from "../Pages/PendingTransaction/PendingTransaction"
+import OICDash from "../Pages/OICDashboard/OICDashboard";
+import PendingTransaction from "../Pages/PendingTransaction/PendingTransaction";
 
-
-const PendingTransactionRoute = {
-  path: "/oic/pending-transaction",
-  element:  <PendingTransaction/>
-}
-
-export {PendingTransactionRoute, }
+export const oicRoutes = [
+  {
+    path: "/oic/dash",
+    element: <OICDash />
+  },
+  {
+    path: "/oic/pending-transaction",
+    element: <PendingTransaction />
+  }
+];

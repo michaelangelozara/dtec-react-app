@@ -1,28 +1,58 @@
-import UserDashboard from "../Pages/UserDashBoard/UserDashBoard"
-import UserDocumentTracking from "../Pages/UserDocumentTracking/UserDocumentTracking"
-import UserEClearance from "../Pages/UserE-Clearance/UserE-Clearance"
-import UserDTTransactions from "../Pages/UserDTTransactions/UserDTTransactions"
-import LandingPage from "../Pages/LandingPage/LandingPage"
+import UserDashboard from "../Pages/UserDashBoard/UserDashBoard";
+import UserDocumentTracking from "../Pages/UserDocumentTracking/UserDocumentTracking";
+import UserEClearance from "../Pages/UserE-Clearance/UserE-Clearance";
+import UserDTTransactions from "../Pages/UserDTTransactions/UserDTTransactions";
+import EC from "../Pages/EClearancePage/EClearancePage";
+import ECMT from "../Pages/EClearanceTransaction/EClearanceTransaction";
+import OFO from "../Pages/OsaFormOfficer/OsaFormOfficer";
+import ILIC from "../Pages/ImplementationIncampus/ImplementationIncampus";
+import ILOC from "../Pages/ImplementationOffCampus/ImplementationOffCampus";
+import CLiC from "../Pages/CommunicationLetterIC/CommunicationLetterIC";
+import CLOC from "../Pages/CommunicationLetterOC/CommunicationLetterOC";
 
-
-const UserDashboardRoute = {
-  path: "/user/dashboard",
-  element:  <UserDashboard/>
-}
-const UserDocumentTrackingRoute = {
-  path: "/user/document-tracking",
-  element:  <UserDocumentTracking/>
-}
-const UserDTTransactionRoute = {
-  path: "/user/document-tracking-transactions",
-  element:  <UserDTTransactions/>
-}
-const UserEClearanceRoute = {
-  path: "/user/e-clearance",
-  element:  <UserEClearance/>
-}
-const LandingPageRoute = {
-  path: "/",
-  element:  <LandingPage/>
-}
-export {UserDashboardRoute,UserDocumentTrackingRoute,UserEClearanceRoute,UserDTTransactionRoute,LandingPageRoute}
+export const userRoutes = [
+  {
+    path: "/user/dashboard",
+    element: <UserDashboard />
+  },
+  {
+    path: "/user/document-tracking",
+    element: <UserDocumentTracking />
+  },
+  {
+    path: "/user/document-tracking-transactions",
+    element: <UserDTTransactions />
+  },
+  {
+    path: "/user/e-clearance",
+    element: <UserEClearance />
+  },
+  {
+    path: "/user/clearance-form",
+    element: <EC />
+  },
+  {
+    path: "/user/my-transactions",
+    element: <ECMT />
+  },
+  {
+    path: "/user/OSA-form-officer",
+    element: <OFO />
+  },
+  {
+    path: "/user/implementation-letter-ic",
+    element: <ILIC />
+  },
+  {
+    path: "/user/implementation-letter-oc",
+    element: <ILOC />
+  },
+  {
+    path: "/user/communication-letter-ic",
+    element: <CLiC />
+  },
+  {
+    path: "/user/communication-letter-oc",
+    element: <CLOC />
+  }
+];

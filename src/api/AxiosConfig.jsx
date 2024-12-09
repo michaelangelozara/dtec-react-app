@@ -70,8 +70,8 @@ api.interceptors.response.use(
       errorHandler(error);
       return Promise.reject(error);
     }
-    
-    if(error.code === "ERR_NETWORK"){
+
+    if (error.code === "ERR_NETWORK") {
       errorHandler(error);
       return Promise.reject(error);
     }

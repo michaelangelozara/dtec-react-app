@@ -11,4 +11,5 @@ export const getLoginStatus = () => localStorage.getItem("isLoggedIn");
 export const handleLogout = () => {
   removeAccessToken();
   setLoginStatus(false);
+  window.location.href = "/login-user"
 };
