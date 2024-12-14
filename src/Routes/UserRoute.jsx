@@ -9,6 +9,9 @@ import ILIC from "../Pages/ImplementationIncampus/ImplementationIncampus";
 import ILOC from "../Pages/ImplementationOffCampus/ImplementationOffCampus";
 import CLiC from "../Pages/CommunicationLetterIC/CommunicationLetterIC";
 import CLOC from "../Pages/CommunicationLetterOC/CommunicationLetterOC";
+import BudgetProposalLetter from "../Pages/BudgetProposal/BudgetProposalLetter";
+import ModeratorDashboard from "../Pages/ModeratorDashboard/ModeratorDashboard";
+import ModeratorTransaction from "../Pages/ModeratorTransaction/ModeratorTransaction";
 
 export const userRoutes = [
   {
@@ -54,5 +57,17 @@ export const userRoutes = [
   {
     path: "/user/communication-letter-oc",
     element: <CLOC />
+  },
+  {
+    path: "/user/budget-proposal",
+    element: <BudgetProposalLetter />
+  },
+  {
+    path: "/user/moderator-dashboard",
+    element: <ModeratorDashboard />
+  },
+  {
+    path: "/user/moderator-transaction",
+    element: <ModeratorTransaction />
   }
 ];

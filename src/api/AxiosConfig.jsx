@@ -47,6 +47,11 @@ const errorHandler = (error) => {
       message: error.response?.data?.message,
       type: "Error"
     }));
+  } else if (error.response?.status === 409) {
+    Store.dispatch(showModal({
+      message: error.response?.data?.message,
+      type: "Error"
+    }));
   } else if (error.response?.data?.message) {
     Store.dispatch(showModal({
       message: error.response?.data?.message,

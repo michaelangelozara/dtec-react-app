@@ -3,7 +3,7 @@ import PendingTransaction from "../Pages/PendingTransaction/PendingTransaction";
 
 export const oicRoutes = [
   {
-    path: "/oic/dash",
+    path: "/oic/dashboard",
     element: <OICDash />
   },
   {

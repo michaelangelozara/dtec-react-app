@@ -27,19 +27,35 @@ function AdminDashboard() {
     setSelectedAction("");
   };
 
+  const handleProceed = () => {
+    if (selectedAction === "") {
+      alert("Please select a valid action before proceeding.");
+      return;
+    }
+    if (selectedAction === "student-management") {
+      navigate("/admin/student-management");
+    } else if (selectedAction === "personnel-management") {
+      navigate("/admin/personnel-management");
+    } else if (selectedAction === "oic-management") {
+      navigate("/admin/oic-management");
+    } else {
+      alert("Invalid action selected.");
+    }
+  };
+
   const handleActionChange = (event) => {
     setSelectedAction(event.target.value);
   };
 
   useEffect(() => {
     if (!user) {
-      dispatch(fetchUser())
+      dispatch(fetchUser());
     }
 
     if (user && !adminRole.includes(user.role)) {
       navigate(navigateRouteByRole(user));
     }
-  }, [dispatch, user]);
+  }, [dispatch, user, status]);
 
   return (
     <>
@@ -72,18 +88,9 @@ function AdminDashboard() {
               User List
             </button>
 
-            {/* User Management */}
-            <button
-              onClick={openUserModal}
-              className="text-2xl w-80 bg-green-700 hover:bg-green-800 text-white font-bold py-6 px-10 rounded-lg flex items-center flex-col"
-            >
-              <img src={EditUserIcon} alt="User Management" className="w-7 h-7 mb-4" />
-              User Management
-            </button>
-
             {/* Department List */}
             <button
-              onClick={() => navigate("/admin/couses&department-list")}
+              onClick={() => navigate("/admin/courses-department-list")}
               className="text-2xl w-80 bg-green-700 hover:bg-green-800 text-white font-bold py-6 px-10 rounded-lg flex items-center flex-col"
             >
               <img src={DepartmentListIcon} alt="Department List" className="w-7 h-7 mb-4" />
@@ -111,9 +118,10 @@ function AdminDashboard() {
                   onChange={handleActionChange}
                 >
                   <option value="">-- Select Action --</option>
+                  <option value="oic-management">Office In-Charger</option>
+                  <option value="personnel-management">Personnel</option>
                   <option value="student-management">Student Officer</option>
-                  <option value="personnel-management">Moderator</option>
-                  <option value="oic-management">Office In-Charge</option>
+                  <option value="student-management">Student</option>
                 </select>
 
                 <div className="mt-6 flex justify-end">
@@ -124,7 +132,7 @@ function AdminDashboard() {
                     Close
                   </button>
                   <button
-                    onClick={""}
+                    onClick={handleProceed}
                     className="bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 px-4 rounded-lg"
                   >
                     Proceed

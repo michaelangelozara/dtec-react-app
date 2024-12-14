@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { FaEye, FaCheck, FaTimes } from "react-icons/fa";
-import { FaUserCircle, FaBell } from "react-icons/fa";
-import Banner from "../../Images/banner.svg";
+import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 
 function PendingTransaction() {
   const [transactions, setTransactions] = useState([
@@ -39,14 +38,8 @@ function PendingTransaction() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-green-800 py-4 px-6 flex justify-between items-center">
-        <img src={Banner} alt="Company Logo" className="h-16" />
-        <div className="flex items-center space-x-4">
-          <FaBell className="text-white text-xl" />
-          <FaUserCircle className="text-white text-2xl" />
-        </div>
-      </div>
+      <PrimaryNavBar />
+
       {/* Heading */}
       <div className="p-6">
         <h2 className="text-2xl font-semibold text-gray-800">

@@ -12,6 +12,7 @@
     "jspdf": "^2.5.1",
     "react": "^18.3.1",
     "react-awesome-reveal": "^4.2.14",
+    "react-datepicker": "^7.5.0",
     "react-dom": "^18.3.1",
     "react-helmet": "^6.1.0",
     "react-helmet-async": "^2.0.5",

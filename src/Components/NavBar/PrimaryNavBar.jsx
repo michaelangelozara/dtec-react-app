@@ -5,14 +5,12 @@ import Banner from "../../Images/banner.svg";
 import Logout from "../../assets/icons/Logout.svg"
 
 import axios from "../../api/AxiosConfig";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { deleteUser } from "../../states/slices/UserSlicer";
 
 import { handleLogout } from "../../services/TokenUtils";
 
 function PrimaryNavBar() {
-    const navigate = useNavigate();
     const dispatch = useDispatch();
 
 
@@ -20,9 +18,8 @@ function PrimaryNavBar() {
         try {
             const response = await axios.post("/auth/logout");
             if (response.status === 200) {
-                handleLogout();
                 dispatch(deleteUser());
-                navigate("/login-user");
+                handleLogout();
             }
         } catch (error) {
         }

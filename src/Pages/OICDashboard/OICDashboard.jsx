@@ -6,6 +6,7 @@ import Banner from "../../Images/banner.svg";
 import PendingIcon from "../../Images/pending.png";
 import ApprovedIcon from "../../Images/approved.png";
 import DeclinedIcon from "../../Images/declined.png";
+import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 
 function OICDashboard() {
   const navigate = useNavigate();
@@ -18,13 +19,7 @@ function OICDashboard() {
 
       <div className="min-h-screen bg-gray-100">
         {/* Header */}
-        <div className="bg-green-800 py-4 px-6 flex justify-between items-center">
-          <img src={Banner} alt="Banner Logo" className="h-16" />
-          <div className="flex items-center space-x-4">
-            <FaBell className="text-white text-xl" />
-            <FaUserCircle className="text-white text-2xl" />
-          </div>
-        </div>
+        <PrimaryNavBar />
 
         {/* Welcome Message */}
         <div className="py-10 px-10">
@@ -38,7 +33,7 @@ function OICDashboard() {
           {/* Pending Transactions */}
           <div
             className="w-80 h-40 bg-green-700 hover:bg-green-800 text-white font-bold rounded-lg relative flex flex-col justify-center items-center cursor-pointer"
-            onClick={() => navigate("/pending-transactions")}
+            onClick={() => navigate("/oic/pending-transaction")}
           >
             <img
               src={PendingIcon}
