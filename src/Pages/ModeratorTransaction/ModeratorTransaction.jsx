@@ -13,6 +13,7 @@ import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 import axios from "../../api/AxiosConfig";
 
 import LetterModal from "../../Components/LetterModal";
+import { showModal } from "../../states/slices/ModalSlicer";
 
 function StatusCard({ count, title, icon, onClick, isActive }) {
   return (
@@ -36,7 +37,7 @@ function StatusCard({ count, title, icon, onClick, isActive }) {
 
 const statusOfLetter = [
   { label: "For Evaluation", value: "FOR_EVALUATION" },
-  { label: "Pending", value: "PENDING" },
+  { label: "In Progress", value: "IN_PROGRESS" },
   { label: "Approved", value: "APPROVED" },
   { label: "Declined", value: "DECLINED" }
 ];
@@ -55,8 +56,8 @@ function ModeratorTransaction() {
   const [selectedStatus, setSelectedStatus] = useState("FOR_EVALUATION");
   const [selectedLetterType, setSelectedLetterType] = useState("SELECT ALL");
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [selectedLetter, setSelectedLetter] = useState({});
 
+  const [selectedLetter, setSelectedLetter] = useState({});
   const [signaturePreview, setSignaturePreview] = useState("");
 
   const { user, status } = useSelector((state) => state.user);
@@ -68,9 +69,9 @@ function ModeratorTransaction() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "PENDING":
-        return "bg-yellow-100 text-yellow-800";
       case "FOR_EVALUATION":
+        return "bg-yellow-100 text-yellow-800";
+      case "IN_PROGRESS":
         return "bg-blue-100 text-blue-800";
       case "APPROVED":
         return "bg-green-100 text-green-800";
@@ -119,6 +120,24 @@ function ModeratorTransaction() {
     setSelectedStatus(status === selectedStatus ? null : status);
     setSelectedLetterType("SELECT ALL");
   };
+
+  const handleModeratorSignature = async () => {
+    try {
+
+      const response = await axios.post(`/generic-letters/sign-letter/${selectedLetter.id}?type=${selectedLetter.type}`, {
+        "signature": signaturePreview
+      });
+      if(response.status === 201){
+        dispatch(showModal({ message: response.data?.message }));
+      }
+    } catch (error) {
+      if (error.status === 403 || error.status === 404) {
+        dispatch(showModal({ message: error.response?.data?.message }));
+      }
+    }finally{
+      closeModal();
+    }
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -265,7 +284,7 @@ function ModeratorTransaction() {
                       {filteredTransactions.map((transaction, index) => (
                         <tr key={index} className="hover:bg-gray-50">
                           <td className="p-3">{transaction.fields.date_requested}</td>
-                          <td className="p-3">{transaction.type === "COMMUNICATION_LETTER" ? transaction.type + " (" + transaction.object.type + ")" : transaction.type}</td>
+                          <td className="p-3">{transaction.type === "COMMUNICATION_LETTER" ? transaction.type + " (" + transaction.cml + ")" : transaction.type}</td>
                           <td className="p-3">{transaction.fields.name_of_transaction}</td>
                           <td className="p-3">{transaction.fields.requested_by}</td>
                           <td className="p-3">
@@ -311,7 +330,7 @@ function ModeratorTransaction() {
               onClose={closeModal}
               signaturePreview={signaturePreview}
               onSignatureChange={handleSignatureChange}
-              // onApprove={onApprove}
+              onApprove={handleModeratorSignature}
             />
           )}
         </>

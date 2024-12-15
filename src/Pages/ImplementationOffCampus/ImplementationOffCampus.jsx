@@ -86,7 +86,7 @@ function ImplementationLetterOffCampus() {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post("/implementation-letter-out-campus/request-letter",
+      const response = await axios.post("/implementation-letter-off-campuses/request-letter",
         {
           title,
           description,

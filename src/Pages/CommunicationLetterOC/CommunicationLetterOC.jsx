@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchUser } from '../../states/slices/UserSlicer';
 
 function CommunicationLetter() {
-  const [signaturePreview, setSignaturePreview] = useState(null);
+  const [signaturePreview, setSignaturePreview] = useState("");
   const [letterContent, setLetterContent] = useState('');
   const [selectedDate, setSelectedDate] = useState("");
 

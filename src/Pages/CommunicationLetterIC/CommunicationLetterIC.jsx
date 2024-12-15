@@ -12,7 +12,7 @@ import axios from "../../api/AxiosConfig";
 import PrimaryNavBar from '../../Components/NavBar/PrimaryNavBar';
 
 function CommunicationLetter() {
-  const [signaturePreview, setSignaturePreview] = useState(null);
+  const [signaturePreview, setSignaturePreview] = useState("");
   const [letterContent, setLetterContent] = useState('');
   const [selectedDate, setSelectedDate] = useState("");
 

@@ -28,7 +28,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
           />
         );
       case 'COMMUNICATION_LETTER':
-        if (letter.object.type === "OFF_CAMPUS") {
+        if (letter.cml === "OFF_CAMPUS") {
           return (
             <CommunicationLetterOffCampus
               letter={letter}

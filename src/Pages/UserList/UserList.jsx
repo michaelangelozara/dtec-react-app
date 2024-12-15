@@ -17,7 +17,11 @@ const roles = [
   { label: "Admin", value: "ADMIN" },
   { label: "Personnel", value: "PERSONNEL" },
   { label: "Moderator", value: "MODERATOR" },
-  { label: "Office In-Charge", value: "OFFICE_IN_CHARGE" }
+  { label: "Office In-Charge", value: "OFFICE_IN_CHARGE" },
+  { label: "DSA", value: "DSA" },
+  { label: "Finance", value: "FINANCE" },
+  { label: "Community", value: "COMMUNITY" },
+  { label: "President", value: "PRESIDENT" },
 ];
 
 const clubRoles = [
