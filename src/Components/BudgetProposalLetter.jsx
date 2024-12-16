@@ -20,8 +20,9 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange }) {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        await axios.post(`/generic-letters/on-click/${letter.id}?type=${letter.type}`);
-
+        if (user.role !== "STUDENT_OFFICER") {
+          await axios.post(`/generic-letters/on-click/${letter.id}?type=${letter.type}`);
+        }
         const response = await axios.get(`/budget-proposals/${letter.id}`);
         setBudgetProposal(response.data?.data);
       } catch (error) {

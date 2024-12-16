@@ -90,17 +90,17 @@ function UserList() {
       setIsLoading(true);
       const response = await axios.post("/admin/add-user", newUser);
       if (response.status === 201) {
-        dispatch(showModal({ message: response.data?.message }))
+        dispatch(showModal({ message: response.data?.message }));
         addedUserToggle();
         resetUserFields();
       }
     } catch (err) {
       switch (err.status) {
         case 403:
-          dispatch(showModal({ message: err.response?.data.message }))
+          dispatch(showModal({ message: err.response?.data.message }));
           break;
         case 409:
-          dispatch(showModal({ message: err.response?.data.message }))
+          dispatch(showModal({ message: err.response?.data.message }));
           break;
       }
     } finally {

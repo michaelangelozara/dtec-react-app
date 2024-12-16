@@ -20,8 +20,9 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        await axios.post(`/generic-letters/on-click/${letter.id}?type=${letter.type}`);
-
+        if (user.role !== "STUDENT_OFFICER") {
+          await axios.post(`/generic-letters/on-click/${letter.id}?type=${letter.type}`);
+        }
         const response = await axios.get(`/communication-letters/${letter.id}`);
         setCommunicationLetter(response.data?.data);
       } catch (error) {

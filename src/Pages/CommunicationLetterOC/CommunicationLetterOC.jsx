@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import { FaUserCircle, FaBell, FaPen } from 'react-icons/fa';
 import Modal from '../../Components/modal/Modal';
 import { navigateRouteByRole } from '../../services/RouteUtil';
-import { showModal } from '../../states/slices/ModalSlicer';
+import { hideModal, showModal } from '../../states/slices/ModalSlicer';
 import axios from "../../api/AxiosConfig";
 import { useDispatch, useSelector } from 'react-redux';
 import { studentOfficerRole } from '../../services/UserUtil';
@@ -54,6 +54,10 @@ function CommunicationLetter() {
       if (response.status === 201) {
         dispatch(showModal({ message: response.data?.message }))
         resetFields();
+        setTimeout(() => {
+          navigate("/user/document-tracking");
+          dispatch(hideModal());
+        }, 2000);
       }
     } catch (error) {
       if (error.status === 400 || error.status === 403) {

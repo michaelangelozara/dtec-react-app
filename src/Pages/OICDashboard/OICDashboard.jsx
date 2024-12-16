@@ -1,11 +1,10 @@
-import React from "react";
-import { FaUserCircle, FaBell } from "react-icons/fa";
-import { Helmet } from "react-helmet";
-import { useNavigate } from "react-router-dom";
-import Banner from "../../Images/banner.svg";
-import PendingIcon from "../../Images/pending.png";
-import ApprovedIcon from "../../Images/approved.png";
-import DeclinedIcon from "../../Images/declined.png";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
+import { FaUserCircle, FaBell } from 'react-icons/fa';
+import Banner from '../../Images/banner.svg';
+import DT from '../../Images/DT.svg';
+import EC from '../../Images/EC.svg';
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 
 function OICDashboard() {
@@ -14,63 +13,29 @@ function OICDashboard() {
   return (
     <>
       <Helmet>
-        <title>OIC Dashboard</title>
+        <title>Office In Charge Dashboard</title>
       </Helmet>
 
       <div className="min-h-screen bg-gray-100">
-        {/* Header */}
         <PrimaryNavBar />
 
         {/* Welcome Message */}
         <div className="py-10 px-10">
-          <h1 className="text-3xl font-bold text-gray-800">Welcome, Office In-Charge!</h1>
-          <p className="mt-2 text-gray-600">Here is an overview of your dashboard.</p>
+          <h1 className="text-3xl font-bold text-gray-800">Welcome, Office In Charge!</h1>
+          <p className="mt-2 text-gray-600">Select your Transaction</p>
           <hr className="mt-4 border-gray-300" />
         </div>
 
-        {/* Cards Section */}
+        {/* Button Options */}
         <div className="flex justify-center space-x-8 mt-10">
-          {/* Pending Transactions */}
-          <div
-            className="w-80 h-40 bg-green-700 hover:bg-green-800 text-white font-bold rounded-lg relative flex flex-col justify-center items-center cursor-pointer"
-            onClick={() => navigate("/oic/pending-transaction")}
-          >
-            <img
-              src={PendingIcon}
-              alt="Pending Icon"
-              className="absolute top-4 left-4 w-10 h-10"
-            />
-            <h2 className="text-6xl font-extrabold">5</h2>
-            <p className="text-2xl mt-2">Pending Transactions</p>
-          </div>
-
-          {/* Declined Transactions */}
-          <div
-            className="w-80 h-40 bg-green-700 hover:bg-green-800 text-white font-bold rounded-lg relative flex flex-col justify-center items-center cursor-pointer"
-            onClick={() => navigate("/declined-transactions")}
-          >
-            <img
-              src={DeclinedIcon}
-              alt="Declined Icon"
-              className="absolute top-4 left-4 w-10 h-10"
-            />
-            <h2 className="text-6xl font-extrabold">5</h2>
-            <p className="text-2xl mt-2">Declined Transactions</p>
-          </div>
-
-          {/* Approved Transactions */}
-          <div
-            className="w-80 h-40 bg-green-700 hover:bg-green-800 text-white font-bold rounded-lg relative flex flex-col justify-center items-center cursor-pointer"
-            onClick={() => navigate("/approved-transactions")}
-          >
-            <img
-              src={ApprovedIcon}
-              alt="Approved Icon"
-              className="absolute top-4 left-4 w-12 h-12"
-            />
-            <h2 className="text-6xl font-extrabold">5</h2>
-            <p className="text-2xl mt-2">Approved Transactions</p>
-          </div>
+          <button onClick={() => navigate('/oic/transactions')} className="text-2xl w-80 bg-green-700 hover:bg-green-800 text-white font-bold py-6 px-10 rounded-lg flex items-center flex-col">
+            <img src={DT} alt="Transactions" className="ml-4 w-6 h-6 mb-4" />
+            Transactions
+          </button>
+          <button onClick={() => navigate('/personnel/clearance-form')} className="text-2xl flex-col w-80 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-6 px-10 rounded-lg flex items-center">
+            <img src={EC} alt="E-Clearance" className="items-center w-7 h-7 ml-3 mb-4" />
+            E-Clearance
+          </button>
         </div>
       </div>
     </>

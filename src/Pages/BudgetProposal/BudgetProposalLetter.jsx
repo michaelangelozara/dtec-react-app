@@ -8,7 +8,7 @@ import axios from "../../api/AxiosConfig";
 import { navigateRouteByRole } from "../../services/RouteUtil";
 import { studentOfficerRole } from "../../services/UserUtil";
 import { fetchUser } from "../../states/slices/UserSlicer";
-import { showModal } from '../../states/slices/ModalSlicer';
+import { hideModal, showModal } from '../../states/slices/ModalSlicer';
 import Modal from "../../Components/modal/Modal";
 
 function BudgetProposalLetter() {
@@ -81,6 +81,10 @@ function BudgetProposalLetter() {
       if (response.status === 201) {
         dispatch(showModal({ message: response.data?.message }));
         resetFields();
+        setTimeout(() => {
+          navigate("/user/document-tracking");
+          dispatch(hideModal());
+        }, 2000);
       }
     } catch (error) {
       if (error.status === 400 || error.status === 403) {

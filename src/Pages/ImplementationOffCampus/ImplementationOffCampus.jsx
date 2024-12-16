@@ -9,7 +9,7 @@ import { studentOfficerRole } from '../../services/UserUtil';
 import axios from "../../api/AxiosConfig";
 import Modal from '../../Components/modal/Modal';
 import PrimaryNavBar from '../../Components/NavBar/PrimaryNavBar';
-import { showModal } from '../../states/slices/ModalSlicer';
+import { hideModal, showModal } from '../../states/slices/ModalSlicer';
 import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 
@@ -99,6 +99,10 @@ function ImplementationLetterOffCampus() {
       if (response.status === 201) {
         dispatch(showModal({ message: response.data?.message }))
         resetFields();
+        setTimeout(() => {
+          navigate("/user/document-tracking");
+          dispatch(hideModal());
+        }, 2000);
       }
     } catch (error) {
       if (error.status === 400 || error.status === 403) {

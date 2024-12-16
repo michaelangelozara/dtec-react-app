@@ -19,11 +19,14 @@ function ImplementationLetterOffCampus({ letter, signaturePreview, onSignatureCh
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        await axios.post(`/generic-letters/on-click/${letter.id}?type=${letter.type}`);
+        if(user.role !== "STUDENT_OFFICER"){
+          await axios.post(`/generic-letters/on-click/${letter.id}?type=${letter.type}`);
+        }
 
         const response = await axios.get(`/implementation-letter-off-campuses/${letter.id}`);
         setImplementationLetter(response.data?.data);
       } catch (error) {
+        console.log(error);
         if (error.status === 404) {
           dispatch(showModal({ message: error.response?.data?.message }))
         }
@@ -127,9 +130,10 @@ function ImplementationLetterOffCampus({ letter, signaturePreview, onSignatureCh
                   className="border-gray-300 border-2 p-2 rounded-md w-full"
                   accept="image/*"
                   onChange={onSignatureChange}
+                  disabled={user.role !== "COMMUNITY"}
                 />
               </div>
-              {signaturePreview && (
+              {signaturePreview || implementationLetter.office_head_signature !== "N/A" && (
                 <div className="mt-4">
                   <p className="font-semibold">Signature Preview:</p>
                   <img
@@ -147,6 +151,27 @@ function ImplementationLetterOffCampus({ letter, signaturePreview, onSignatureCh
 
           <div className="mt-6 text-center">
             <p className="font-semibold">Approved by:</p>
+            <div className="mt-4">
+              <label className="block font-semibold mb-2">Attach Signature</label>
+              <input
+                type="file"
+                className="border-gray-300 border-2 p-2 rounded-md w-full"
+                accept="image/*"
+                onChange={onSignatureChange}
+                disabled={user.role !== "PRESIDENT"}
+              />
+            </div>
+            {signaturePreview || implementationLetter.president_signature !== "N/A" && (
+              <div className="mt-4">
+                <p className="font-semibold">Signature Preview:</p>
+                <img
+                  src={signaturePreview}
+                  alt="Signature Preview"
+                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                  style={{ maxHeight: '150px', maxWidth: '300px' }}
+                />
+              </div>
+            )}
             <p className="mt-2 font-bold">REV. FR. JESSIE P. PASQUIN, DCC</p>
             <p>NDTC President</p>
           </div>

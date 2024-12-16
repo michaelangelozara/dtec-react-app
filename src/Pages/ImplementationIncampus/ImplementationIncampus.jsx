@@ -5,7 +5,7 @@ import Banner from '../../Images/banner.svg';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { fetchUser } from '../../states/slices/UserSlicer';
-import { showModal } from '../../states/slices/ModalSlicer';
+import { hideModal, showModal } from '../../states/slices/ModalSlicer';
 import axios from "../../api/AxiosConfig";
 import { studentOfficerRole } from '../../services/UserUtil';
 import { useDispatch, useSelector } from 'react-redux';
@@ -119,6 +119,10 @@ function ImplementationProgramForm() {
       if (response.status === 201) {
         dispatch(showModal({ message: response.data?.message }))
         resetFields();
+        setTimeout(() => {
+          navigate("/user/document-tracking");
+          dispatch(hideModal());
+        }, 2000);
       }
     } catch (error) {
       if (error.status === 400 || error.status === 403) {
@@ -136,6 +140,8 @@ function ImplementationProgramForm() {
       navigate(navigateRouteByRole(user));
     }
   }, [dispatch, user, status]);
+
+  console.log(user);
 
   return (
     <>
@@ -172,7 +178,7 @@ function ImplementationProgramForm() {
                   <input
                     type="text"
                     className="w-full border-gray-300 border-2 p-2 rounded-md"
-                    defaultValue={user?.club?.name}
+                    defaultValue={user?.officer_at}
                     disabled
                   />
                 </div>

@@ -53,7 +53,7 @@ const typeOfLetter = [
 function ModeratorTransaction() {
   const [searchTerm, setSearchTerm] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const [selectedStatus, setSelectedStatus] = useState("FOR_EVALUATION");
+  const [selectedStatus, setSelectedStatus] = useState("SELECT ALL");
   const [selectedLetterType, setSelectedLetterType] = useState("SELECT ALL");
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
@@ -73,7 +73,7 @@ function ModeratorTransaction() {
         return "bg-yellow-100 text-yellow-800";
       case "IN_PROGRESS":
         return "bg-blue-100 text-blue-800";
-      case "APPROVED":
+      case "COMPLETED":
         return "bg-green-100 text-green-800";
       case "DECLINED":
         return "bg-red-100 text-red-800";
@@ -106,12 +106,39 @@ function ModeratorTransaction() {
   };
 
   const filteredTransactions = fields.filter((field) => {
-    const matchesStatus = selectedStatus ? field.fields.status === selectedStatus : true;
-    const matchesApplicationStatus = selectedLetterType === "SELECT ALL" ? true :
-      field.letter_type === selectedLetterType;
+    // If "SELECT ALL" is chosen for status, show all letters
+    const matchesStatus = selectedStatus === "SELECT ALL"
+      ? true
+      : field.fields && field.fields.status === selectedStatus;
 
+    // If "SELECT ALL" is chosen for letter type, show all letter types
+    const matchesApplicationStatus = selectedLetterType === "SELECT ALL"
+      ? true
+      : field.fields && field.fields.letter_type === selectedLetterType;
+
+    // Return true only if both conditions match
     return matchesStatus && matchesApplicationStatus;
   });
+
+  // const filteredTransactions = fields.filter((field) => {
+  //   // Check if status matches or "SELECT ALL" is chosen
+  //   const matchesStatus = selectedStatus === "SELECT ALL"
+  //     ? true
+  //     : field.fields && field.fields.status === selectedStatus;
+
+  //   // Check if letter type matches or "SELECT ALL" is chosen
+  //   const matchesApplicationStatus = selectedLetterType === "SELECT ALL"
+  //     ? true
+  //     : field.fields && field.fields.letter_type === selectedLetterType;
+
+  //   // Check if cml matches or "SELECT ALL" is chosen
+  //   const matchesCML = selectedLetterType === "SELECT ALL"
+  //     ? true
+  //     : field.cml === selectedLetterType;
+
+  //   // Return true only if all conditions match
+  //   return matchesStatus && matchesApplicationStatus && matchesCML;
+  // });
 
   const forEvaluationCount = fields.filter(t => t.fields.status === "FOR_EVALUATION").length;
   const approvedCount = fields.filter(t => t.fields.status === "APPROVED").length;
@@ -127,14 +154,14 @@ function ModeratorTransaction() {
       const response = await axios.post(`/generic-letters/sign-letter/${selectedLetter.id}?type=${selectedLetter.type}`, {
         "signature": signaturePreview
       });
-      if(response.status === 201){
+      if (response.status === 201) {
         dispatch(showModal({ message: response.data?.message }));
       }
     } catch (error) {
       if (error.status === 403 || error.status === 404) {
         dispatch(showModal({ message: error.response?.data?.message }));
       }
-    }finally{
+    } finally {
       closeModal();
     }
   }
@@ -142,7 +169,7 @@ function ModeratorTransaction() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/generic-letters?type=${selectedStatus}`);
+        const response = await axios.get(`/generic-letters?s=${50}`);
         setFields(response.data?.data);
       } catch (error) {
       }
@@ -277,6 +304,7 @@ function ModeratorTransaction() {
                         <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Requested By</th>
                         <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                         <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Last Update</th>
+                        <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Current Location</th>
                         <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
                       </tr>
                     </thead>
@@ -293,6 +321,7 @@ function ModeratorTransaction() {
                             </span>
                           </td>
                           <td className="p-3">{transaction.fields.last_update ? transaction.fields.last_update : "N/A"}</td>
+                          <td className="p-3">{transaction.fields.current_location}</td>
                           <td className="p-3">
                             <button
                               className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded flex items-center space-x-1"

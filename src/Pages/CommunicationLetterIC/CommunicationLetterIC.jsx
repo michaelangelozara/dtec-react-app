@@ -4,7 +4,7 @@ import { FaUserCircle, FaBell, FaPen } from 'react-icons/fa';
 import Banner from '../../Images/banner.svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from '../../states/slices/UserSlicer';
-import { showModal } from '../../states/slices/ModalSlicer';
+import { hideModal, showModal } from '../../states/slices/ModalSlicer';
 import Modal from '../../Components/modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import { studentOfficerRole } from '../../services/UserUtil';
@@ -65,6 +65,10 @@ function CommunicationLetter() {
       if (response.status === 201) {
         dispatch(showModal({ message: response.data?.message }))
         resetFields();
+        setTimeout(() => {
+          navigate("/user/document-tracking");
+          dispatch(hideModal());
+        }, 2000);
       }
     } catch (error) {
       if (error.status === 400 || error.status === 403) {

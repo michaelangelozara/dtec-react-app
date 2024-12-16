@@ -20,8 +20,9 @@ function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureCha
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        await axios.post(`/generic-letters/on-click/${letter.id}?type=${letter.type}`);
-
+        if (user.role !== "STUDENT_OFFICER") {
+          await axios.post(`/generic-letters/on-click/${letter.id}?type=${letter.type}`);
+        }
         const response = await axios.get(`/communication-letters/${letter.id}`);
         setCommunicationLetter(response.data?.data);
       } catch (error) {
@@ -84,13 +85,14 @@ function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureCha
                   className="border-gray-300 border-2 p-2 rounded-md w-full"
                   accept="image/*"
                   onChange={onSignatureChange}
+                  disabled={user.role !== "MODERATOR"}
                 />
               </div>
-              {signaturePreview && (
+              {signaturePreview || communicationLetter.moderator_signature && (
                 <div className="mt-4">
                   <p className="font-semibold">Signature Preview:</p>
                   <img
-                    src={signaturePreview}
+                    src={signaturePreview || communicationLetter.moderator_signature}
                     alt="Signature Preview"
                     className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
                     style={{ maxHeight: '150px', maxWidth: '300px' }}
@@ -102,7 +104,7 @@ function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureCha
                 className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center"
                 placeholder="Name of Club Moderator"
                 disabled
-                defaultValue={user.first_name + " " + user.middle_name + " " + user.lastname}
+                defaultValue={communicationLetter.moderator}
               />
               <p className="text-sm mt-2">MODERATOR, CLUB, A.Y. 2024-2025</p>
             </div>
@@ -110,12 +112,55 @@ function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureCha
 
           <div className="mt-6 text-center">
             <p className="font-semibold">Noted by:</p>
+            <div className="mt-4">
+              <label className="block font-semibold mb-2">Attach Signature</label>
+              <input
+                type="file"
+                className="border-gray-300 border-2 p-2 rounded-md w-full"
+                accept="image/*"
+                onChange={onSignatureChange}
+                disabled={user.role !== "DSA"}
+              />
+            </div>
+            {signaturePreview || communicationLetter.dsa_signature !== "N/A" && (
+              <div className="mt-4">
+                <p className="font-semibold">Signature Preview:</p>
+                <img
+                  src={signaturePreview || communicationLetter.dsa_signature}
+                  alt="Signature Preview"
+                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                  style={{ maxHeight: '150px', maxWidth: '300px' }}
+                />
+              </div>
+            )}
             <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
             <p>DIRECTOR OF STUDENT AFFAIRS</p>
           </div>
 
           <div className="mt-6 text-center">
             <p className="font-semibold">Approved by:</p>
+            <div className="mt-4">
+              <label className="block font-semibold mb-2">Attach Signature</label>
+              <input
+                type="file"
+                className="border-gray-300 border-2 p-2 rounded-md w-full"
+                accept="image/*"
+                onChange={onSignatureChange}
+                src={communicationLetter.moderator_signature}
+                disabled={user.role !== "OFFICE_HEAD"}
+              />
+            </div>
+            {signaturePreview || communicationLetter.office_head_signature !== "N/A" && (
+              <div className="mt-4">
+                <p className="font-semibold">Signature Preview:</p>
+                <img
+                  src={signaturePreview}
+                  alt="Signature Preview"
+                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                  style={{ maxHeight: '150px', maxWidth: '300px' }}
+                />
+              </div>
+            )}
             <p className="mt-2 font-bold">REV. FR. DARYLL DHAN L. BILBAO, DCC</p>
             <p>Office Head, CDSO</p>
           </div>

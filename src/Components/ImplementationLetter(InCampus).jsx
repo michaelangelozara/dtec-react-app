@@ -12,7 +12,7 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
   const dispatch = useDispatch();
 
   if (!user) {
-    navigate("/user/moderator-transaction")
+    navigate("/user-login")
     return;
   }
 
@@ -20,7 +20,9 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        await axios.post(`/generic-letters/on-click/${letter.id}?type=${letter.type}`);
+        if(user.role !== "STUDENT_OFFICER"){
+          await axios.post(`/generic-letters/on-click/${letter.id}?type=${letter.type}`);
+        }
 
         const response = await axios.get(`/implementation-letter-in-campuses/${letter.id}`);
         setImplementationLetter(response.data?.data);
@@ -144,9 +146,10 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
                   className="border-gray-300 border-2 p-2 rounded-md w-full"
                   accept="image/*"
                   onChange={onSignatureChange}
+                  disabled={user.role !== "MODERATOR"}
                 />
               </div>
-              {signaturePreview && (
+              {signaturePreview || implementationLetter.moderator_signature !== "N/A" && (
                 <div className="mt-4">
                   <p className="font-semibold">Signature Preview:</p>
                   <img
@@ -161,7 +164,7 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
                 type="text"
                 className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center"
                 placeholder="Name of Club Moderator"
-                defaultValue={user.first_name + " " + user.middle_name + " " + user.lastname}
+                defaultValue={implementationLetter.moderator}
                 disabled
               />
               <p className="text-sm mt-2">MODERATOR, CLUB, A.Y. 2024-2025</p>
@@ -170,6 +173,27 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
 
           <div className="mt-6 text-center">
             <p className="font-semibold">Approved by:</p>
+            <div className="mt-4">
+                <label className="block font-semibold mb-2">Attach Signature</label>
+                <input
+                  type="file"
+                  className="border-gray-300 border-2 p-2 rounded-md w-full"
+                  accept="image/*"
+                  onChange={onSignatureChange}
+                  disabled={user.role !== "DSA"}
+                />
+              </div>
+              {signaturePreview || implementationLetter.dsa_signature !== "N/A" && (
+                <div className="mt-4">
+                  <p className="font-semibold">Signature Preview:</p>
+                  <img
+                    src={signaturePreview}
+                    alt="Signature Preview"
+                    className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                    style={{ maxHeight: '150px', maxWidth: '300px' }}
+                  />
+                </div>
+              )}
             <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
             <p>Director of Student Affairs</p>
           </div>
