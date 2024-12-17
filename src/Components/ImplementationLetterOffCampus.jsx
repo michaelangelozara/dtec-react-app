@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from "../api/AxiosConfig";
 
-function ImplementationLetterOffCampus({ letter, signaturePreview, onSignatureChange }) {
+function ImplementationLetterOffCampus({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);
   const [implementationLetter, setImplementationLetter] = useState(null);
   const { user } = useSelector((state) => state.user);
@@ -37,6 +37,12 @@ function ImplementationLetterOffCampus({ letter, signaturePreview, onSignatureCh
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+      if (implementationLetter) {
+        setSignedPeople(implementationLetter.signed_people);
+      }
+    }, [implementationLetter]);
 
   return (
     <>

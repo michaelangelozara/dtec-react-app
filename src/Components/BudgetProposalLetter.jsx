@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from "../api/AxiosConfig";
 import { showModal } from '../states/slices/ModalSlicer';
 
-function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange }) {
+function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);
   const [budgetProposal, setBudgetProposal] = useState(null);
   const { user } = useSelector((state) => state.user);
@@ -36,6 +36,12 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange }) {
 
     fetchData();
   }, [])
+
+  useEffect(() => {
+    if (budgetProposal) {
+      setSignedPeople(budgetProposal.signed_people);
+    }
+  }, [budgetProposal]);
 
   return (
     <>

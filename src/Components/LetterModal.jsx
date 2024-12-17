@@ -16,6 +16,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [signedPeople, setSignedPeople] = useState([]);
 
   if (!letter) return null;
 
@@ -52,6 +53,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             letter={letter}
             signaturePreview={signaturePreview}
             onSignatureChange={onSignatureChange}
+            setSignedPeople={setSignedPeople}
           />
         );
       case 'IMPLEMENTATION_LETTER_OFF_CAMPUS':
@@ -60,6 +62,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             letter={letter}
             signaturePreview={signaturePreview}
             onSignatureChange={onSignatureChange}
+            setSignedPeople={setSignedPeople}
           />
         );
       case 'COMMUNICATION_LETTER':
@@ -69,6 +72,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
               letter={letter}
               signaturePreview={signaturePreview}
               onSignatureChange={onSignatureChange}
+              setSignedPeople={setSignedPeople}
             />
           );
         } else {
@@ -77,6 +81,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
               letter={letter}
               signaturePreview={signaturePreview}
               onSignatureChange={onSignatureChange}
+              setSignedPeople={setSignedPeople}
             />
           );
         }
@@ -86,12 +91,15 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             letter={letter}
             signaturePreview={signaturePreview}
             onSignatureChange={onSignatureChange}
+            setSignedPeople={setSignedPeople}
           />
         );
       default:
         return <div>Unsupported letter type</div>;
     }
   };
+
+  const signedRole = signedPeople.filter(s => s.role === user.role)[0]?.role || "N/A";
 
   return (
     <>
@@ -127,16 +135,14 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
               <button
                 onClick={handleDecline}
                 className="px-6 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
-                disabled={
-                  letter.status === "DECLINED" || letter.status === "COMPLETED" || user.role === "STUDENT_OFFICER"
-                }
+                disabled={signedRole !== "N/A" || letter.status === "DECLINED" || letter.status === "COMPLETED" || user?.role === "STUDENT_OFFICER"}
               >
                 Decline
               </button>
               <button
                 onClick={onApprove}
                 className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                disabled={!signaturePreview || letter.status === "DECLINED" || user.role === "STUDENT_OFFICER"}
+                disabled={signedRole !== "N/A" || letter.status === "DECLINED" || letter.status === "COMPLETED" || user?.role === "STUDENT_OFFICER"}
               >
                 {signaturePreview ? 'Approve with Signature' : 'Please Add Signature to Approve'}
               </button>

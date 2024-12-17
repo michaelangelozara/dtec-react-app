@@ -180,7 +180,7 @@ function OICDashboard() {
       }
     }
     fetchData();
-  }, []);
+  }, [isDetailsOpen]);
 
   useEffect(() => {
     if (!user) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FaUserCircle, FaBell, FaEye } from "react-icons/fa";
 import { Helmet } from "react-helmet";
 import PendingIcon from "../../Images/pending.png";
@@ -105,40 +105,19 @@ function ModeratorTransaction() {
     }
   };
 
-  const filteredTransactions = fields.filter((field) => {
-    // If "SELECT ALL" is chosen for status, show all letters
-    const matchesStatus = selectedStatus === "SELECT ALL"
-      ? true
-      : field.fields && field.fields.status === selectedStatus;
+  const filteredTransactions = useMemo(() => {
+    return fields.filter((field) => {
+      const matchesStatus = selectedStatus === "SELECT ALL"
+        ? true
+        : field.fields && field.fields.status === selectedStatus;
 
-    // If "SELECT ALL" is chosen for letter type, show all letter types
-    const matchesApplicationStatus = selectedLetterType === "SELECT ALL"
-      ? true
-      : field.fields && field.fields.letter_type === selectedLetterType;
+      const matchesApplicationStatus = selectedLetterType === "SELECT ALL"
+        ? true
+        : field.fields && field.fields.letter_type === selectedLetterType;
 
-    // Return true only if both conditions match
-    return matchesStatus && matchesApplicationStatus;
-  });
-
-  // const filteredTransactions = fields.filter((field) => {
-  //   // Check if status matches or "SELECT ALL" is chosen
-  //   const matchesStatus = selectedStatus === "SELECT ALL"
-  //     ? true
-  //     : field.fields && field.fields.status === selectedStatus;
-
-  //   // Check if letter type matches or "SELECT ALL" is chosen
-  //   const matchesApplicationStatus = selectedLetterType === "SELECT ALL"
-  //     ? true
-  //     : field.fields && field.fields.letter_type === selectedLetterType;
-
-  //   // Check if cml matches or "SELECT ALL" is chosen
-  //   const matchesCML = selectedLetterType === "SELECT ALL"
-  //     ? true
-  //     : field.cml === selectedLetterType;
-
-  //   // Return true only if all conditions match
-  //   return matchesStatus && matchesApplicationStatus && matchesCML;
-  // });
+      return matchesStatus && matchesApplicationStatus;
+    });
+  }, [fields, selectedStatus, selectedLetterType]);
 
   const forEvaluationCount = fields.filter(t => t.fields.status === "FOR_EVALUATION").length;
   const approvedCount = fields.filter(t => t.fields.status === "APPROVED").length;
@@ -169,13 +148,13 @@ function ModeratorTransaction() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/generic-letters?s=${50}`);
+        const response = await axios.get(`/generic-letters?s=${entriesPerPage}`);
         setFields(response.data?.data);
       } catch (error) {
       }
     }
     fetchData();
-  }, [selectedStatus]);
+  }, [selectedStatus, isDetailsOpen, entriesPerPage]);
 
   useEffect(() => {
     if (!user) {

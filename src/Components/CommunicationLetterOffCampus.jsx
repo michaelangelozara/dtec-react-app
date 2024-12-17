@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { showModal } from '../states/slices/ModalSlicer';
 import axios from "../api/AxiosConfig";
 
-function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureChange }) {
+function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);
   const [communicationLetter, setCommunicationLetter] = useState(null);
   const { user } = useSelector((state) => state.user);
@@ -36,6 +36,12 @@ function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureCha
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (communicationLetter) {
+      setSignedPeople(communicationLetter.signed_people);
+    }
+  }, [communicationLetter]);
 
   return (
     <>

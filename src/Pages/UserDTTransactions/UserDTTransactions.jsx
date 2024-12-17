@@ -171,7 +171,7 @@ function ModeratorTransaction() {
         const response = await axios.get(`/generic-letters?s=${50}`);
         setFields(response.data?.data);
       } catch (error) {
-        
+
       }
     }
     fetchData();
@@ -186,8 +186,6 @@ function ModeratorTransaction() {
       navigate(navigateRouteByRole(user));
     }
   }, [dispatch, user, status]);
-
-  console.log(filteredTransactions);
 
   return (
     <>

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from "../api/AxiosConfig";
 import { showModal } from '../states/slices/ModalSlicer';
 
-function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
+function ImplementationLetter({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);
   const [implementationLetter, setImplementationLetter] = useState(null);
   const { user } = useSelector((state) => state.user);
@@ -20,7 +20,7 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        if(user.role !== "STUDENT_OFFICER"){
+        if (user.role !== "STUDENT_OFFICER") {
           await axios.post(`/generic-letters/on-click/${letter.id}?type=${letter.type}`);
         }
 
@@ -36,7 +36,13 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
     }
 
     fetchData();
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    if (implementationLetter) {
+      setSignedPeople(implementationLetter.signed_people);
+    }
+  }, [implementationLetter]);
 
   return (
     <>
@@ -174,26 +180,26 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
           <div className="mt-6 text-center">
             <p className="font-semibold">Approved by:</p>
             <div className="mt-4">
-                <label className="block font-semibold mb-2">Attach Signature</label>
-                <input
-                  type="file"
-                  className="border-gray-300 border-2 p-2 rounded-md w-full"
-                  accept="image/*"
-                  onChange={onSignatureChange}
-                  disabled={user.role !== "DSA"}
+              <label className="block font-semibold mb-2">Attach Signature</label>
+              <input
+                type="file"
+                className="border-gray-300 border-2 p-2 rounded-md w-full"
+                accept="image/*"
+                onChange={onSignatureChange}
+                disabled={user.role !== "DSA"}
+              />
+            </div>
+            {signaturePreview || implementationLetter.dsa_signature !== "N/A" && (
+              <div className="mt-4">
+                <p className="font-semibold">Signature Preview:</p>
+                <img
+                  src={signaturePreview}
+                  alt="Signature Preview"
+                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                  style={{ maxHeight: '150px', maxWidth: '300px' }}
                 />
               </div>
-              {signaturePreview || implementationLetter.dsa_signature !== "N/A" && (
-                <div className="mt-4">
-                  <p className="font-semibold">Signature Preview:</p>
-                  <img
-                    src={signaturePreview}
-                    alt="Signature Preview"
-                    className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                    style={{ maxHeight: '150px', maxWidth: '300px' }}
-                  />
-                </div>
-              )}
+            )}
             <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
             <p>Director of Student Affairs</p>
           </div>
