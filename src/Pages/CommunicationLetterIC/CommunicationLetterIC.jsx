@@ -64,10 +64,10 @@ function CommunicationLetter() {
 
       if (response.status === 201) {
         dispatch(showModal({ message: response.data?.message }))
-        resetFields();
         setTimeout(() => {
           navigate("/user/document-tracking");
           dispatch(hideModal());
+          resetFields();
         }, 2000);
       }
     } catch (error) {

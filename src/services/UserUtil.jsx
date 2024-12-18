@@ -1,6 +1,6 @@
 export const adminRole = ["SUPER_ADMIN", "ADMIN"];
 
-export const officeInChargeRole = ["OFFICE_IN_CHARGE", "DSA", "PRESIDENT", "COMMUNITY", "FINANCE"];
+export const officeInChargeRole = ["OFFICE_IN_CHARGE", "DSA", "PRESIDENT", "COMMUNITY", "FINANCE", "OFFICE_HEAD"];
 
 export const personnelRole = ["SUPER_ADMIN", "ADMIN", "PERSONNEL"];
 

@@ -41,6 +41,11 @@ function CommunicationLetter() {
     setLetterContent(e.target.value);
   };
 
+  const resetFields = () => {
+    setSignaturePreview("");
+    setLetterContent("");
+  }
+
   const handleSubmit = async () => {
     try {
       const response = await axios.post("/communication-letters/request-letter?type=OFF_CAMPUS",
@@ -53,10 +58,10 @@ function CommunicationLetter() {
 
       if (response.status === 201) {
         dispatch(showModal({ message: response.data?.message }))
-        resetFields();
         setTimeout(() => {
           navigate("/user/document-tracking");
           dispatch(hideModal());
+          resetFields();
         }, 2000);
       }
     } catch (error) {
