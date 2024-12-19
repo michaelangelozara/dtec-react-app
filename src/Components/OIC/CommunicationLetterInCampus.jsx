@@ -5,15 +5,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from "../../api/AxiosConfig";
 
-function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChange }) {
+function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [implementationLetter, setImplementationLetter] = useState(null);
+  const [communicationLetter, setCommunicationLetter] = useState(null);
 
   const handleCaptureFingerprint = () => {
-    
+
   };
 
   if (!user) {
@@ -31,7 +31,7 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
           );
         }
         const response = await axios.get(`/communication-letters/${letter.id}`);
-        setImplementationLetter(response.data?.data);
+        setCommunicationLetter(response.data?.data);
       } catch (error) {
         if (error.status === 404) {
           dispatch(showModal({ message: error.response?.data?.message }));
@@ -44,6 +44,11 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (communicationLetter) {
+      setSignedPeople(communicationLetter?.signed_people)
+    }
+  }, [communicationLetter]);
 
   return (
     <div className="space-y-4">
@@ -71,9 +76,9 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
       {/* Mayor's Signature (Always shown) */}
       <div className="mt-6 text-center">
         <p className="font-semibold">Prepared by:</p>
-        <img 
+        <img
           src={signature}
-          alt="Mayor's Signature" 
+          alt="Mayor's Signature"
           className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
           style={{ maxHeight: '150px', maxWidth: '300px' }}
         />
@@ -84,9 +89,9 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
       {/* Moderator's Signature (Always shown) */}
       <div className="mt-6 text-center">
         <p className="font-semibold">Noted by:</p>
-        <img 
+        <img
           src={signature}
-          alt="Moderator's Signature" 
+          alt="Moderator's Signature"
           className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
           style={{ maxHeight: '150px', maxWidth: '300px' }}
         />
@@ -98,9 +103,9 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
       <div className="mt-6 text-center">
         <p className="font-semibold">Noted by:</p>
         {signatures.dsa ? (
-          <img 
+          <img
             src={signature}
-            alt="DSA Signature" 
+            alt="DSA Signature"
             className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
             style={{ maxHeight: '150px', maxWidth: '300px' }}
           />
@@ -123,9 +128,9 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
       <div className="mt-6 text-center">
         <p className="font-semibold">Approved by:</p>
         {signatures.president ? (
-          <img 
+          <img
             src={signature}
-            alt="President Signature" 
+            alt="President Signature"
             className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
             style={{ maxHeight: '150px', maxWidth: '300px' }}
           />

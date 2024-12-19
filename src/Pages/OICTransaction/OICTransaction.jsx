@@ -73,10 +73,10 @@ function OICDashboard() {
 
   const normalizedData = letters.map((item) => ({
     id: item.id,
-    cml : item.cml,
+    cml: item.cml,
     createdDate: item.createdDate,
     type: item.type,
-    signed_people : item.signed_people,
+    signed_people: item.signed_people,
     ...item.fields, // Flatten the fields object
   }));
 
@@ -192,8 +192,6 @@ function OICDashboard() {
       navigate(navigateRouteByRole(user));
     }
   }, [dispatch, user, status]);
-
-  console.log(filteredItems)
 
   return (
     <>
@@ -362,7 +360,7 @@ function OICDashboard() {
                           <td className="p-3">{item.requested_by}</td>
                           <td className="p-3">
                             <span className={`${getStatusColor(item.status)} px-2 py-1 rounded-full text-xs`}>
-                            {item.status !== "IN_PROGRESS" ? item.status : item.signed_people?.filter(sp => sp.role === user?.role)[0].status}
+                              {item.status !== "IN_PROGRESS" ? item.status : item.signed_people?.filter(sp => sp.role === user?.role)[0].status}
                             </span>
                           </td>
                           <td className="p-3">{item.reason_of_rejection}</td>

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "../../api/AxiosConfig";
 
-function ImplementationLetterOffCampus({ letter }) {
+function ImplementationLetterOffCampus({ letter, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ function ImplementationLetterOffCampus({ letter }) {
   const [implementationLetter, setImplementationLetter] = useState(null);
 
   const handleCaptureFingerprint = () => {
-    
+
   };
 
   if (!user) {
@@ -43,6 +43,12 @@ function ImplementationLetterOffCampus({ letter }) {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (implementationLetter) {
+      setSignedPeople(implementationLetter?.signed_people)
+    }
+  }, [implementationLetter]);
 
   return (
     <div className="space-y-4">
@@ -123,9 +129,9 @@ function ImplementationLetterOffCampus({ letter }) {
       {/* Mayor's Signature */}
       <div className="mt-6 text-center">
         <p className="font-semibold">Prepared by:</p>
-        <img 
+        <img
           src={signature}
-          alt="Mayor's Signature" 
+          alt="Mayor's Signature"
           className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
           style={{ maxHeight: '150px', maxWidth: '300px' }}
         />
@@ -136,9 +142,9 @@ function ImplementationLetterOffCampus({ letter }) {
       {/* Moderator's Signature */}
       <div className="mt-6 text-center">
         <p className="font-semibold">Noted by:</p>
-        <img 
+        <img
           src={signature}
-          alt="Moderator's Signature" 
+          alt="Moderator's Signature"
           className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
           style={{ maxHeight: '150px', maxWidth: '300px' }}
         />
@@ -150,9 +156,9 @@ function ImplementationLetterOffCampus({ letter }) {
       <div className="mt-6 text-center">
         <p className="font-semibold">Noted by:</p>
         {signatures.dsa ? (
-          <img 
-            src={signature} 
-            alt="DSA Signature" 
+          <img
+            src={signature}
+            alt="DSA Signature"
             className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
             style={{ maxHeight: '150px', maxWidth: '300px' }}
           />
@@ -175,9 +181,9 @@ function ImplementationLetterOffCampus({ letter }) {
       <div className="mt-6 text-center">
         <p className="font-semibold">Approved by:</p>
         {signatures.cdsHead ? (
-          <img 
-            src={signature} 
-            alt="CDSO Head Signature" 
+          <img
+            src={signature}
+            alt="CDSO Head Signature"
             className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
             style={{ maxHeight: '150px', maxWidth: '300px' }}
           />

@@ -99,7 +99,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
     }
   };
 
-  const signedRole = signedPeople.filter(s => s.role === user.role)[0]?.status;
+  const status = signedPeople.filter(s => s.role === user.role)[0]?.status;
 
   return (
     <>
@@ -134,15 +134,15 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
               </button>
               <button
                 onClick={handleDecline}
-                className="px-6 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
-                disabled={signedRole === "EVALUATED" || letter.status === "DECLINED" || letter.status === "COMPLETED" || user?.role === "STUDENT_OFFICER" || user?.role === "MODERATOR"}
+                className={`px-6 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 ${user?.role === "MODERATOR" || user?.role === "STUDENT_OFFICER" ? "hidden" : ""}`}
+                disabled={status === "EVALUATED" || letter.status === "DECLINED" || letter.status === "COMPLETED"}
               >
                 Decline
               </button>
               <button
                 onClick={onApprove}
-                className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                disabled={signedRole === "EVALUATED" || letter.status === "DECLINED" || letter.status === "COMPLETED" || user?.role === "STUDENT_OFFICER"}
+                className={`px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 ${user?.role === "STUDENT_OFFICER" ? "hidden" : ""}`}
+                disabled={status === "EVALUATED" || letter.status === "DECLINED" || letter.status === "COMPLETED"}
               >
                 {signaturePreview ? 'Approve with Signature' : 'Please Add Signature to Approve'}
               </button>

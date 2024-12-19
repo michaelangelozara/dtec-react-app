@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FingerPrintIcon } from '@heroicons/react/24/outline';
 import signature from './try.png';
 import axios from "../../api/AxiosConfig";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
+function ImplementationLetter({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
   const [implementationLetter, setImplementationLetter] = useState(null);
 
   const handleCaptureFingerprint = () => {
-    
+
   };
 
   if (!user) {
@@ -43,6 +43,12 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if(implementationLetter){
+      setSignedPeople(implementationLetter?.signed_people)
+    }
+  }, [implementationLetter]);
 
   return (
     <div className="space-y-4">
@@ -109,9 +115,9 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
       {/* Mayor's Signature (Always shown) */}
       <div className="mt-6 text-center">
         <p className="font-semibold">Prepared by:</p>
-        <img 
+        <img
           src={signature}
-          alt="Mayor's Signature" 
+          alt="Mayor's Signature"
           className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
           style={{ maxHeight: '150px', maxWidth: '300px' }}
         />
@@ -122,9 +128,9 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
       {/* Moderator's Signature (Always shown) */}
       <div className="mt-6 text-center">
         <p className="font-semibold">Noted by:</p>
-        <img 
+        <img
           src={signature}
-          alt="Moderator's Signature" 
+          alt="Moderator's Signature"
           className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
           style={{ maxHeight: '150px', maxWidth: '300px' }}
         />
@@ -136,9 +142,9 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange }) {
       <div className="mt-6 text-center">
         <p className="font-semibold">Approved by:</p>
         {signatures.dsa ? (
-          <img 
+          <img
             src={signature}
-            alt="DSA Signature" 
+            alt="DSA Signature"
             className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
             style={{ maxHeight: '150px', maxWidth: '300px' }}
           />

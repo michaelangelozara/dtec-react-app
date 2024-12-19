@@ -38,7 +38,7 @@ function StatusCard({ count, title, icon, onClick, isActive }) {
 const statusOfLetter = [
   { label: "For Evaluation", value: "FOR_EVALUATION" },
   { label: "In Progress", value: "IN_PROGRESS" },
-  { label: "Approved", value: "APPROVED" },
+  { label: "Approved", value: "COMPLETED" },
   { label: "Declined", value: "DECLINED" }
 ];
 
@@ -120,28 +120,8 @@ function ModeratorTransaction() {
     return matchesStatus && matchesApplicationStatus;
   });
 
-  // const filteredTransactions = fields.filter((field) => {
-  //   // Check if status matches or "SELECT ALL" is chosen
-  //   const matchesStatus = selectedStatus === "SELECT ALL"
-  //     ? true
-  //     : field.fields && field.fields.status === selectedStatus;
-
-  //   // Check if letter type matches or "SELECT ALL" is chosen
-  //   const matchesApplicationStatus = selectedLetterType === "SELECT ALL"
-  //     ? true
-  //     : field.fields && field.fields.letter_type === selectedLetterType;
-
-  //   // Check if cml matches or "SELECT ALL" is chosen
-  //   const matchesCML = selectedLetterType === "SELECT ALL"
-  //     ? true
-  //     : field.cml === selectedLetterType;
-
-  //   // Return true only if all conditions match
-  //   return matchesStatus && matchesApplicationStatus && matchesCML;
-  // });
-
-  const forEvaluationCount = fields.filter(t => t.fields.status === "FOR_EVALUATION").length;
-  const approvedCount = fields.filter(t => t.fields.status === "APPROVED").length;
+  const forEvaluationCount = fields?.filter(t => t.fields.status === "FOR_EVALUATION").length;
+  const approvedCount = fields?.filter(t => t.fields.status === "COMPLETED").length;
 
   const handleCardClick = (status) => {
     setSelectedStatus(status === selectedStatus ? null : status);
@@ -186,7 +166,7 @@ function ModeratorTransaction() {
       navigate(navigateRouteByRole(user));
     }
   }, [dispatch, user, status]);
-
+console.log(filteredTransactions)
   return (
     <>
       {status === "Succeeded" && (
@@ -318,7 +298,7 @@ function ModeratorTransaction() {
                           <td className="p-3">{transaction.fields.requested_by}</td>
                           <td className="p-3">
                             <span className={`${getStatusColor(transaction.fields.status)} px-2 py-1 rounded text-sm`}>
-                              {transaction.fields.status}
+                              {transaction?.fields.status}
                             </span>
                           </td>
                           <td className="p-3">{transaction.fields.last_update ? transaction.fields.last_update : "N/A"}</td>
@@ -342,14 +322,6 @@ function ModeratorTransaction() {
                                 <span>VIEW</span>
                               </button>
                             </>}
-
-                            {/* <button
-                              className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded flex items-center space-x-1"
-                              onClick={() => openModal(transaction)}
-                            >
-                              <FaEye className="text-sm" />
-                              <span>VIEW</span>
-                            </button> */}
                           </td>
                         </tr>
                       ))}

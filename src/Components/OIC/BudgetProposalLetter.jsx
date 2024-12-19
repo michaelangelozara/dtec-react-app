@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from "../../api/AxiosConfig";
 
-function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange }) {
+function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
@@ -43,6 +43,12 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange }) {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+      if(implementationLetter){
+        setSignedPeople(implementationLetter?.signed_people)
+      }
+    }, [implementationLetter]);
 
   return (
     <div className="space-y-4">

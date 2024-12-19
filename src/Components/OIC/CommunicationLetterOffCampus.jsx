@@ -10,6 +10,7 @@ function CommunicationLetterOffCampus({
   letter,
   signaturePreview,
   onSignatureChange,
+  setSignedPeople
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useSelector((state) => state.user);
@@ -18,7 +19,7 @@ function CommunicationLetterOffCampus({
   const [communicationLetter, setCommunicatioLetter] = useState(null);
 
   const handleCaptureFingerprint = () => {
-    
+
   };
 
   if (!user) {
@@ -49,12 +50,18 @@ function CommunicationLetterOffCampus({
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (communicationLetter) {
+      setSignedPeople(communicationLetter?.signed_people)
+    }
+  }, [communicationLetter]);
+
   const dsa = communicationLetter?.signed_people?.filter((sp) => sp.role === "DSA")[0];
   const officeHead = communicationLetter?.signed_people?.filter((sp) => sp.role === "OFFICE_HEAD")[0];
 
   return (
     <>
-      {!isLoading  && communicationLetter && (
+      {!isLoading && communicationLetter && (
         <div className="space-y-4">
           <div>
             <label className="block font-semibold mb-2">DATE:</label>

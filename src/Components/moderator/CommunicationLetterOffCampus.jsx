@@ -106,18 +106,25 @@ function CommunicationLetterOffCampus({
                   onChange={onSignatureChange}
                   disabled={user.role !== "MODERATOR"}
                 />
+                <img
+                  alt="Mayor's Signature"
+                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                  style={{ maxHeight: "150px", maxWidth: "300px" }}
+                  src={signaturePreview}
+                />
               </div>
-              {signaturePreview ||
+              {/* {signaturePreview ||
                 (signedPerson.status === "EVALUATED" && (
                   <div className="mt-4">
                     <p className="font-semibold">Signature Preview:</p>
                     <img
+
                       alt="Mayor's Signature"
                       className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
                       style={{ maxHeight: "150px", maxWidth: "300px" }}
                     />
                   </div>
-                ))}
+                ))} */}
               <input
                 type="text"
                 className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center"
