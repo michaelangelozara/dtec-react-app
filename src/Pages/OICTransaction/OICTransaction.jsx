@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import Banner from "../../Images/banner.svg";
 import PendingIcon from "../../Images/pending.png";
 import ApprovedIcon from "../../Images/approved.png";
-import LetterModal from "../../Components/LetterModal";
+import LetterModal from "../../Components/OIC/LetterModal";
 import EClearanceModal from "../../Components/ClearanceModal";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -76,6 +76,7 @@ function OICDashboard() {
     cml : item.cml,
     createdDate: item.createdDate,
     type: item.type,
+    signed_people : item.signed_people,
     ...item.fields, // Flatten the fields object
   }));
 
@@ -191,6 +192,8 @@ function OICDashboard() {
       navigate(navigateRouteByRole(user));
     }
   }, [dispatch, user, status]);
+
+  console.log(filteredItems)
 
   return (
     <>
@@ -359,7 +362,7 @@ function OICDashboard() {
                           <td className="p-3">{item.requested_by}</td>
                           <td className="p-3">
                             <span className={`${getStatusColor(item.status)} px-2 py-1 rounded-full text-xs`}>
-                              {item.status}
+                            {item.status !== "IN_PROGRESS" ? item.status : item.signed_people?.filter(sp => sp.role === user?.role)[0].status}
                             </span>
                           </td>
                           <td className="p-3">{item.reason_of_rejection}</td>

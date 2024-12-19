@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import ImplementationLetter from './ImplementationLetter(InCampus)';
-import ImplementationLetterOffCampus from './ImplementationLetterOffCampus';
-import CommunicationLetterInCampus from './CommunicationLetterInCampus';
-import CommunicationLetterOffCampus from './CommunicationLetterOffCampus';
-import BudgetProposalLetter from './BudgetProposalLetter';
-import Modal from "../Components/modal/Modal";
-import axios from "../api/AxiosConfig";
-import { showModal } from '../states/slices/ModalSlicer';
+import ImplementationLetter from '../OIC/ImplementationLetter(InCampus)';
+import ImplementationLetterOffCampus from '../OIC/ImplementationLetterOffCampus';
+import CommunicationLetterInCampus from '../OIC/CommunicationLetterInCampus';
+import CommunicationLetterOffCampus from '../OIC/CommunicationLetterOffCampus';
+import BudgetProposalLetter from '../OIC/BudgetProposalLetter';
+import Modal from "../modal/Modal";
+import axios from "../../api/AxiosConfig";
+import { showModal } from '../../states/slices/ModalSlicer';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -135,14 +135,14 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
               <button
                 onClick={handleDecline}
                 className="px-6 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
-                disabled={signedRole !== "N/A" || letter.status === "DECLINED" || letter.status === "COMPLETED" || user?.role === "STUDENT_OFFICER"}
+                disabled={signedRole !== "N/A" || letter.status === "DECLINED" || letter.status === "COMPLETED" || user?.role === "STUDENT_OFFICER" || user?.role === "MODERATOR"}
               >
                 Decline
               </button>
               <button
                 onClick={onApprove}
                 className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                disabled={signedRole !== "N/A" || letter.status === "DECLINED" || letter.status === "COMPLETED" || user?.role === "STUDENT_OFFICER"}
+                disabled={signedRole !== "N/A" || letter.status === "DECLINED" || letter.status === "COMPLETED" || user?.role === "STUDENT_OFFICER" || user?.role === "MODERATOR"}
               >
                 {signaturePreview ? 'Approve with Signature' : 'Please Add Signature to Approve'}
               </button>

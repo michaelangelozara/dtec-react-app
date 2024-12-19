@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import axios from "../api/AxiosConfig";
+import axios from "../../api/AxiosConfig";
+import { showModal } from '../../states/slices/ModalSlicer';
 
 function ImplementationLetterOffCampus({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);

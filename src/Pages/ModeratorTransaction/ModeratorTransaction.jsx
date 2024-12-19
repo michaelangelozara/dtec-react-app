@@ -12,7 +12,7 @@ import Modal from "../../Components/modal/Modal";
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 import axios from "../../api/AxiosConfig";
 
-import LetterModal from "../../Components/LetterModal";
+import LetterModal from "../../Components/moderator/LetterModal";
 import { showModal } from "../../states/slices/ModalSlicer";
 
 function StatusCard({ count, title, icon, onClick, isActive }) {
@@ -38,7 +38,7 @@ function StatusCard({ count, title, icon, onClick, isActive }) {
 const statusOfLetter = [
   { label: "For Evaluation", value: "FOR_EVALUATION" },
   { label: "In Progress", value: "IN_PROGRESS" },
-  { label: "Approved", value: "APPROVED" },
+  { label: "Approved", value: "COMPLETED" },
   { label: "Declined", value: "DECLINED" }
 ];
 
@@ -128,6 +128,7 @@ function ModeratorTransaction() {
   };
 
   const handleModeratorSignature = async () => {
+    alert("asdasdasd");
     try {
 
       const response = await axios.post(`/generic-letters/sign-letter/${selectedLetter.id}?type=${selectedLetter.type}`, {
@@ -296,7 +297,7 @@ function ModeratorTransaction() {
                           <td className="p-3">{transaction.fields.requested_by}</td>
                           <td className="p-3">
                             <span className={`${getStatusColor(transaction.fields.status)} px-2 py-1 rounded text-sm`}>
-                              {transaction.fields.status}
+                              {transaction.fields.status !== "IN_PROGRESS" ? transaction.fields.status : transaction.signed_people?.filter(sp => sp.role === user?.role)[0].status}
                             </span>
                           </td>
                           <td className="p-3">{transaction.fields.last_update ? transaction.fields.last_update : "N/A"}</td>

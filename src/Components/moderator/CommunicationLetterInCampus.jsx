@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { showModal } from '../states/slices/ModalSlicer';
-import axios from "../api/AxiosConfig";
+import { showModal } from '../../states/slices/ModalSlicer';
+import axios from "../../api/AxiosConfig";
 
-function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
+function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);
   const [communicationLetter, setCommunicationLetter] = useState(null);
   const { user } = useSelector((state) => state.user);
@@ -55,8 +55,8 @@ function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureCha
           </div>
 
           <div className="mb-4">
-            <div className="font-bold">REV. FR. DARYLL DHAN L. BILBAO, DCC</div>
-            <div>Office Head, CDSO</div>
+            <div className="font-bold">REV. FR. JESSIE P. PASQUIN, DCC</div>
+            <div>President</div>
             <div>Notre Dame of Tacurong College</div>
             <div>City of Tacurong</div>
           </div>
@@ -91,14 +91,13 @@ function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureCha
                   className="border-gray-300 border-2 p-2 rounded-md w-full"
                   accept="image/*"
                   onChange={onSignatureChange}
-                  disabled={user.role !== "MODERATOR"}
                 />
               </div>
-              {signaturePreview || communicationLetter.moderator_signature && (
+              {signaturePreview && (
                 <div className="mt-4">
                   <p className="font-semibold">Signature Preview:</p>
                   <img
-                    src={signaturePreview || communicationLetter.moderator_signature}
+                    src={signaturePreview}
                     alt="Signature Preview"
                     className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
                     style={{ maxHeight: '150px', maxWidth: '300px' }}
@@ -109,8 +108,6 @@ function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureCha
                 type="text"
                 className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center"
                 placeholder="Name of Club Moderator"
-                disabled
-                defaultValue={communicationLetter.moderator}
               />
               <p className="text-sm mt-2">MODERATOR, CLUB, A.Y. 2024-2025</p>
             </div>
@@ -118,57 +115,14 @@ function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureCha
 
           <div className="mt-6 text-center">
             <p className="font-semibold">Noted by:</p>
-            <div className="mt-4">
-              <label className="block font-semibold mb-2">Attach Signature</label>
-              <input
-                type="file"
-                className="border-gray-300 border-2 p-2 rounded-md w-full"
-                accept="image/*"
-                onChange={onSignatureChange}
-                disabled={user.role !== "DSA"}
-              />
-            </div>
-            {signaturePreview || communicationLetter.dsa_signature !== "N/A" && (
-              <div className="mt-4">
-                <p className="font-semibold">Signature Preview:</p>
-                <img
-                  src={signaturePreview || communicationLetter.dsa_signature}
-                  alt="Signature Preview"
-                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                  style={{ maxHeight: '150px', maxWidth: '300px' }}
-                />
-              </div>
-            )}
             <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
             <p>DIRECTOR OF STUDENT AFFAIRS</p>
           </div>
 
           <div className="mt-6 text-center">
             <p className="font-semibold">Approved by:</p>
-            <div className="mt-4">
-              <label className="block font-semibold mb-2">Attach Signature</label>
-              <input
-                type="file"
-                className="border-gray-300 border-2 p-2 rounded-md w-full"
-                accept="image/*"
-                onChange={onSignatureChange}
-                src={communicationLetter.moderator_signature}
-                disabled={user.role !== "OFFICE_HEAD"}
-              />
-            </div>
-            {signaturePreview || communicationLetter.office_head_signature !== "N/A" && (
-              <div className="mt-4">
-                <p className="font-semibold">Signature Preview:</p>
-                <img
-                  src={signaturePreview}
-                  alt="Signature Preview"
-                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                  style={{ maxHeight: '150px', maxWidth: '300px' }}
-                />
-              </div>
-            )}
-            <p className="mt-2 font-bold">REV. FR. DARYLL DHAN L. BILBAO, DCC</p>
-            <p>Office Head, CDSO</p>
+            <p className="mt-2 font-bold">REV. FR. JESSIE P. PASQUIN, DCC</p>
+            <p>PRESIDENT, NDTC</p>
           </div>
         </div>
       )}
@@ -176,4 +130,4 @@ function CommunicationLetterOffCampus({ letter, signaturePreview, onSignatureCha
   );
 }
 
-export default CommunicationLetterOffCampus;
+export default CommunicationLetterInCampus;

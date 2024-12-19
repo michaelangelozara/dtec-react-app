@@ -12,7 +12,7 @@ import Modal from "../../Components/modal/Modal";
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 import axios from "../../api/AxiosConfig";
 
-import LetterModal from "../../Components/LetterModal";
+import LetterModal from "../../Components/moderator/LetterModal";
 import { showModal } from "../../states/slices/ModalSlicer";
 
 function StatusCard({ count, title, icon, onClick, isActive }) {
@@ -325,13 +325,31 @@ function ModeratorTransaction() {
                           <td className="p-3">{transaction.fields.reason_of_rejection}</td>
                           <td className="p-3">{transaction.fields.current_location}</td>
                           <td className="p-3">
-                            <button
+                            {transaction.fields.status === "COMPLETED" ? <>
+                              <button
+                                className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded flex items-center space-x-1"
+                                onClick={() => openModal(transaction)}
+                              >
+                                <FaEye className="text-sm" />
+                                <span>Print</span>
+                              </button>
+                            </> : <>
+                              <button
+                                className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded flex items-center space-x-1"
+                                onClick={() => openModal(transaction)}
+                              >
+                                <FaEye className="text-sm" />
+                                <span>VIEW</span>
+                              </button>
+                            </>}
+
+                            {/* <button
                               className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded flex items-center space-x-1"
                               onClick={() => openModal(transaction)}
                             >
                               <FaEye className="text-sm" />
                               <span>VIEW</span>
-                            </button>
+                            </button> */}
                           </td>
                         </tr>
                       ))}
