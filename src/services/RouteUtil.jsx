@@ -3,9 +3,7 @@ import { officeInChargeRole, moderatorRole } from "./UserUtil";
 export const navigateRouteByRole = (user) => {
     const role = user?.role;
     if (role === "STUDENT") {
-
-    } else if (role === "PERSONNEL") {
-        return "/user/dashboard";
+        return "/user/e-clearance";
     } else if (role === "STUDENT_OFFICER") {
         return "/user/dashboard";
     } else if (officeInChargeRole.includes(role)) {

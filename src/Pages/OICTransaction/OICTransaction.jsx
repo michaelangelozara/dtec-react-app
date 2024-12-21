@@ -5,7 +5,7 @@ import Banner from "../../Images/banner.svg";
 import PendingIcon from "../../Images/pending.png";
 import ApprovedIcon from "../../Images/approved.png";
 import LetterModal from "../../Components/OIC/LetterModal";
-import EClearanceModal from "../../Components/ClearanceModal";
+import EClearanceModal from "../../Components/EClearanceModal";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { showModal } from "../../states/slices/ModalSlicer";
@@ -14,6 +14,7 @@ import { fetchUser } from "../../states/slices/UserSlicer";
 import Modal from "../../Components/modal/Modal";
 import { officeInChargeRole } from "../../services/UserUtil";
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
+import { navigateRouteByRole } from "../../services/RouteUtil";
 
 const statusesForLetter = [
   { label: "For Evaluation", value: "FOR_EVALUATION" },
@@ -63,6 +64,7 @@ function OICDashboard() {
   const [letters, setLetter] = useState([]);
   const [clearances, setClearances] = useState([]);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [selectedClearance, setSelectedClearance] = useState(null);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -128,10 +130,17 @@ function OICDashboard() {
     }
   };
 
-  const openModal = (letter) => {
+  const openModalForLetter = (letter) => {
     setSelectedLetter(letter);
     setIsDetailsOpen(true);
   };
+
+  const openModalForClearance = (clearance) => {
+    setActiveTab("clearances")
+    setSelectedClearance(clearance);
+    setIsDetailsOpen(true);
+  };
+
 
   const closeModal = () => {
     setIsDetailsOpen(false);
@@ -140,14 +149,24 @@ function OICDashboard() {
 
   const handleApprove = async () => {
     try {
-
-      const response = await axios.post(`/generic-letters/sign-letter/${selectedLetter.id}?type=${selectedLetter.type}`, {
-        "signature": signaturePreview
-      });
+      let response;
+      if (activeTab === "letters") {
+        response = await axios.post(`/generic-letters/sign-letter/${selectedLetter.id}?type=${selectedLetter.type}`, {
+          "signature": signaturePreview
+        });
+      } else {
+        response = await axios.post(`/clearances/sign-clearance/${selectedClearance?.id}`,
+          {
+             "signature" : signaturePreview
+          }
+        );
+      }
+      console.log(response);
       if (response.status === 201) {
         dispatch(showModal({ message: response.data?.message }));
       }
     } catch (error) {
+      console.log(error);
       if (error.status === 403 || error.status === 404) {
         dispatch(showModal({ message: error.response?.data?.message }));
       }
@@ -180,8 +199,25 @@ function OICDashboard() {
       } catch (error) {
       }
     }
-    fetchData();
+
+    if (activeTab === "letters") {
+      fetchData();
+    }
   }, [isDetailsOpen]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`/clearances?n=${entriesPerPage}`);
+        setClearances(response.data?.data);
+      } catch (error) {
+      }
+    }
+
+    if (activeTab !== "letters") {
+      fetchData();
+    }
+  }, [activeTab, entriesPerPage]);
 
   useEffect(() => {
     if (!user) {
@@ -353,29 +389,51 @@ function OICDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {filteredItems.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50">
-                          <td className="p-3">{item.date_requested}</td>
-                          <td className="p-3">{item.cml ? item.name_of_transaction + " (" + item.cml + ")" : item.name_of_transaction}</td>
-                          <td className="p-3">{item.requested_by}</td>
-                          <td className="p-3">
-                            <span className={`${getStatusColor(item.status)} px-2 py-1 rounded-full text-xs`}>
-                              {item.status !== "IN_PROGRESS" ? item.status : item.signed_people?.filter(sp => sp.role === user?.role)[0].status}
-                            </span>
-                          </td>
-                          <td className="p-3">{item.reason_of_rejection}</td>
-                          <td className="p-3">{item.last_update || "N/A"}</td>
-                          <td className="p-3">
-                            <button
-                              className="bg-green-800 text-white text-sm px-4 py-2 rounded hover:bg-green-900"
-                              onClick={() => openModal(item)}
-                            >
-                              <FaEye className="inline mr-1" />
-                              View
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                      {activeTab === "letters" ? <>
+                        {filteredItems.map((item) => (
+                          <tr key={item.id} className="hover:bg-gray-50">
+                            <td className="p-3">{item.date_requested}</td>
+                            <td className="p-3">{item.cml ? item.name_of_transaction + " (" + item.cml + ")" : item.name_of_transaction}</td>
+                            <td className="p-3">{item.requested_by}</td>
+                            <td className="p-3">
+                              <span className={`${getStatusColor(item.status)} px-2 py-1 rounded-full text-xs`}>
+                                {item.status !== "IN_PROGRESS" ? item.status : item.signed_people?.filter(sp => sp.role === user?.role)[0].status}
+                              </span>
+                            </td>
+                            <td className="p-3">{item.reason_of_rejection}</td>
+                            <td className="p-3">{item.last_update || "N/A"}</td>
+                            <td className="p-3">
+                              <button
+                                className="bg-green-800 text-white text-sm px-4 py-2 rounded hover:bg-green-900"
+                                onClick={() => openModalForLetter(item)}
+                              >
+                                <FaEye className="inline mr-1" />
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </> : <>
+                        {clearances.map((item, index) => (
+                          <tr key={index} className="hover:bg-gray-50">
+                            <td className="p-3">{item.created_at}</td>
+                            <td className="p-3">{item.student.first_name} {item.student.middle_name[0]}. {item.student.lastname}</td>
+                            <td className="p-3">{item.student.course.short_name} - {item.student.year_level}</td>
+                            <td className="p-3">{item.clearance_signoffs?.filter((s) => s.role === user?.role)[0] ? "COMPLETED"  : "PENDING"}</td>
+                            <td className="p-3">N/A</td>
+                            <td className="p-3">{item.status === "COMPLETED" ? item.last_modified : "N/A"}</td>
+                            <td className="p-3">
+                              <button
+                                className="bg-green-800 text-white text-sm px-4 py-2 rounded hover:bg-green-900"
+                                onClick={() => openModalForClearance(item)}
+                              >
+                                <FaEye className="inline mr-1" />
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </>}
                     </tbody>
                   </table>
                 </div>
@@ -436,11 +494,11 @@ function OICDashboard() {
                 onApprove={handleApprove}
               />
             )}
-            {showModalForClearance && activeTab === 'clearances' && (
+            {isDetailsOpen && activeTab === 'clearances' && (
               <EClearanceModal
                 show={showModalForClearance}
-                onClose={() => setShowModalForClearnace(false)}
-                clearance={selectedItem}
+                onClose={closeModal}
+                clearance={selectedClearance}
                 onSignatureChange={handleSignatureChange}
                 signaturePreview={signaturePreview}
                 onApprove={handleApprove}

@@ -166,7 +166,7 @@ function ModeratorTransaction() {
       navigate(navigateRouteByRole(user));
     }
   }, [dispatch, user, status]);
-console.log(filteredTransactions)
+
   return (
     <>
       {status === "Succeeded" && (

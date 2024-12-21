@@ -23,9 +23,38 @@ const roles = [
   { label: "Community", value: "COMMUNITY" },
   { label: "President", value: "PRESIDENT" },
   { label: "Office Head", value: "OFFICE_HEAD" },
+  { label: "Guidance", value: "GUIDANCE" },
+  { label: "DEAN", value: "DEAN" },
+  { label: "Cashier", value: "CASHIER" },
+  { label: "Librarian", value: "LIBRARIAN" },
+  { label: "School Nurse", value: "SCHOOL_NURSE" },
+  { label: "Program Head", value: "PROGRAM_HEAD" },
+  { label: "Registrar", value: "REGISTRAR" },
 ];
 
-const rolesNoNeedOrganization = ["ADMIN", "OFFICE_IN_CHARGE", "DSA", "FINANCE", "COMMUNITY", "PRESIDENT", "OFFICE_HEAD", "PERSONNEL"];
+const rolesNoNeedOrganization = [
+  "ADMIN",
+  "OFFICE_IN_CHARGE",
+  "DSA",
+  "FINANCE",
+  "COMMUNITY",
+  "PRESIDENT",
+  "OFFICE_HEAD",
+  "PERSONNEL",
+  "GUIDANCE",
+  "CASHIER",
+  "LIBRARIAN",
+  "SCHOOL_NURSE",
+  "REGISTRAR"
+];
+
+const roleOnlyNeedIsDepartment = [
+  "DEAN"
+];
+
+const roleOnlyNeedIsCourse = [
+  "PROGRAM_HEAD"
+]
 
 const clubRoles = [
   { label: "Member", value: "MEMBER" },
@@ -466,7 +495,7 @@ function UserList() {
                       required
                     />
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" ? "hidden" : ""}`}>
+                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsCourse.includes(newUser?.role) ? "hidden" : ""}`}>
                     <label className="block text-sm font-medium mb-1">Department *</label>
                     <select
                       onChange={(e) => departmentHandler(e.target.value)}
@@ -480,7 +509,7 @@ function UserList() {
                       ))}
                     </select>
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" ? "hidden" : ""}`}>
+                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) ? "hidden" : ""}`}>
                     <label className="block text-sm font-medium mb-1">Course *</label>
                     <select
                       onChange={(e) =>
@@ -489,14 +518,21 @@ function UserList() {
                       className="w-full border p-2 rounded"
                     >
                       <option value="">Select Course</option>
-                      {filteredCourses.map((course) => (
-                        <option key={course.id} value={course.id}>
-                          {course.name}
-                        </option>
-                      ))}
+                      {newUser?.role !== "PROGRAM_HEAD" ? <>
+                        {filteredCourses.map((course) => (
+                          <option key={course.id} value={course.id}>
+                            {course.name}
+                          </option>
+                        ))}</> : <>
+                        {courses.map((course) => (
+                          <option key={course.id} value={course.id}>
+                            {course.name}
+                          </option>
+                        ))}
+                      </>}
                     </select>
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" ? "hidden" : ""}`}>
+                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) || roleOnlyNeedIsCourse.includes(newUser?.role) ? "hidden" : ""}`}>
                     <label className="block text-sm font-medium mb-1">Year Level</label>
                     <select
                       value={newUser.year_level}
@@ -513,7 +549,7 @@ function UserList() {
                       ))}
                     </select>
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" ? "hidden" : ""}`}>
+                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) || roleOnlyNeedIsCourse.includes(newUser?.role) ? "hidden" : ""}`}>
                     <label className="block text-sm font-medium mb-1">Department Club</label>
                     <div className="flex gap-2">
                       <select
@@ -544,7 +580,7 @@ function UserList() {
                       </select>
                     </div>
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" ? "hidden" : ""}`}>
+                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) || roleOnlyNeedIsCourse.includes(newUser?.role) ? "hidden" : ""}`}>
                     <label className="block text-sm font-medium mb-1">Social Club</label>
                     <div className="flex gap-2">
                       <select

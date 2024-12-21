@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { FaUserCircle, FaBell } from 'react-icons/fa';
 import Banner from '../../Images/banner.svg';
 import SignatureCanvas from 'react-signature-canvas';
+import PrimaryNavBar from '../../Components/NavBar/PrimaryNavBar';
 
 function ClearanceRequestForm() {
   const [signatures, setSignatures] = useState({
@@ -90,13 +91,7 @@ function ClearanceRequestForm() {
 
       <div className="min-h-screen bg-gray-100">
         {/* Header */}
-        <div className="bg-green-800 py-4 px-6 flex justify-between items-center">
-          <img src={Banner} alt="DTEC Logo" className="h-16" />
-          <div className="flex items-center space-x-4">
-            <FaBell className="text-white text-xl" />
-            <FaUserCircle className="text-white text-2xl" />
-          </div>
-        </div>
+        <PrimaryNavBar />
 
         {/* Form Title */}
         <div className="p-8">
@@ -116,8 +111,8 @@ function ClearanceRequestForm() {
           <h2 className="text-center text-2xl font-bold mb-8">Certificate of Clearance</h2>
 
           <p className="text-center mb-6">
-            This is to certify that <strong>TORRES, Christian James V.</strong>, a <strong>4th-year</strong> BSCS student, 
-            has complied with all the requirements and is cleared of all responsibilities under my charge 
+            This is to certify that <strong>TORRES, Christian James V.</strong>, a <strong>4th-year</strong> BSCS student,
+            has complied with all the requirements and is cleared of all responsibilities under my charge
             this First Semester, A.Y. 2024 - 2025:
           </p>
 
@@ -236,14 +231,14 @@ function ClearanceRequestForm() {
           </div>
         )}
 
-         {/* Modal for Terms of Use and Legal Warning */}
-         {isModalOpen && (
+        {/* Modal for Terms of Use and Legal Warning */}
+        {isModalOpen && (
           <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
             <div className="bg-white p-8 rounded-lg max-w-md mx-auto text-center">
               <h2 className="text-4xl font-bold mb-8">Terms of Use and Legal Warning</h2>
               <p className="mb-4">
                 By accessing this document, you acknowledge and agree that any attempt to <strong>COPY, TAKE SCREENSHOTS,
-                or OTHERWISE REPRODUCE SIGNATURES</strong> in this form is strictly prohibited and illegal.
+                  or OTHERWISE REPRODUCE SIGNATURES</strong> in this form is strictly prohibited and illegal.
                 Unauthorized reproduction or use of these signatures will result in severe disciplinary action,
                 including but not limited to <strong>EXPULSION</strong>  from the institution.
               </p>
@@ -255,11 +250,11 @@ function ClearanceRequestForm() {
                 className="bg-green-800 text-white py-2 px-4 rounded"
                 onClick={closeModal}
               >
-                  I Agree
-                </button>
-              </div>
+                I Agree
+              </button>
             </div>
-         
+          </div>
+
         )}
       </div>
     </>
