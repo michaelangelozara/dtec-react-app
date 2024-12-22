@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { FaUserCircle, FaBell } from 'react-icons/fa';
 import Banner from '../../Images/banner.svg';
@@ -6,9 +6,15 @@ import newTransactionIcon from '../../Images/nt.svg';
 import myTransactionIcon from '../../Images/mt.svg';
 import PrimaryNavBar from '../../Components/NavBar/PrimaryNavBar';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { navigateRouteByRole } from '../../services/RouteUtil';
+import { studentAndPersonnelRole } from '../../services/UserUtil';
+import { fetchUser } from '../../states/slices/UserSlicer';
 
 function EClearance() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const {user, status} = useSelector((state) => state.user);
 
   const navigateLogin = () => {
     navigate('/user/clearance-form');
@@ -17,6 +23,16 @@ function EClearance() {
   const navigateMyTransactions = () => {
     navigate('/user/my-transactions');
   }
+
+  useEffect(() => {
+    if (!user) {
+      dispatch(fetchUser());
+    }
+
+    if (user && !studentAndPersonnelRole.includes(user.role)) {
+      navigate(navigateRouteByRole(user));
+    }
+  }, [dispatch, user, status]);
 
   return (
     <>
@@ -34,7 +50,7 @@ function EClearance() {
           <div className="flex justify-between ">
 
             <div className='flex flex-col'>
-              <h1 className="text-3xl font-bold">Welcome, Xtian!</h1>
+              <h1 className="text-3xl font-bold">Welcome, {user?.middle_name ? user?.first_name + " " + user?.middle_name[0] + ". " + user?.lastname : user?.first_name + " "  + user?.lastname}!</h1>
               <p className="text-sm text-gray-600">Select your Transaction</p>
             </div>
             <div className='left-96'><h2 className="text-3xl font-bold mb-8 ">E-Clearance</h2></div>

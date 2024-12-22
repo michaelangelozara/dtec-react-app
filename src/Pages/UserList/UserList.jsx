@@ -17,7 +17,6 @@ const roles = [
   { label: "Admin", value: "ADMIN" },
   { label: "Personnel", value: "PERSONNEL" },
   { label: "Moderator", value: "MODERATOR" },
-  { label: "Office In-Charge", value: "OFFICE_IN_CHARGE" },
   { label: "DSA", value: "DSA" },
   { label: "Finance", value: "FINANCE" },
   { label: "Community", value: "COMMUNITY" },
@@ -30,6 +29,19 @@ const roles = [
   { label: "School Nurse", value: "SCHOOL_NURSE" },
   { label: "Program Head", value: "PROGRAM_HEAD" },
   { label: "Registrar", value: "REGISTRAR" },
+
+  { label: "ACCOUNTING CLERK", value: "ACCOUNTING_CLERK" },
+  { label: "PROPERTY CUSTODIAN", value: "CUSTODIAN" },
+  { label: "VPAF", value: "VPAF" },
+  { label: "VPA", value: "VPA" },
+  { label: "Multimedia", value: "MULTIMEDIA" },
+
+  { label: "Science Lab", value: "SCIENCE_LAB" },
+  { label: "Computer Lab", value: "COMPUTER_SCIENCE_LAB" },
+  { label: "Electronics Lab", value: "ELECTRONICS_LAB" },
+  { label: "Criminology Lab", value: "CRIM_LAB" },
+  { label: "HRM Lab", value: "HRM_LAB" },
+  { label: "Nursing Lab", value: "NURSING_LAB" },
 ];
 
 const rolesNoNeedOrganization = [
@@ -45,7 +57,18 @@ const rolesNoNeedOrganization = [
   "CASHIER",
   "LIBRARIAN",
   "SCHOOL_NURSE",
-  "REGISTRAR"
+  "REGISTRAR",
+  "SCIENCE_LAB",
+  "COMPUTER_SCIENCE_LAB",
+  "ELECTRONICS_LAB",
+  "CRIM_LAB",
+  "HRM_LAB",
+  "NURSING_LAB",
+  "ACCOUNTING_CLERK",
+  "CUSTODIAN",
+  "VPAF",
+  "VPA",
+  "MULTIMEDIA"
 ];
 
 const roleOnlyNeedIsDepartment = [

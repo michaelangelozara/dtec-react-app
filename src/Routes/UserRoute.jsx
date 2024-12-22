@@ -12,6 +12,7 @@ import CLOC from "../Pages/CommunicationLetterOC/CommunicationLetterOC";
 import BudgetProposalLetter from "../Pages/BudgetProposal/BudgetProposalLetter";
 import ModeratorDashboard from "../Pages/ModeratorDashboard/ModeratorDashboard";
 import ModeratorTransaction from "../Pages/ModeratorTransaction/ModeratorTransaction";
+import PersonnelClearanceForm from "../Pages/Personnel/PersonnelClearanceForm";
 
 export const userRoutes = [
   {
@@ -69,5 +70,9 @@ export const userRoutes = [
   {
     path: "/user/moderator-transaction",
     element: <ModeratorTransaction />
+  },
+  {
+    path: "/user/personnel-clearance",
+    element: <PersonnelClearanceForm />
   }
 ];

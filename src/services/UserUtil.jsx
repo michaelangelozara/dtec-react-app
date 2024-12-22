@@ -13,8 +13,7 @@ export const officeInChargeRole = [
     "LIBRARIAN",
     "SCHOOL_NURSE",
     "PROGRAM_HEAD",
-    "REGISTRAR",
-    "DSA"
+    "REGISTRAR"
 ];
 
 export const personnelRole = ["SUPER_ADMIN", "ADMIN", "PERSONNEL"];
@@ -23,4 +22,4 @@ export const moderatorRole = ["MODERATOR", "LIBRARIAN"];
 
 export const studentOfficerRole = ["SUPER_ADMIN", "ADMIN", "PERSONNEL", "STUDENT_OFFICER"];
 
-export const studentRole = ["STUDENT"];
+export const studentAndPersonnelRole = ["STUDENT", "STUDENT_OFFICER", "PERSONNEL", "MODERATOR"];

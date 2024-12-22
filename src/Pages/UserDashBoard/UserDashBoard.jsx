@@ -8,7 +8,7 @@ import EC from '../../Images/EC.svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from "../../states/slices/UserSlicer";
 import { navigateRouteByRole } from '../../services/RouteUtil';
-import { studentRole } from "../../services/UserUtil"
+import { studentAndPersonnelRole } from "../../services/UserUtil"
 import PrimaryNavBar from '../../Components/NavBar/PrimaryNavBar';
 
 function Dashboard() {
@@ -22,7 +22,7 @@ function Dashboard() {
       dispatch(fetchUser())
     }
 
-    if (user && !studentRole.includes(user.role)) {
+    if (user && !studentAndPersonnelRole.includes(user.role)) {
       navigate(navigateRouteByRole(user));
     }
   }, [dispatch, user, status]);

@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { FaUserCircle, FaBell } from 'react-icons/fa';
-import Banner from '../../Images/banner.svg';
 import PrimaryNavBar from '../../Components/NavBar/PrimaryNavBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { navigateRouteByRole } from '../../services/RouteUtil';
 import { fetchUser } from '../../states/slices/UserSlicer';
-import { studentRole } from '../../services/UserUtil';
+import { studentAndPersonnelRole } from '../../services/UserUtil';
 import axios from "../../api/AxiosConfig";
 
 function StatusCard({ count, title, icon, onClick, isActive }) {
@@ -55,8 +53,7 @@ function StudentClearanceTracking() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("/clearances/students/new-clearance");
-        console.log(response.data?.data);
+        const response = await axios.get("/clearances/new-clearance");
         setClearance(response.data?.data);
       } catch (error) {
       }
@@ -70,7 +67,7 @@ function StudentClearanceTracking() {
       dispatch(fetchUser());
     }
 
-    if (user && !studentRole.includes(user.role)) {
+    if (user && !studentAndPersonnelRole.includes(user.role)) {
       navigate(navigateRouteByRole(user));
     }
   }, [dispatch, user, status]);
@@ -86,7 +83,7 @@ function StudentClearanceTracking() {
           <PrimaryNavBar />
 
           <div className="py-6 px-10">
-            <h1 className="text-3xl font-bold text-gray-800">Welcome, Student!</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Welcome, {user?.first_name} {user?.lastname}!</h1>
             <p className="mt-2 text-gray-600">Clearance Status Tracking</p>
             <hr className="mt-4 border-gray-300" />
           </div>
@@ -112,12 +109,12 @@ function StudentClearanceTracking() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {Array.isArray(clearance?.clearance_signoffs) && clearance?.clearance_signoffs?.map((signoff) => (
+                    {Array.isArray(clearance?.clearance_signoffs) && clearance?.is_submitted && clearance?.clearance_signoffs?.map((signoff) => (
                       <tr key={signoff.id} className="hover:bg-gray-50">
-                        <td className="p-3">{signoff.is_completed ? signoff.last_modified : "N/A"}</td>
+                        <td className="p-3">{clearance?.date_of_student_signature}</td>
                         <td className="p-3">{signoff.role}</td>
                         <td className="p-3">{signoff.office_in_charge}</td>
-                        <td className="p-3">{signoff.is_completed ? signoff.last_modified : "N/A"}</td>
+                        <td className="p-3">{signoff.status === "COMPLETED" ? signoff.last_modified : "N/A"}</td>
                         <td className="p-3">{signoff.note ? signoff.note : "N/A"}</td>
                         <td className="p-3">
                           <span className={`${getStatusColor(signoff.status)} px-2 py-1 rounded text-sm`}>

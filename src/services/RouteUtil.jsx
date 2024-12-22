@@ -2,7 +2,7 @@ import { officeInChargeRole, moderatorRole } from "./UserUtil";
 
 export const navigateRouteByRole = (user) => {
     const role = user?.role;
-    if (role === "STUDENT") {
+    if (role === "STUDENT" || role === "PERSONNEL") {
         return "/user/e-clearance";
     } else if (role === "STUDENT_OFFICER") {
         return "/user/dashboard";

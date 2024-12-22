@@ -157,16 +157,14 @@ function OICDashboard() {
       } else {
         response = await axios.post(`/clearances/sign-clearance/${selectedClearance?.id}`,
           {
-             "signature" : signaturePreview
+            "signature": signaturePreview
           }
         );
       }
-      console.log(response);
       if (response.status === 201) {
         dispatch(showModal({ message: response.data?.message }));
       }
     } catch (error) {
-      console.log(error);
       if (error.status === 403 || error.status === 404) {
         dispatch(showModal({ message: error.response?.data?.message }));
       }
@@ -208,7 +206,7 @@ function OICDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/clearances?n=${entriesPerPage}`);
+        const response = await axios.get(`/clearances`);
         setClearances(response.data?.data);
       } catch (error) {
       }
@@ -368,6 +366,7 @@ function OICDashboard() {
                     <thead>
                       <tr className="bg-gray-50 border-b">
                         <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Date Requested</th>
+                        <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Type Of Clearance</th>
                         {activeTab === 'letters' ? (
                           <>
                             <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Name of Transaction</th>
@@ -416,10 +415,11 @@ function OICDashboard() {
                       </> : <>
                         {clearances.map((item, index) => (
                           <tr key={index} className="hover:bg-gray-50">
-                            <td className="p-3">{item.created_at}</td>
-                            <td className="p-3">{item.student.first_name} {item.student.middle_name[0]}. {item.student.lastname}</td>
-                            <td className="p-3">{item.student.course.short_name} - {item.student.year_level}</td>
-                            <td className="p-3">{item.clearance_signoffs?.filter((s) => s.role === user?.role)[0] ? "COMPLETED"  : "PENDING"}</td>
+                            <td className="p-3">{item.date_of_student_signature}</td>
+                            <td className="p-3">{item.type}</td>
+                            <td className="p-3">{item.user?.first_name} {item.user?.middle_name[0]}. {item.user?.lastname}</td>
+                            <td className="p-3">{item.user?.course?.short_name} - {item.user?.year_level}</td>
+                            <td className="p-3">{item.clearance_signoffs?.filter((s) => s.role === user?.role)[0]?.status}</td>
                             <td className="p-3">N/A</td>
                             <td className="p-3">{item.status === "COMPLETED" ? item.last_modified : "N/A"}</td>
                             <td className="p-3">
