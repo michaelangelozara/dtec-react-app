@@ -13,7 +13,18 @@ export const officeInChargeRole = [
     "LIBRARIAN",
     "SCHOOL_NURSE",
     "PROGRAM_HEAD",
-    "REGISTRAR"
+    "REGISTRAR",
+    "SCIENCE_LAB",
+    "COMPUTER_SCIENCE_LAB",
+    "ELECTRONICS_LAB",
+    "CRIM_LAB",
+    "HRM_LAB",
+    "NURSING_LAB",
+    "ACCOUNTING_CLERK",
+    "CUSTODIAN",
+    "VPAF",
+    "VPA",
+    "MULTIMEDIA"
 ];
 
 export const personnelRole = ["SUPER_ADMIN", "ADMIN", "PERSONNEL"];

@@ -65,10 +65,17 @@ function OICDashboard() {
   const [clearances, setClearances] = useState([]);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedClearance, setSelectedClearance] = useState(null);
+  const [isMounted, setIsMounted] = useState(false);
+  const [clearanceType, setClearanceType] = useState("SELECT ALL");
+  const [clearanceStatus, setClearanceStatus] = useState("SELECT ALL");
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, status } = useSelector((state) => state.user);
+
+  const toggle = () => {
+    setIsMounted(v => !v);
+  }
 
   // Get current data based on active tab
   const currentData = activeTab === 'letters' ? letters : clearances;
@@ -83,7 +90,7 @@ function OICDashboard() {
   }));
 
   // Memoized filtered items
-  const filteredItems = useMemo(() => {
+  const filteredLetter = useMemo(() => {
     return normalizedData.filter((item) => {
       const matchesStatus = selectedStatus ? item.status === selectedStatus : true;
       const matchesApplicationStatus = selectedApplicationStatus === "SELECT ALL" ? true :
@@ -91,13 +98,21 @@ function OICDashboard() {
 
       return matchesStatus && matchesApplicationStatus;
     });
-  }, [normalizedData, selectedStatus, searchTerm, selectedApplicationStatus]);
+  }, [normalizedData, selectedStatus, selectedApplicationStatus]);
+
+  const filteredClearance = useMemo(() => {
+    return clearances?.filter((item) => {
+      const matchesStatus = clearanceStatus === "SELECT ALL" ? true : item?.clearance_signoffs?.filter((cs) => cs.role === user?.role)[0]?.status === clearanceStatus;
+      const matchesType = clearanceType === "SELECT ALL" ? true : item.type === clearanceType;
+      return matchesStatus && matchesType;
+    });
+  }, [clearanceStatus, clearanceType, clearances, user]);
 
   // Pagination calculations
   const indexOfLastItem = currentPage * entriesPerPage;
   const indexOfFirstItem = indexOfLastItem - entriesPerPage;
-  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredItems.length / entriesPerPage);
+  const currentItems = filteredLetter.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredLetter.length / entriesPerPage);
 
   // Counts for status cards
   const pendingCount = currentData.filter(item =>
@@ -139,6 +154,7 @@ function OICDashboard() {
     setActiveTab("clearances")
     setSelectedClearance(clearance);
     setIsDetailsOpen(true);
+    toggle();
   };
 
 
@@ -163,6 +179,7 @@ function OICDashboard() {
       }
       if (response.status === 201) {
         dispatch(showModal({ message: response.data?.message }));
+        toggle();
       }
     } catch (error) {
       if (error.status === 403 || error.status === 404) {
@@ -215,7 +232,7 @@ function OICDashboard() {
     if (activeTab !== "letters") {
       fetchData();
     }
-  }, [activeTab, entriesPerPage]);
+  }, [activeTab, entriesPerPage, isMounted]);
 
   useEffect(() => {
     if (!user) {
@@ -286,36 +303,74 @@ function OICDashboard() {
                 />
               </div>
 
-              <div className="flex space-x-4">
-                <div className="relative">
-                  <label className="block text-xs text-gray-500 mb-1">Application Status</label>
-                  <select
-                    className="appearance-none bg-white border border-gray-300 rounded-md py-2 px-4 pr-8 w-48 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    value={selectedApplicationStatus}
-                    onChange={(e) => {
-                      setSelectedApplicationStatus(e.target.value);
-                      setSelectedStatus(null);
-                      setCurrentPage(1);
-                    }}
-                  >
-                    <option>SELECT ALL</option>
-                    {activeTab === 'letters' ? (
-                      <>
-                        {statusesForLetter.map((status, index) => (
-                          <option key={index} value={status.value}>{status.label}</option>
-                        ))}
+              {activeTab === "letters" && (
+                <div className="flex space-x-4">
+                  <div className="relative">
+                    <label className="block text-xs text-gray-500 mb-1">Application Status</label>
+                    <select
+                      className="appearance-none bg-white border border-gray-300 rounded-md py-2 px-4 pr-8 w-48 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      value={selectedApplicationStatus}
+                      onChange={(e) => {
+                        setSelectedApplicationStatus(e.target.value);
+                        setSelectedStatus(null);
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <option>SELECT ALL</option>
+                      {activeTab === 'letters' ? (
+                        <>
+                          {statusesForLetter.map((status, index) => (
+                            <option key={index} value={status.value}>{status.label}</option>
+                          ))}
 
-                      </>
-                    ) : (
-                      <>
-                        {statusesForClearance.map((status, index) => (
-                          <option key={index} value={status.value}>{status.label}</option>
-                        ))}
-                      </>
-                    )}
-                  </select>
+                        </>
+                      ) : (
+                        <>
+                          {statusesForClearance.map((status, index) => (
+                            <option key={index} value={status.value}>{status.label}</option>
+                          ))}
+                        </>
+                      )}
+                    </select>
+                  </div>
                 </div>
-              </div>
+              )}
+              {activeTab === "clearances" && (
+                <>
+                  <div className="flex space-x-4">
+                    <div className="relative">
+                      <label className="block text-xs text-gray-500 mb-1">Clearance Status</label>
+                      <select
+                        className="appearance-none bg-white border border-gray-300 rounded-md py-2 px-4 pr-8 w-48 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        value={clearanceStatus}
+                        onChange={(e) => setClearanceStatus(e.target.value)}
+
+                      >
+                        <option>SELECT ALL</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="COMPLETED">Completed</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex space-x-4">
+                    <div className="relative">
+                      <label className="block text-xs text-gray-500 mb-1">Clearance Type</label>
+                      <select
+                        className="appearance-none bg-white border border-gray-300 rounded-md py-2 px-4 pr-8 w-48 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        value={clearanceType}
+                        onChange={(e) => {
+                          setClearanceType(e.target.value);
+                        }}
+                      >
+                        <option value="SELECT ALL">SELECT ALL</option>
+                        <option value="STUDENT_CLEARANCE">Student Clearance</option>
+                        <option value="PERSONNEL_CLEARANCE">Personnel Clearance</option>
+                      </select>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Table Section */}
@@ -375,7 +430,7 @@ function OICDashboard() {
                           </>
                         ) : (
                           <>
-                            <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Student Name</th>
+                            <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                             <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Course & Year</th>
                             <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                           </>
@@ -389,7 +444,7 @@ function OICDashboard() {
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {activeTab === "letters" ? <>
-                        {filteredItems.map((item) => (
+                        {filteredLetter.map((item) => (
                           <tr key={item.id} className="hover:bg-gray-50">
                             <td className="p-3">{item.date_requested}</td>
                             <td className="p-3">{item.cml ? item.name_of_transaction + " (" + item.cml + ")" : item.name_of_transaction}</td>
@@ -413,12 +468,12 @@ function OICDashboard() {
                           </tr>
                         ))}
                       </> : <>
-                        {clearances.map((item, index) => (
+                        {filteredClearance.map((item, index) => (
                           <tr key={index} className="hover:bg-gray-50">
                             <td className="p-3">{item.date_of_student_signature}</td>
                             <td className="p-3">{item.type}</td>
                             <td className="p-3">{item.user?.first_name} {item.user?.middle_name[0]}. {item.user?.lastname}</td>
-                            <td className="p-3">{item.user?.course?.short_name} - {item.user?.year_level}</td>
+                            <td className="p-3">{item.type === "STUDENT_CLEARANCE" ? item.user?.course?.short_name + " - " + item.user?.year_level : "N/A"}</td>
                             <td className="p-3">{item.clearance_signoffs?.filter((s) => s.role === user?.role)[0]?.status}</td>
                             <td className="p-3">N/A</td>
                             <td className="p-3">{item.status === "COMPLETED" ? item.last_modified : "N/A"}</td>
@@ -442,8 +497,8 @@ function OICDashboard() {
                 <div className="bg-white px-4 py-3 border-t border-gray-200">
                   <div className="flex justify-between items-center">
                     <div className="text-sm text-gray-600">
-                      Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredItems.length)} of{" "}
-                      {filteredItems.length} entries
+                      Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredLetter.length)} of{" "}
+                      {filteredLetter.length} entries
                     </div>
                     <div className="flex space-x-2">
                       <button
@@ -502,6 +557,7 @@ function OICDashboard() {
                 onSignatureChange={handleSignatureChange}
                 signaturePreview={signaturePreview}
                 onApprove={handleApprove}
+                toggle={toggle}
               />
             )}
           </div>

@@ -70,7 +70,7 @@ function ClearanceRequestForm() {
   ];
 
   const laboratoryFields = [
-    { label: 'SCIENCE LAB (IF APPLICABLE)', key: 'SCIENCE_LAB' },
+    { label: 'SCIENCE LAB (IF APPLICABLE)', key: 'NURSING_LAB' },
     { label: 'COMPUTER SCIENCE LAB', key: 'COMPUTER_SCIENCE_LAB' },
     { label: 'ELECTRONICS & CIRCUITS LAB (IF APPLICABLE)', key: 'ELECTRONICS_LAB' },
   ];
@@ -102,6 +102,9 @@ function ClearanceRequestForm() {
 
         if (response.status === 200 || response.status === 201) {
           dispatch(showModal({ message: response.data?.data }));
+          setTimeout(() => {
+            navigate("/user/e-clearance");
+          }, 2000);
         }
       } catch (error) {
       } finally {
@@ -116,6 +119,7 @@ function ClearanceRequestForm() {
       try {
         const response = await axios.get("/clearances/new-clearance");
         setClearance(response.data?.data);
+        console.log(response.data?.data);
       } catch (error) {
       }
     }
@@ -218,19 +222,19 @@ function ClearanceRequestForm() {
                       <div key={key} className="flex flex-col">
                         <div className="flex justify-between items-center">
                           <span className="font-bold">{label}:</span>
-                          <span className={`ml-2 ${signatures[key] ? 'text-green-600' : 'text-red-600'}`}>
-                            {signatures[key] ? 'Signed' : 'Pending'}
+                          <span className={`ml-2 ${clearance?.clearance_signoffs?.filter((cs) => cs.role === key)[0]?.status === "COMPLETED" ? `text-green-600` : `text-red-600`}`}>
+                          {clearance?.clearance_signoffs?.filter((cs) => cs.role === key)[0]?.status}
                           </span>
                         </div>
                         <div className="mt-2">
                           {/* Signature Preview */}
-                          {signatures[key] ? (
+                          {clearance?.clearance_signoffs?.filter((cs) => cs.role === key)[0]?.status === "COMPLETED" ? (
                             <div className="border border-gray-400 p-2 rounded-md text-center">
-                              <img src={signatures[key]} alt="Signature" className="h-10 mx-auto" />
+                              <img src={clearance?.clearance_signoffs?.filter((cs) => cs.role === key)[0]?.signature} alt="Signature" className="h-10 mx-auto" />
                             </div>
                           ) : (
                             <div className="border border-gray-400 p-2 rounded-md text-center text-gray-500">
-                              No signature yet (Pending)
+                              No signature yet ({clearance?.clearance_signoffs?.filter((cs) => cs.role === key)[0]?.status === "COMPLETED" ? "COMPLETED" : "PENDING"})
                             </div>
                           )}
                         </div>

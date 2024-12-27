@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from "../api/AxiosConfig";
 import { showModal } from '../states/slices/ModalSlicer';
 
-function EClearanceModal({ show, onClose, clearance, onSignatureChange, signaturePreview, onApprove }) {
+function EClearanceModal({ show, onClose, clearance, onSignatureChange, signaturePreview, onApprove, toggle }) {
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -18,6 +18,7 @@ function EClearanceModal({ show, onClose, clearance, onSignatureChange, signatur
     const fetchData = async () => {
       try {
         await axios.post(`/clearances/${clearance?.id}/on-click`);
+        toggle();
       } catch (error) {
         if (error.status === 403 || error.status === 404) {
           dispatch(showModal({ message: error.response?.data?.message }));

@@ -44,6 +44,13 @@ const roles = [
   { label: "Nursing Lab", value: "NURSING_LAB" },
 ];
 
+const offices = [
+  { label: "DSA", value: "DSA" },
+  { label: "Registrar", value: "REGISTRAR" },
+  { label: "Dean", value: "DEAN" },
+  { label: "School Nurse", value: "SCHOOL_NURSE" },
+];
+
 const rolesNoNeedOrganization = [
   "ADMIN",
   "OFFICE_IN_CHARGE",
@@ -52,7 +59,6 @@ const rolesNoNeedOrganization = [
   "COMMUNITY",
   "PRESIDENT",
   "OFFICE_HEAD",
-  "PERSONNEL",
   "GUIDANCE",
   "CASHIER",
   "LIBRARIAN",
@@ -112,7 +118,9 @@ function UserList() {
     department_club_role: "MEMBER",
     social_club_id: 0,
     social_club_role: "MEMBER",
-    moderator_club_id: 0
+    moderator_club_id: 0,
+    type_of_personnel: null,
+    office: null
   });
   const [pageRange, setPageRange] = useState([0, 20]);
   const itemsPerPage = 15;
@@ -214,7 +222,9 @@ function UserList() {
       department_club_role: "MEMBER",
       social_club_id: 0,
       social_club_role: "MEMBER",
-      moderator_club_id: 0
+      moderator_club_id: 0,
+      type_of_personnel: null,
+      office: null
     })
   }
 
@@ -518,7 +528,39 @@ function UserList() {
                       required
                     />
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsCourse.includes(newUser?.role) ? "hidden" : ""}`}>
+                  <div className={`mb-4 ${newUser?.role !== "PERSONNEL" ? "hidden" : ""}`}>
+                    <label className="block text-sm font-medium mb-1">Type of Personnel *</label>
+                    <select
+                      value={newUser.type_of_personnel}
+                      onChange={(e) => setNewUser({ ...newUser, type_of_personnel: e.target.value })}
+                      className="w-full border p-2 rounded"
+                    >
+                      <option value="">Select Department</option>
+                      <option value="ACADEMIC">Academic</option>
+                      <option value="NON_ACADEMIC">Non Academic</option>
+
+                    </select>
+                  </div>
+                  <div className={`mb-4 ${newUser.type_of_personnel !== "NON_ACADEMIC" || newUser.role !== "PERSONNEL" ? "hidden" : ""}`}>
+                    <label className="block text-sm font-medium mb-1">Office *</label>
+                    <select
+                      value={newUser.office}
+                      onChange={(e) => setNewUser({ ...newUser, office: e.target.value })}
+                      className="w-full border p-2 rounded"
+                    >
+                      <option value="">Select Office</option>
+                      {offices.map((office, index) => (
+                        <option key={index} value={office.value}>
+                          {office.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className={`mb-4 ${!(newUser?.role === "MODERATOR" || newUser?.role === "STUDENT" || newUser?.role === "STUDENT_OFFICER" || newUser?.role === "DEAN" ||
+                    (newUser?.role === "PERSONNEL" && newUser?.type_of_personnel === "ACADEMIC"))
+                    ? "hidden"
+                    : ""
+                    }`}>
                     <label className="block text-sm font-medium mb-1">Department *</label>
                     <select
                       onChange={(e) => departmentHandler(e.target.value)}
@@ -532,7 +574,8 @@ function UserList() {
                       ))}
                     </select>
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) ? "hidden" : ""}`}>
+                  <div className={`mb-4 ${roleOnlyNeedIsCourse.includes(newUser.role) || newUser?.type_of_personnel === "ACADEMIC" || newUser.role === "MODERATOR" || newUser.role === "STUDENT" || newUser.role === "STUDENT_OFFICER" ? "" : "hidden"}`}
+                  >
                     <label className="block text-sm font-medium mb-1">Course *</label>
                     <select
                       onChange={(e) =>
@@ -555,7 +598,7 @@ function UserList() {
                       </>}
                     </select>
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) || roleOnlyNeedIsCourse.includes(newUser?.role) ? "hidden" : ""}`}>
+                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) || roleOnlyNeedIsCourse.includes(newUser?.role) || newUser.role === "PERSONNEL" ? "hidden" : ""}`}>
                     <label className="block text-sm font-medium mb-1">Year Level</label>
                     <select
                       value={newUser.year_level}
@@ -572,7 +615,7 @@ function UserList() {
                       ))}
                     </select>
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) || roleOnlyNeedIsCourse.includes(newUser?.role) ? "hidden" : ""}`}>
+                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) || roleOnlyNeedIsCourse.includes(newUser?.role) || newUser.role === "PERSONNEL" ? "hidden" : ""}`}>
                     <label className="block text-sm font-medium mb-1">Department Club</label>
                     <div className="flex gap-2">
                       <select
@@ -603,7 +646,7 @@ function UserList() {
                       </select>
                     </div>
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) || roleOnlyNeedIsCourse.includes(newUser?.role) ? "hidden" : ""}`}>
+                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) || roleOnlyNeedIsCourse.includes(newUser?.role) || newUser.role === "PERSONNEL" ? "hidden" : ""}`}>
                     <label className="block text-sm font-medium mb-1">Social Club</label>
                     <div className="flex gap-2">
                       <select

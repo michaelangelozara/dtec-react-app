@@ -8,8 +8,9 @@ import { navigateRouteByRole } from '../../services/RouteUtil';
 import { studentAndPersonnelRole } from '../../services/UserUtil';
 import { useDispatch, useSelector } from 'react-redux';
 import { showModal } from '../../states/slices/ModalSlicer';
+import { useNavigate } from 'react-router-dom';
 
-function PersonnelClearanceForm({ clearance, setSigCanvas, saveSignature, handlePrint, handleCancel }) {
+function PersonnelClearanceForm({ clearance, setSigCanvas, saveSignature, handlePrint, handleCancel }) {    
     const [signatures, setSignatures] = useState({
         libraryMultimedia: null,
         scienceLab: null,
