@@ -118,13 +118,13 @@ function OICDashboard() {
   const pendingCount = currentData.filter(item =>
     activeTab === 'letters' ?
       item.transactionStatus === "For Evaluation" :
-      item.status === "In Progress"
+      item.clearance_signoffs?.filter((item) => item.role === user?.role)[0]?.status === "IN_PROGRESS"
   ).length;
 
   const approvedCount = currentData.filter(item =>
     activeTab === 'letters' ?
       item.transactionStatus === "Approved" :
-      item.status === "Approved"
+      item.clearance_signoffs?.filter((item) => item.role === user?.role)[0]?.status === "PENDING"
   ).length;
 
   // Event handlers
@@ -225,6 +225,7 @@ function OICDashboard() {
       try {
         const response = await axios.get(`/clearances`);
         setClearances(response.data?.data);
+        console.log(response.data?.data);
       } catch (error) {
       }
     }
@@ -296,7 +297,7 @@ function OICDashboard() {
                 />
                 <StatusCard
                   count={approvedCount}
-                  title="APPROVED"
+                  title={activeTab === 'letters' ? "FOR EVALUATION" : "Pending"}
                   icon={ApprovedIcon}
                   onClick={() => handleCardClick("Approved")}
                   isActive={selectedStatus === "Approved"}
