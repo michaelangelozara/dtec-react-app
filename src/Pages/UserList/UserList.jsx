@@ -11,6 +11,7 @@ import { showModal } from "../../states/slices/ModalSlicer";
 import { useNavigate } from "react-router-dom";
 
 const staffRoles = ['Moderator', 'Personnel', 'Office In-Charge'];
+
 const roles = [
   { label: "Student", value: "STUDENT" },
   { label: "Student Officer", value: "STUDENT_OFFICER" },

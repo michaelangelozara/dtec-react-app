@@ -150,7 +150,9 @@ function ModeratorTransaction() {
       try {
         const response = await axios.get(`/generic-letters?s=${entriesPerPage}`);
         setFields(response.data?.data);
+        console.log(response);
       } catch (error) {
+        console.log(error)
       }
     }
     fetchData();

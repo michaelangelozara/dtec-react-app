@@ -211,6 +211,7 @@ function OICDashboard() {
       try {
         const response = await axios.get(`/generic-letters?s=${entriesPerPage}`);
         setLetter(response.data?.data)
+        console.log(response.data?.data);
       } catch (error) {
       }
     }
@@ -225,7 +226,6 @@ function OICDashboard() {
       try {
         const response = await axios.get(`/clearances`);
         setClearances(response.data?.data);
-        console.log(response.data?.data);
       } catch (error) {
       }
     }
@@ -422,15 +422,16 @@ function OICDashboard() {
                     <thead>
                       <tr className="bg-gray-50 border-b">
                         <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Date Requested</th>
-                        <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Type Of Clearance</th>
                         {activeTab === 'letters' ? (
                           <>
+                            <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Type Of Letter</th>
                             <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Name of Transaction</th>
                             <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Requested By</th>
                             <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction Status</th>
                           </>
                         ) : (
                           <>
+                            <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Type Of Clearance</th>
                             <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                             <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Course & Year</th>
                             <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -449,6 +450,7 @@ function OICDashboard() {
                           <tr key={item.id} className="hover:bg-gray-50">
                             <td className="p-3">{item.date_requested}</td>
                             <td className="p-3">{item.cml ? item.name_of_transaction + " (" + item.cml + ")" : item.name_of_transaction}</td>
+                            <td className="p-3">{item.name_of_transaction}</td>
                             <td className="p-3">{item.requested_by}</td>
                             <td className="p-3">
                               <span className={`${getStatusColor(item.status)} px-2 py-1 rounded-full text-xs`}>
@@ -456,7 +458,7 @@ function OICDashboard() {
                               </span>
                             </td>
                             <td className="p-3">{item.reason_of_rejection}</td>
-                            <td className="p-3">{item.last_update || "N/A"}</td>
+                            <td className="p-3">{item.status === "COMPLETED" ? item.last_update : "N/A"}</td>
                             <td className="p-3">
                               <button
                                 className="bg-green-800 text-white text-sm px-4 py-2 rounded hover:bg-green-900"

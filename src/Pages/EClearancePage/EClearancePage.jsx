@@ -119,13 +119,15 @@ function ClearanceRequestForm() {
       try {
         const response = await axios.get("/clearances/new-clearance");
         setClearance(response.data?.data);
-        console.log(response.data?.data);
       } catch (error) {
+        if(error.status === 403){
+          dispatch(showModal({message: error.response?.data?.message}))
+        }
       }
     }
 
     fetchData();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (clearance && clearance?.student_signature && clearance?.status === "PENDING") {
