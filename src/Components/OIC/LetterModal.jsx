@@ -10,7 +10,7 @@ import { showModal } from '../../states/slices/ModalSlicer';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onApprove }) {
+function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onApprove, setSignaturePreview }) {
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [declineReason, setDeclineReason] = useState('');
   const { user } = useSelector((state) => state.user);
@@ -54,6 +54,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             signaturePreview={signaturePreview}
             onSignatureChange={onSignatureChange}
             setSignedPeople={setSignedPeople}
+            setSignaturePreview={setSignaturePreview}
           />
         );
       case 'IMPLEMENTATION_LETTER_OFF_CAMPUS':
@@ -63,6 +64,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             signaturePreview={signaturePreview}
             onSignatureChange={onSignatureChange}
             setSignedPeople={setSignedPeople}
+            setSignaturePreview={setSignaturePreview}
           />
         );
       case 'COMMUNICATION_LETTER':
@@ -73,6 +75,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
               signaturePreview={signaturePreview}
               onSignatureChange={onSignatureChange}
               setSignedPeople={setSignedPeople}
+              setSignaturePreview={setSignaturePreview}
             />
           );
         } else {
@@ -82,6 +85,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
               signaturePreview={signaturePreview}
               onSignatureChange={onSignatureChange}
               setSignedPeople={setSignedPeople}
+              setSignaturePreview={setSignaturePreview}
             />
           );
         }
@@ -92,6 +96,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             signaturePreview={signaturePreview}
             onSignatureChange={onSignatureChange}
             setSignedPeople={setSignedPeople}
+            setSignaturePreview={setSignaturePreview}
           />
         );
       default:

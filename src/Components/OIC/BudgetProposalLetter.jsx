@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FingerPrintIcon } from '@heroicons/react/24/outline';
-import signature from './try.png';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from "../../api/AxiosConfig";
+import { getSignature } from "../../services/LetterUtil";
+import Fingerprint from "../../Components/Fingerprint/Fingerprint";
 
-function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
+function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, setSignedPeople, setSignaturePreview }) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [implementationLetter, setImplementationLetter] = useState(null);
-
-  const handleCaptureFingerprint = () => {
-    
-  };
+  const [budgetProposal, setBudgetProposal] = useState(null);
+  const [captureFingerprint, setCaptureFingerprint] = useState(false);
+  const [signature, setSignature] = useState(null);
 
   if (!user) {
     navigate("/user/moderator-transaction");
@@ -30,8 +29,8 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
             `/generic-letters/on-click/${letter.id}?type=${letter.type}`
           );
         }
-        const response = await axios.get(`/communication-letters/${letter.id}`);
-        setImplementationLetter(response.data?.data);
+        const response = await axios.get(`/budget-proposals/${letter.id}`);
+        setBudgetProposal(response.data?.data);
       } catch (error) {
         if (error.status === 404) {
           dispatch(showModal({ message: error.response?.data?.message }));
@@ -45,10 +44,10 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
   }, []);
 
   useEffect(() => {
-      if(implementationLetter){
-        setSignedPeople(implementationLetter?.signed_people)
-      }
-    }, [implementationLetter]);
+    if (budgetProposal) {
+      setSignedPeople(budgetProposal?.signed_people)
+    }
+  }, [budgetProposal]);
 
   return (
     <div className="space-y-4">
@@ -58,13 +57,13 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
         <div>
           <label className="block font-semibold mb-2">Name of Activity:</label>
           <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
-            {letter.content?.activityName}
+            {budgetProposal?.name}
           </div>
         </div>
         <div>
           <label className="block font-semibold mb-2">Date:</label>
           <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
-            {letter.content?.date}
+            {budgetProposal?.date}
           </div>
         </div>
       </div>
@@ -73,13 +72,13 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
         <div>
           <label className="block font-semibold mb-2">Venue:</label>
           <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
-            {letter.content?.venue}
+            {budgetProposal?.venue}
           </div>
         </div>
         <div>
           <label className="block font-semibold mb-2">Source of Fund:</label>
           <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
-            {letter.content?.sourceOfFund}
+            {budgetProposal?.source_of_fund}
           </div>
         </div>
       </div>
@@ -87,7 +86,7 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
       <div>
         <label className="block font-semibold mb-2">Amount Allotted for the Activity:</label>
         <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
-          ₱ {parseFloat(letter.content?.amountAllotted || 0).toFixed(2)}
+          ₱ {budgetProposal?.allotted_amount}
         </div>
       </div>
 
@@ -101,11 +100,11 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
             </tr>
           </thead>
           <tbody>
-            {letter.content?.expenses?.map((expense, index) => (
+            {budgetProposal?.expectedExpenses?.map((expense, index) => (
               <tr key={index}>
-                <td className="border border-gray-300 p-2">{expense.item}</td>
+                <td className="border border-gray-300 p-2">{expense.name}</td>
                 <td className="border border-gray-300 p-2 text-right">
-                  ₱ {parseFloat(expense.amount || 0).toFixed(2)}
+                  ₱ {expense.amount}
                 </td>
               </tr>
             ))}
@@ -114,7 +113,7 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
             <tr>
               <td className="border border-gray-300 p-2 font-bold">Total</td>
               <td className="border border-gray-300 p-2 text-right font-bold">
-                ₱ {calculateTotal().toFixed(2)}
+                ₱ {budgetProposal?.allotted_amount}
               </td>
             </tr>
           </tfoot>
@@ -122,105 +121,140 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
       </div>
 
       {/* Mayor's Signature (Always shown) */}
-      <div className="mt-6 text-center">
+      <div className={`mt-6 text-center ${user?.role !== "STUDENT_OFFICER" ? 'hidden' : ''}`}>
         <p className="font-semibold">Prepared by:</p>
-        <img 
-          src={signature}
-          alt="Mayor's Signature" 
-          className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-          style={{ maxHeight: '150px', maxWidth: '300px' }}
-        />
+        {getSignature(budgetProposal, "STUDENT_OFFICER") && (
+          <img
+            src={getSignature(budgetProposal, "STUDENT_OFFICER")}
+            alt="Mayor's Signature"
+            className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+            style={{ maxHeight: '150px', maxWidth: '300px' }}
+          />
+        )}
         <p className="mt-2 font-bold">CHRISTIAN JAMES V. TORRES</p>
         <p className="text-sm mt-2">Mayor, BLC A.Y. 2023-2024</p>
       </div>
 
       {/* Moderator's Signature (Already signed) */}
-      <div className="mt-6 text-center">
+      <div className={`mt-6 text-center ${user?.role !== "MODERATOR" ? 'hidden' : ''}`}>
         <p className="font-semibold">Noted by:</p>
-        <img 
-          src={signature}
-          alt="Moderator's Signature" 
-          className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-          style={{ maxHeight: '150px', maxWidth: '300px' }}
-        />
+        {getSignature(budgetProposal, "MODERATOR") && (
+          <img
+            src={getSignature(budgetProposal, "MODERATOR")}
+            alt="MODERATOR's Signature"
+            className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+            style={{ maxHeight: '150px', maxWidth: '300px' }}
+          />
+        )}
         <p className="mt-2 font-bold">[Moderator Name]</p>
         <p className="text-sm mt-2">Moderator, BLC A.Y. 2023-2024</p>
       </div>
 
       {/* DSA Signature Section */}
-      <div className="mt-6 text-center">
+      <div className={`mt-6 text-center ${user?.role !== "DSA" ? 'hidden' : ''}`}>
         <p className="font-semibold">Noted by:</p>
-        {signatures.dsa ? (
-          <img 
-            src={signature}
-            alt="DSA Signature" 
+        <div className="mt-4">
+          <button
+            onClick={() => setCaptureFingerprint(true)}
+            className={`${getSignature(budgetProposal, "DSA") || signature ? "hidden" : ""} flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto`}
+          >
+            <FingerPrintIcon className="w-6 h-6" />
+            <span>Capture Fingerprint</span>
+          </button>
+        </div>
+        {budgetProposal && getSignature(budgetProposal, "DSA") ? <>
+          <img
+            src={getSignature(budgetProposal, "DSA")}
+            alt="DSA's Signature"
             className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
             style={{ maxHeight: '150px', maxWidth: '300px' }}
           />
-        ) : (
-          <div className="mt-4">
-            <button
-              onClick={() => handleCaptureFingerprint('dsa')}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
-            >
-              <FingerPrintIcon className="w-6 h-6" />
-              <span>Capture Fingerprint</span>
-            </button>
-          </div>
-        )}
+        </> : <>
+          {signature && (
+            <img
+              src={signature}
+              alt="DSA's Signature"
+              className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+              style={{ maxHeight: '150px', maxWidth: '300px' }}
+            />
+          )}
+        </>}
         <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
         <p>Director of Student Affairs</p>
       </div>
 
       {/* Finance Officer Signature Section */}
-      <div className="mt-6 text-center">
+      <div className={`mt-6 text-center ${user?.role !== "FINANCE" ? 'hidden' : ''}`}>
         <p className="font-semibold">Noted by:</p>
-        {signatures.finance ? (
-          <img 
-            src={signature}
-            alt="Finance Officer Signature" 
+        <div className="mt-4">
+          <button
+            onClick={() => setCaptureFingerprint(true)}
+            className={`${getSignature(budgetProposal, "FINANCE") || signature ? "hidden" : ""} flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto`}
+          >
+            <FingerPrintIcon className="w-6 h-6" />
+            <span>Capture Fingerprint</span>
+          </button>
+        </div>
+        {budgetProposal && getSignature(budgetProposal, "FINANCE") ? <>
+          <img
+            src={getSignature(budgetProposal, "FINANCE")}
+            alt="FINANCE's Signature"
             className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
             style={{ maxHeight: '150px', maxWidth: '300px' }}
           />
-        ) : (
-          <div className="mt-4">
-            <button
-              onClick={() => handleCaptureFingerprint('finance')}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
-            >
-              <FingerPrintIcon className="w-6 h-6" />
-              <span>Capture Fingerprint</span>
-            </button>
-          </div>
-        )}
+        </> : <>
+          {signature && (
+            <img
+              src={signature}
+              alt="FINANCE's Signature"
+              className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+              style={{ maxHeight: '150px', maxWidth: '300px' }}
+            />
+          )}
+        </>}
         <p className="mt-2 font-bold">VANESSA CLAIRE C. ESPAÑA, CPA</p>
         <p>Finance Officer</p>
       </div>
 
       {/* President's Signature Section */}
-      <div className="mt-6 text-center">
+      <div className={`mt-6 text-center ${user?.role !== "PRESIDENT" ? 'hidden' : ''}`}>
         <p className="font-semibold">Approved by:</p>
-        {signatures.president ? (
-          <img 
-            src={signature}
-            alt="President Signature" 
+        <div className="mt-4">
+          <button
+            onClick={() => setCaptureFingerprint(true)}
+            className={`${getSignature(budgetProposal, "PRESIDENT") || signature ? "hidden" : ""} flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto`}
+          >
+            <FingerPrintIcon className="w-6 h-6" />
+            <span>Capture Fingerprint</span>
+          </button>
+        </div>
+        {budgetProposal && getSignature(budgetProposal, "PRESIDENT") ? <>
+          <img
+            src={getSignature(budgetProposal, "PRESIDENT")}
+            alt="PRESIDENT's Signature"
             className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
             style={{ maxHeight: '150px', maxWidth: '300px' }}
           />
-        ) : (
-          <div className="mt-4">
-            <button
-              onClick={() => handleCaptureFingerprint('president')}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
-            >
-              <FingerPrintIcon className="w-6 h-6" />
-              <span>Capture Fingerprint</span>
-            </button>
-          </div>
-        )}
+        </> : <>
+          {signature && (
+            <img
+              src={signature}
+              alt="PRESIDENT's Signature"
+              className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+              style={{ maxHeight: '150px', maxWidth: '300px' }}
+            />
+          )}
+        </>}
         <p className="mt-2 font-bold">REV. FR. JESSIE P. PASQUIN, DCC</p>
         <p>President</p>
       </div>
+
+      {captureFingerprint && (
+        <Fingerprint
+          onOkClick={() => setCaptureFingerprint(false)}
+          setSignature={setSignature}
+          setSignaturePreview={setSignaturePreview} />
+      )}
     </div>
   );
 }

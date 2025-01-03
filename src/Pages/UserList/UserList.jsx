@@ -1,5 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
-import { FaPlus, FaSearch, FaEdit, FaKey, FaFingerprint, FaTrash } from "react-icons/fa";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import {
+  FaPlus,
+  FaSearch,
+  FaEdit,
+  FaKey,
+  FaFingerprint,
+  FaTrash,
+  FaSignature,
+} from "react-icons/fa";
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUser } from "../../states/slices/UserSlicer";
@@ -10,8 +18,7 @@ import { adminRole } from "../../services/UserUtil";
 import { showModal } from "../../states/slices/ModalSlicer";
 import { useNavigate } from "react-router-dom";
 
-const staffRoles = ['Moderator', 'Personnel', 'Office In-Charge'];
-
+const staffRoles = ["Moderator", "Personnel", "Office In-Charge"];
 const roles = [
   { label: "Student", value: "STUDENT" },
   { label: "Student Officer", value: "STUDENT_OFFICER" },
@@ -75,16 +82,12 @@ const rolesNoNeedOrganization = [
   "CUSTODIAN",
   "VPAF",
   "VPA",
-  "MULTIMEDIA"
+  "MULTIMEDIA",
 ];
 
-const roleOnlyNeedIsDepartment = [
-  "DEAN"
-];
+const roleOnlyNeedIsDepartment = ["DEAN"];
 
-const roleOnlyNeedIsCourse = [
-  "PROGRAM_HEAD"
-]
+const roleOnlyNeedIsCourse = ["PROGRAM_HEAD"];
 
 const clubRoles = [
   { label: "Member", value: "MEMBER" },
@@ -92,24 +95,33 @@ const clubRoles = [
   { label: "Moderator", value: "MODERATOR" },
 ];
 
-
 const yearLevels = ["1", "2", "3", "4"];
 
 function UserList() {
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [clubs, setClubs] = useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [editingUser, setEditingUser] = useState(null);
+  const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [signature, setSignature] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const fileInputRef = useRef(null);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
   const [newUser, setNewUser] = useState({
     first_name: "",
     middle_name: "",
     lastname: "",
-    role: "STUDENT",
+    role: "SELECT ALL",
     username: "",
     email: "",
     department_id: 0,
@@ -121,7 +133,7 @@ function UserList() {
     social_club_role: "MEMBER",
     moderator_club_id: 0,
     type_of_personnel: null,
-    office: null
+    office: null,
   });
   const [pageRange, setPageRange] = useState([0, 20]);
   const itemsPerPage = 15;
@@ -133,20 +145,54 @@ function UserList() {
   const { user, status } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
+  // Sorting and filtering users by role and search term
+  const sortedFilteredUsers = useMemo(() => {
+    // First, filter by role
+    const filteredByRole = filteredUsers.filter((user) => {
+      const matchRole = newUser?.role === "SELECT ALL" || newUser?.role === user?.role;
+      return matchRole;
+    });
+
+    // Then, sort by role (ADMIN comes first, others follow)
+    return filteredByRole.sort((a, b) => {
+      if (a.role === b.role) return 0;
+      return a.role === "ADMIN" ? -1 : 1; // Sort 'admin' before 'user'
+    });
+  }, [filteredUsers, newUser?.role]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".dropdown-container")) {
+        setOpenDropdownId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   useEffect(() => {
     if (staffRoles.includes(newUser.role)) {
-      setNewUser(prev => ({ ...prev, yearLevel: 'N/A' }));
+      setNewUser((prev) => ({ ...prev, yearLevel: "N/A" }));
     }
   }, [newUser.role]);
 
   const handleCreateUser = async () => {
     // please put a filter exception that depends by the role
-    if (newUser.first_name === "" || newUser.lastname === "" || newUser.username === "" || newUser.email === "") {
+    if (
+      newUser.first_name === "" ||
+      newUser.lastname === "" ||
+      newUser.username === "" ||
+      newUser.email === ""
+    ) {
       alert("Please fill out all required fields.");
       return;
     }
 
-    if ((newUser.role === "STUDENT" || newUser.role === "STUDENT_OFFICER") && newUser.year_level === 0) {
+    if (
+      (newUser.role === "STUDENT" || newUser.role === "STUDENT_OFFICER") &&
+      newUser.year_level === 0
+    ) {
       alert("Please Select Year Level");
       return;
     }
@@ -177,32 +223,83 @@ function UserList() {
     }
   };
 
-  const handleEdit = (user) => {
-    setEditingUser({ ...user });
-    setIsEditModalOpen(true);
+  const handleEdit = async (user) => {
+    try {
+      setSelectedUser(user);
+      setIsLoading(true);
+      const response = await axios.get(`/admin/users/${user?.id}`);
+      if (response.status === 200 && response.data?.data) {
+        const fetchedUser = response.data?.data;
+        setNewUser(prevValue => ({
+          ...prevValue,
+          first_name: fetchedUser.first_name,
+          middle_name: fetchedUser.middle_name,
+          lastname: fetchedUser.lastname,
+          role: fetchedUser.role,
+          username: fetchedUser.username,
+          email: fetchedUser.email,
+          department_id: fetchedUser.department?.id,
+          course_id: fetchedUser.course?.id,
+          year_level: fetchedUser.year_level,
+          department_club_id: fetchedUser.department_club?.id,
+          department_club_role: fetchedUser.department_club_role,
+          social_club_id: fetchedUser.social_club?.id,
+          social_club_role: fetchedUser.social_club_role,
+          moderator_club_id: fetchedUser.moderator_club?.id,
+          type_of_personnel: fetchedUser.type_of_personnel,
+          office: fetchedUser.office,
+        }));
+        console.log(fetchedUser);
+      }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+      setIsEditModalOpen(true);
+    }
   };
 
   const departmentHandler = (id) => {
     if (id !== 0) {
-      setFilteredCourses(courses.filter((course) => course.department_id == id));
+      setFilteredCourses(
+        courses.filter((course) => course.department_id == id)
+      );
     } else {
       setFilteredCourses([]);
     }
-    setNewUser({ ...newUser, department_id: Number(id) })
-  }
+    setNewUser({ ...newUser, department_id: Number(id) });
+  };
 
-  const handleUpdateUser = () => {
-    if (!editingUser.firstName || !editingUser.lastName || !editingUser.userId || !editingUser.department || !editingUser.course) {
+  const handleUpdateUser = async () => {
+    if (
+      !newUser.first_name ||
+      !newUser.lastname ||
+      !newUser.role ||
+      !newUser.email
+    ) {
       alert("Please fill out all required fields.");
       return;
     }
 
-    setIsEditModalOpen(false);
-    setEditingUser(null);
+    try {
+      const response = await axios.post(`/admin/update-user/${selectedUser?.id}`, newUser);
+      if (response.status === 200) {
+        dispatch(showModal({ message: response?.data?.message }))
+      }
+    } catch (error) {
+      if (error?.status === 409 || error?.status === 404) {
+        dispatch(showModal({ message: error?.response?.data?.message }))
+      }
+    } finally {
+      setIsEditModalOpen(false);
+      setEditingUser(null);
+      resetUserFields();
+    }
   };
 
   const handleDelete = (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this user?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this user?"
+    );
     if (confirmed) {
       setUsers(users.filter((user) => user.id !== id));
     }
@@ -225,16 +322,16 @@ function UserList() {
       social_club_role: "MEMBER",
       moderator_club_id: 0,
       type_of_personnel: null,
-      office: null
-    })
-  }
+      office: null,
+    });
+  };
 
   const handleResetPassword = (userId) => {
     // Implement password reset logic here
     alert(`Password reset requested for user ${userId}`);
   };
 
-  const handleEnrollFingerprint = (userId) => {
+  const handleESignatureSave = (userId) => {
     // Implement fingerprint enrollment logic here
     alert(`Fingerprint enrollment requested for user ${userId}`);
   };
@@ -244,8 +341,51 @@ function UserList() {
     alert(`Signature enrollment requested for user ${userId}`);
   };
 
+  const handleRoleChange = (e) => {
+    setNewUser((prevUser) => ({ ...prevUser, role: e.target.value }));
+  };
+
+  const handleSignatureUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSignature(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSignatureSave = async () => {
+    if (!signature && !selectedUser) {
+      alert("Please select a signature image first");
+      return;
+    }
+
+    try {
+      const response = await axios.post("/users/add/e-signature", {
+        "user_id": selectedUser?.id,
+        "image": previewUrl
+      });
+      if (response.status === 201) {
+        // Reset the state
+        setSignature(null);
+        setPreviewUrl("");
+        setIsSignatureModalOpen(false);
+        setSelectedUserId(null);
+        dispatch(showModal({ message: response.data?.message }));
+      }
+
+    } catch (error) {
+      if (error.status === 403 || error.status === 404 || error.status === 409) {
+        dispatch(showModal({ message: error.response?.data.message }));
+      }
+    }
+  };
+
   const addedUserToggle = () => {
-    setIsSuccessAdded(v => !v);
+    setIsSuccessAdded((v) => !v);
   };
 
   const handlePageChange = (pageFrom, pageTo) => {
@@ -253,15 +393,64 @@ function UserList() {
     setPageRange([pageFrom, pageTo]);
   };
 
+  // Update the debounced query after 400ms delay
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (searchTerm.length > 2) {
+        setDebouncedQuery(searchTerm);
+      }
+    }, 400);
+
+    // Cleanup function to clear the timeout if query changes
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
+
+  // Update filteredUsers when the search term is cleared
+  useEffect(() => {
+    if (searchTerm === "") {
+      setFilteredUsers(users);  // Reset to all users when search term is empty
+    }
+  }, [searchTerm, users]);
+
+  // Fetch users based on the search term (debounced)
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`/admin/users/search?q=${debouncedQuery}`);
+        if (debouncedQuery.length === 0) {
+          setFilteredUsers(users); // Reset to original users when search term is empty
+        } else {
+          setFilteredUsers(response.data?.data); // Update with search results
+        }
+      } catch (error) {
+      }
+    };
+
+    if (debouncedQuery) {
+      fetchData(); // Fetch data if there's a search term
+    } else {
+      setFilteredUsers(users); // Reset to all users when search term is empty
+    }
+  }, [debouncedQuery, users]);
+
+  useEffect(() => {
+    if (newUser.department_id) {
+      setFilteredCourses(
+        courses.filter((course) => course.department_id == newUser.department_id)
+      );
+    }
+  }, [newUser.department_id, courses]);
+
   // get all clubs
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get("/admin/clubs");
         setClubs(response.data?.data);
-      } catch (error) {
-      }
-    }
+      } catch (error) { }
+    };
     fetchData();
   }, []);
 
@@ -271,9 +460,8 @@ function UserList() {
       try {
         const response = await axios.get("/admin/departments");
         setDepartments(response.data?.data);
-      } catch (error) {
-      }
-    }
+      } catch (error) { }
+    };
     fetchData();
   }, []);
 
@@ -283,20 +471,21 @@ function UserList() {
       try {
         const response = await axios.get("/admin/courses");
         setCourses(response.data?.data);
-      } catch (error) {
-      }
-    }
+      } catch (error) { }
+    };
     fetchData();
   }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/admin/users?s=${pageRange[0]}&e=${pageRange[1]}`);
+        const response = await axios.get(
+          `/admin/users?s=${pageRange[0]}&e=${pageRange[1]}`
+        );
         setUsers(response.data?.data);
-      } catch (error) {
-      }
-    }
+        setFilteredUsers(response.data?.data);
+      } catch (error) { }
+    };
     fetchData();
   }, [isSuccessAdded, pageRange]);
 
@@ -317,7 +506,9 @@ function UserList() {
           <PrimaryNavBar />
 
           <div className="p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h2 className="text-2xl font-semibold text-gray-800">List of Users</h2>
+            <h2 className="text-2xl font-semibold text-gray-800">
+              List of Users
+            </h2>
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="flex items-center gap-4">
                 <div className="relative">
@@ -332,10 +523,10 @@ function UserList() {
                 </div>
                 <select
                   className="border p-2 rounded w-full sm:w-auto"
-                  value={newUser.role}
-                  onChange={(e) => ({ ...newUser, role: e.target.value })}
+                  value={newUser?.role}
+                  onChange={handleRoleChange}
                 >
-                  <option value="">All Roles</option>
+                  <option value="SELECT ALL">All Roles</option>
                   {roles.map((role) => (
                     <option key={role.value} value={role.value}>
                       {role.label}
@@ -357,93 +548,154 @@ function UserList() {
               <table className="table-auto w-full border-collapse border border-gray-300 bg-white shadow-lg">
                 <thead className="bg-gray-200">
                   <tr>
-                    <th className="border border-gray-300 px-4 py-2 w-32">First Name</th>
-                    <th className="border border-gray-300 px-4 py-2 w-32">Middle Name</th>
-                    <th className="border border-gray-300 px-4 py-2 w-32">Last Name</th>
-                    <th className="border border-gray-300 px-4 py-2 w-32">Role</th>
-                    <th className="border border-gray-300 px-4 py-2 w-24">User ID</th>
-                    <th className="border border-gray-300 px-4 py-2" style={{ width: '200px', minWidth: '200px' }}>
+                    <th className="border border-gray-300 px-4 py-2 w-32">
+                      First Name
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 w-32">
+                      Middle Name
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 w-32">
+                      Last Name
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 w-32">
+                      Role
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 w-24">
+                      User ID
+                    </th>
+                    <th
+                      className="border border-gray-300 px-4 py-2"
+                      style={{ width: "200px", minWidth: "200px" }}
+                    >
                       <div className="max-w-xs break-words">Department</div>
                     </th>
-                    <th className="border border-gray-300 px-4 py-2" style={{ width: '200px', minWidth: '200px' }}>
+                    <th
+                      className="border border-gray-300 px-4 py-2"
+                      style={{ width: "200px", minWidth: "200px" }}
+                    >
                       <div className="max-w-xs break-words">Course</div>
                     </th>
-                    <th className="border border-gray-300 px-4 py-2 w-16">Year</th>
-                    <th className="border border-gray-300 px-4 py-2 w-32">Department Club</th>
-                    <th className="border border-gray-300 px-4 py-2 w-32">Social Club</th>
-                    <th className="border border-gray-300 px-4 py-2 w-24 text-center">Actions</th>
+                    <th className="border border-gray-300 px-4 py-2 w-16">
+                      Year
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 w-32">
+                      Department Club
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 w-32">
+                      Social Club
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2 w-24 text-center">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {Array.isArray(users) && users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-100">
-                      <td className="border px-4 py-2">{user.first_name}</td>
-                      <td className="border px-4 py-2">{user.middle_name}</td>
-                      <td className="border px-4 py-2">{user.lastname}</td>
-                      <td className="border px-4 py-2">{user.role}</td>
-                      <td className="border px-4 py-2">{user.username}</td>
-                      <td className="border px-4 py-2" style={{ width: '200px', minWidth: '200px' }}>
-                        <div className="max-w-xs break-words">{user.department ? user.department.name : "N/A"}</div>
-                      </td>
-                      <td className="border px-4 py-2" style={{ width: '200px', minWidth: '200px' }}>
-                        <div className="max-w-xs break-words">{user.course ? user.course.name : "N/A"}</div>
-                      </td>
-                      <td className="border px-4 py-2">{user.year_level > 0 ? user.year_level : "N/A"}</td>
-                      <td className="border px-4 py-2">{user.clubs ? user.clubs.filter((club) => club.type === "DEPARTMENT").map((club) => club.name) : "N/A"}</td>
-                      <td className="border px-4 py-2">{user.clubs ? user.clubs.filter((club) => club.type === "SOCIAL").map((club) => club.name) : "N/A"}</td>
-                      <td className="border px-4 py-2">
-                        <div className="flex justify-center space-x-2">
-                          <button
-                            className="text-blue-500 hover:text-blue-700"
-                            title="Edit"
-                            onClick={() => handleEdit(user)}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            className="text-yellow-500 hover:text-yellow-700"
-                            title="Reset Password"
-                            onClick={() => handleResetPassword(user.id)}
-                          >
-                            <FaKey />
-                          </button>
-                          <div className="relative group">
-                            <button
-                              className="text-green-500 hover:text-green-700"
-                              title="Enroll"
-                            >
-                              <FaFingerprint />
-                            </button>
-                            {user.role === "Office In-Charge" && (
-                              <div className="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg py-2 hidden group-hover:block z-10">
-                                <button
-                                  onClick={() => handleEnrollFingerprint(user.id)}
-                                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                >
-                                  <FaFingerprint className="mr-2" />
-                                  Enroll Fingerprint
-                                </button>
-                                <button
-                                  onClick={() => handleEnrollSignature(user.id)}
-                                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                >
-                                  <FaSignature className="mr-2" />
-                                  Enroll Signature
-                                </button>
-                              </div>
-                            )}
+                  {Array.isArray(sortedFilteredUsers) &&
+                    sortedFilteredUsers.map((user) => (
+                      <tr key={user.id} className="hover:bg-gray-100">
+                        <td className="border px-4 py-2">{user.first_name}</td>
+                        <td className="border px-4 py-2">{user.middle_name}</td>
+                        <td className="border px-4 py-2">{user.lastname}</td>
+                        <td className="border px-4 py-2">{user.role}</td>
+                        <td className="border px-4 py-2">{user.username}</td>
+                        <td
+                          className="border px-4 py-2"
+                          style={{ width: "200px", minWidth: "200px" }}
+                        >
+                          <div className="max-w-xs break-words">
+                            {user.department ? user.department.name : "N/A"}
                           </div>
-                          <button
-                            className="text-red-500 hover:text-red-700"
-                            title="Delete"
-                            onClick={() => handleDelete(user.id)}
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td
+                          className="border px-4 py-2"
+                          style={{ width: "200px", minWidth: "200px" }}
+                        >
+                          <div className="max-w-xs break-words">
+                            {user.course ? user.course.name : "N/A"}
+                          </div>
+                        </td>
+                        <td className="border px-4 py-2">
+                          {user.year_level > 0 ? user.year_level : "N/A"}
+                        </td>
+                        <td className="border px-4 py-2">
+                          {user.clubs
+                            ? user.clubs
+                              .filter((club) => club.type === "DEPARTMENT")
+                              .map((club) => club.name)
+                            : "N/A"}
+                        </td>
+                        <td className="border px-4 py-2">
+                          {user.clubs
+                            ? user.clubs
+                              .filter((club) => club.type === "SOCIAL")
+                              .map((club) => club.name)
+                            : "N/A"}
+                        </td>
+                        <td className="border px-4 py-2">
+                          <div className="flex justify-center space-x-2">
+                            <button
+                              className="text-blue-500 hover:text-blue-700"
+                              title="Edit"
+                              onClick={() => handleEdit(user)}
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              className="text-yellow-500 hover:text-yellow-700"
+                              title="Reset Password"
+                              onClick={() => handleResetPassword(user.id)}
+                            >
+                              <FaKey />
+                            </button>
+                            <div className={`relative dropdown-container ${user?.role === "STUDENT" || user?.role === "STUDENT_OFFICER" || user?.role === "MODERATOR" ? 'hidden' : ''}`}>
+                              <button
+                                className="text-green-500 hover:text-green-700"
+                                title="Enroll"
+                                onClick={() =>
+                                  setOpenDropdownId(
+                                    openDropdownId === user.id ? null : user.id
+                                  )
+                                }
+                              >
+                                <FaFingerprint />
+                              </button>
+                              {openDropdownId === user.id && (
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg py-2 z-10">
+                                  <button
+                                    onClick={() => {
+                                      setOpenDropdownId(null);
+                                    }}
+                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  >
+                                    <FaFingerprint className="mr-2" />
+                                    Enroll Fingerprint
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedUserId(user.id);
+                                      setIsSignatureModalOpen(true);
+                                      setOpenDropdownId(null);
+                                      setSelectedUser(user);
+                                    }}
+                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  >
+                                    <FaSignature className="mr-2" />
+                                    Attach Signature
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              className="text-red-500 hover:text-red-700"
+                              title="Delete"
+                              onClick={() => handleDelete(user.id)}
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -455,7 +707,9 @@ function UserList() {
                 <h2 className="text-lg font-semibold mb-4">Create New User</h2>
                 <form className="grid grid-cols-2 gap-4">
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">First Name *</label>
+                    <label className="block text-sm font-medium mb-1">
+                      First Name *
+                    </label>
                     <input
                       type="text"
                       value={newUser.first_name}
@@ -467,7 +721,9 @@ function UserList() {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Middle Name</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Middle Name
+                    </label>
                     <input
                       type="text"
                       value={newUser.middle_name}
@@ -478,7 +734,9 @@ function UserList() {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Last Name *</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Last Name *
+                    </label>
                     <input
                       type="text"
                       value={newUser.lastname}
@@ -490,7 +748,9 @@ function UserList() {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Role *</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Role *
+                    </label>
                     <select
                       onChange={(e) =>
                         setNewUser({ ...newUser, role: e.target.value })
@@ -506,7 +766,9 @@ function UserList() {
                     </select>
                   </div>
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">User ID *</label>
+                    <label className="block text-sm font-medium mb-1">
+                      User ID *
+                    </label>
                     <input
                       type="text"
                       value={newUser.username}
@@ -518,7 +780,9 @@ function UserList() {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Email *</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Email *
+                    </label>
                     <input
                       type="text"
                       value={newUser.email}
@@ -529,24 +793,43 @@ function UserList() {
                       required
                     />
                   </div>
-                  <div className={`mb-4 ${newUser?.role !== "PERSONNEL" ? "hidden" : ""}`}>
-                    <label className="block text-sm font-medium mb-1">Type of Personnel *</label>
+                  <div
+                    className={`mb-4 ${newUser?.role !== "PERSONNEL" ? "hidden" : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Type of Personnel *
+                    </label>
                     <select
                       value={newUser.type_of_personnel}
-                      onChange={(e) => setNewUser({ ...newUser, type_of_personnel: e.target.value })}
+                      onChange={(e) =>
+                        setNewUser({
+                          ...newUser,
+                          type_of_personnel: e.target.value,
+                        })
+                      }
                       className="w-full border p-2 rounded"
                     >
                       <option value="">Select Department</option>
                       <option value="ACADEMIC">Academic</option>
                       <option value="NON_ACADEMIC">Non Academic</option>
-
                     </select>
                   </div>
-                  <div className={`mb-4 ${newUser.type_of_personnel !== "NON_ACADEMIC" || newUser.role !== "PERSONNEL" ? "hidden" : ""}`}>
-                    <label className="block text-sm font-medium mb-1">Office *</label>
+                  <div
+                    className={`mb-4 ${newUser.type_of_personnel !== "NON_ACADEMIC" ||
+                      newUser.role !== "PERSONNEL"
+                      ? "hidden"
+                      : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Office *
+                    </label>
                     <select
                       value={newUser.office}
-                      onChange={(e) => setNewUser({ ...newUser, office: e.target.value })}
+                      onChange={(e) =>
+                        setNewUser({ ...newUser, office: e.target.value })
+                      }
                       className="w-full border p-2 rounded"
                     >
                       <option value="">Select Office</option>
@@ -557,12 +840,22 @@ function UserList() {
                       ))}
                     </select>
                   </div>
-                  <div className={`mb-4 ${!(newUser?.role === "MODERATOR" || newUser?.role === "STUDENT" || newUser?.role === "STUDENT_OFFICER" || newUser?.role === "DEAN" ||
-                    (newUser?.role === "PERSONNEL" && newUser?.type_of_personnel === "ACADEMIC"))
-                    ? "hidden"
-                    : ""
-                    }`}>
-                    <label className="block text-sm font-medium mb-1">Department *</label>
+                  <div
+                    className={`mb-4 ${!(
+                      newUser?.role === "MODERATOR" ||
+                      newUser?.role === "STUDENT" ||
+                      newUser?.role === "STUDENT_OFFICER" ||
+                      newUser?.role === "DEAN" ||
+                      (newUser?.role === "PERSONNEL" &&
+                        newUser?.type_of_personnel === "ACADEMIC")
+                    )
+                      ? "hidden"
+                      : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Department *
+                    </label>
                     <select
                       onChange={(e) => departmentHandler(e.target.value)}
                       className="w-full border p-2 rounded"
@@ -575,9 +868,19 @@ function UserList() {
                       ))}
                     </select>
                   </div>
-                  <div className={`mb-4 ${roleOnlyNeedIsCourse.includes(newUser.role) || newUser?.type_of_personnel === "ACADEMIC" || newUser.role === "MODERATOR" || newUser.role === "STUDENT" || newUser.role === "STUDENT_OFFICER" ? "" : "hidden"}`}
+                  <div
+                    className={`mb-4 ${roleOnlyNeedIsCourse.includes(newUser.role) ||
+                      newUser?.type_of_personnel === "ACADEMIC" ||
+                      newUser.role === "MODERATOR" ||
+                      newUser.role === "STUDENT" ||
+                      newUser.role === "STUDENT_OFFICER"
+                      ? ""
+                      : "hidden"
+                      }`}
                   >
-                    <label className="block text-sm font-medium mb-1">Course *</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Course *
+                    </label>
                     <select
                       onChange={(e) =>
                         setNewUser({ ...newUser, course_id: e.target.value })
@@ -585,22 +888,38 @@ function UserList() {
                       className="w-full border p-2 rounded"
                     >
                       <option value="">Select Course</option>
-                      {newUser?.role !== "PROGRAM_HEAD" ? <>
-                        {filteredCourses.map((course) => (
-                          <option key={course.id} value={course.id}>
-                            {course.name}
-                          </option>
-                        ))}</> : <>
-                        {courses.map((course) => (
-                          <option key={course.id} value={course.id}>
-                            {course.name}
-                          </option>
-                        ))}
-                      </>}
+                      {newUser?.role !== "PROGRAM_HEAD" ? (
+                        <>
+                          {filteredCourses.map((course) => (
+                            <option key={course.id} value={course.id}>
+                              {course.name}
+                            </option>
+                          ))}
+                        </>
+                      ) : (
+                        <>
+                          {courses.map((course) => (
+                            <option key={course.id} value={course.id}>
+                              {course.name}
+                            </option>
+                          ))}
+                        </>
+                      )}
                     </select>
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) || roleOnlyNeedIsCourse.includes(newUser?.role) || newUser.role === "PERSONNEL" ? "hidden" : ""}`}>
-                    <label className="block text-sm font-medium mb-1">Year Level</label>
+                  <div
+                    className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) ||
+                      newUser?.role === "MODERATOR" ||
+                      roleOnlyNeedIsDepartment.includes(newUser?.role) ||
+                      roleOnlyNeedIsCourse.includes(newUser?.role) ||
+                      newUser.role === "PERSONNEL"
+                      ? "hidden"
+                      : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Year Level
+                    </label>
                     <select
                       value={newUser.year_level}
                       onChange={(e) =>
@@ -616,27 +935,47 @@ function UserList() {
                       ))}
                     </select>
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) || roleOnlyNeedIsCourse.includes(newUser?.role) || newUser.role === "PERSONNEL" ? "hidden" : ""}`}>
-                    <label className="block text-sm font-medium mb-1">Department Club</label>
+                  <div
+                    className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) ||
+                      newUser?.role === "MODERATOR" ||
+                      roleOnlyNeedIsDepartment.includes(newUser?.role) ||
+                      roleOnlyNeedIsCourse.includes(newUser?.role) ||
+                      newUser.role === "PERSONNEL"
+                      ? "hidden"
+                      : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Department Club
+                    </label>
                     <div className="flex gap-2">
                       <select
                         onChange={(e) =>
-                          setNewUser({ ...newUser, department_club_id: e.target.value })
+                          setNewUser({
+                            ...newUser,
+                            department_club_id: e.target.value,
+                          })
                         }
                         className="w-full border p-2 rounded"
                       >
                         <option value="">Select Department Club</option>
-                        {clubs.filter((club) => club.type === "DEPARTMENT").map((club) => (
-                          <option key={club.id} value={club.id}>
-                            {club.name}
-                          </option>
-                        ))}
+                        {clubs
+                          .filter((club) => club.type === "DEPARTMENT")
+                          .map((club) => (
+                            <option key={club.id} value={club.id}>
+                              {club.name}
+                            </option>
+                          ))}
                       </select>
                       <select
                         onChange={(e) =>
-                          setNewUser({ ...newUser, department_club_role: e.target.value })
+                          setNewUser({
+                            ...newUser,
+                            department_club_role: e.target.value,
+                          })
                         }
-                        className={`w-40 border p-2 rounded ${newUser.role === "STUDENT" ? "hidden" : ""}`}
+                        className={`w-40 border p-2 rounded ${newUser.role === "STUDENT" ? "hidden" : ""
+                          }`}
                       >
                         <option value="">Select Role</option>
                         {clubRoles.map((role) => (
@@ -647,27 +986,47 @@ function UserList() {
                       </select>
                     </div>
                   </div>
-                  <div className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) || newUser?.role === "MODERATOR" || roleOnlyNeedIsDepartment.includes(newUser?.role) || roleOnlyNeedIsCourse.includes(newUser?.role) || newUser.role === "PERSONNEL" ? "hidden" : ""}`}>
-                    <label className="block text-sm font-medium mb-1">Social Club</label>
+                  <div
+                    className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) ||
+                      newUser?.role === "MODERATOR" ||
+                      roleOnlyNeedIsDepartment.includes(newUser?.role) ||
+                      roleOnlyNeedIsCourse.includes(newUser?.role) ||
+                      newUser.role === "PERSONNEL"
+                      ? "hidden"
+                      : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Social Club
+                    </label>
                     <div className="flex gap-2">
                       <select
                         onChange={(e) =>
-                          setNewUser({ ...newUser, social_club_id: e.target.value })
+                          setNewUser({
+                            ...newUser,
+                            social_club_id: e.target.value,
+                          })
                         }
                         className="w-full border p-2 rounded"
                       >
                         <option value="">Select Social Club</option>
-                        {clubs.filter((club) => club.type === "SOCIAL").map((club) => (
-                          <option key={club.id} value={club.id}>
-                            {club.name}
-                          </option>
-                        ))}
+                        {clubs
+                          .filter((club) => club.type === "SOCIAL")
+                          .map((club) => (
+                            <option key={club.id} value={club.id}>
+                              {club.name}
+                            </option>
+                          ))}
                       </select>
                       <select
                         onChange={(e) =>
-                          setNewUser({ ...newUser, social_club_role: e.target.value })
+                          setNewUser({
+                            ...newUser,
+                            social_club_role: e.target.value,
+                          })
                         }
-                        className={`w-40 border p-2 rounded ${newUser.role === "STUDENT" ? "hidden" : ""}`}
+                        className={`w-40 border p-2 rounded ${newUser.role === "STUDENT" ? "hidden" : ""
+                          }`}
                       >
                         <option value="">Select Role</option>
                         {clubRoles.map((role) => (
@@ -678,12 +1037,20 @@ function UserList() {
                       </select>
                     </div>
                   </div>
-                  <div className={`mb-4 ${newUser.role !== "MODERATOR" ? "hidden" : ""}`}>
-                    <label className="block text-sm font-medium mb-1">Club</label>
+                  <div
+                    className={`mb-4 ${newUser.role !== "MODERATOR" ? "hidden" : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Club
+                    </label>
                     <div className="flex gap-2">
                       <select
                         onChange={(e) =>
-                          setNewUser({ ...newUser, moderator_club_id: e.target.value })
+                          setNewUser({
+                            ...newUser,
+                            moderator_club_id: e.target.value,
+                          })
                         }
                         className="w-full border p-2 rounded"
                       >
@@ -717,52 +1084,60 @@ function UserList() {
             </div>
           )}
 
-          {isEditModalOpen && (
+          {isEditModalOpen && !isLoading && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
               <div className="bg-white p-6 rounded shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                 <h2 className="text-lg font-semibold mb-4">Edit User</h2>
                 <form className="grid grid-cols-2 gap-4">
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">First Name *</label>
+                    <label className="block text-sm font-medium mb-1">
+                      First Name *
+                    </label>
                     <input
                       type="text"
-                      value={editingUser?.firstName || ''}
+                      value={newUser.first_name}
                       onChange={(e) =>
-                        setEditingUser({ ...editingUser, firstName: e.target.value })
+                        setNewUser({ ...newUser, first_name: e.target.value })
                       }
                       className="w-full border p-2 rounded"
                       required
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Middle Name</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Middle Name
+                    </label>
                     <input
                       type="text"
-                      value={editingUser?.middleName || ''}
+                      value={newUser.middle_name}
                       onChange={(e) =>
-                        setEditingUser({ ...editingUser, middleName: e.target.value })
+                        setNewUser({ ...newUser, middle_name: e.target.value })
                       }
                       className="w-full border p-2 rounded"
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Last Name *</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Last Name *
+                    </label>
                     <input
                       type="text"
-                      value={editingUser?.lastName || ''}
+                      value={newUser.lastname}
                       onChange={(e) =>
-                        setEditingUser({ ...editingUser, lastName: e.target.value })
+                        setNewUser({ ...newUser, lastname: e.target.value })
                       }
                       className="w-full border p-2 rounded"
                       required
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Role *</label>
+                    <label className="block text-sm font-medium mb-1">
+                      Role *
+                    </label>
                     <select
-                      value={editingUser?.role || ''}
+                      value={newUser.role}
                       onChange={(e) =>
-                        setEditingUser({ ...editingUser, role: e.target.value })
+                        setNewUser({ ...newUser, role: e.target.value })
                       }
                       className="w-full border p-2 rounded"
                       required
@@ -775,64 +1150,163 @@ function UserList() {
                     </select>
                   </div>
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">User ID *</label>
+                    <label className="block text-sm font-medium mb-1">
+                      User ID *
+                    </label>
                     <input
                       type="text"
-                      value={editingUser?.userId || ''}
+                      defaultValue={newUser.username}
+                      disabled
+                      className="w-full border p-2 rounded"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Email *
+                    </label>
+                    <input
+                      type="text"
+                      value={newUser.email}
                       onChange={(e) =>
-                        setEditingUser({ ...editingUser, userId: e.target.value })
+                        setNewUser({ ...newUser, email: e.target.value })
                       }
                       className="w-full border p-2 rounded"
                       required
                     />
                   </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Department *</label>
+                  <div
+                    className={`mb-4 ${newUser?.role !== "PERSONNEL" ? "hidden" : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Type of Personnel *
+                    </label>
                     <select
-                      value={editingUser?.department || ''}
+                      value={newUser.type_of_personnel}
                       onChange={(e) =>
-                        setEditingUser({ ...editingUser, department: e.target.value })
+                        setNewUser({
+                          ...newUser,
+                          type_of_personnel: e.target.value,
+                        })
                       }
                       className="w-full border p-2 rounded"
-                      required
                     >
-                      <option value="">Select Department</option>
-                      {courses.map((course) => (
-                        <option key={course.department} value={course.department}>
-                          {course.department}
+                      <option value="">Select Type</option>
+                      <option value="ACADEMIC">Academic</option>
+                      <option value="NON_ACADEMIC">Non Academic</option>
+                    </select>
+                  </div>
+                  <div
+                    className={`mb-4 ${newUser.type_of_personnel !== "NON_ACADEMIC" ||
+                      newUser.role !== "PERSONNEL"
+                      ? "hidden"
+                      : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Office *
+                    </label>
+                    <select
+                      value={newUser.office}
+                      onChange={(e) =>
+                        setNewUser({ ...newUser, office: e.target.value })
+                      }
+                      className="w-full border p-2 rounded"
+                    >
+                      <option value="">Select Office</option>
+                      {offices.map((office, index) => (
+                        <option key={index} value={office.value}>
+                          {office.label}
                         </option>
                       ))}
                     </select>
                   </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Course *</label>
+                  <div
+                    className={`mb-4 ${!(
+                      newUser?.role === "MODERATOR" ||
+                      newUser?.role === "STUDENT" ||
+                      newUser?.role === "STUDENT_OFFICER" ||
+                      newUser?.role === "DEAN" ||
+                      (newUser?.role === "PERSONNEL" &&
+                        newUser?.type_of_personnel === "ACADEMIC")
+                    )
+                      ? "hidden"
+                      : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Department *
+                    </label>
                     <select
-                      value={editingUser?.course || ''}
-                      onChange={(e) =>
-                        setEditingUser({ ...editingUser, course: e.target.value })
-                      }
+                      value={departments?.filter(d => d.id === newUser.department_id)[0]?.id}
+                      onChange={(e) => departmentHandler(e.target.value)}
                       className="w-full border p-2 rounded"
-                      required
                     >
-                      <option value="">Select Course</option>
-                      {courses
-                        .find((c) => c.department === editingUser?.department)
-                        ?.programs.map((program) => (
-                          <option key={program} value={program}>
-                            {program}
-                          </option>
-                        ))}
+                      <option value="">Select Department</option>
+                      {departments.map((department) => (
+                        <option key={department.id} value={department.id}>
+                          {department.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Year Level</label>
+                  <div
+                    className={`mb-4 ${roleOnlyNeedIsCourse.includes(newUser.role) ||
+                      newUser?.type_of_personnel === "ACADEMIC" ||
+                      newUser.role === "MODERATOR" ||
+                      newUser.role === "STUDENT" ||
+                      newUser.role === "STUDENT_OFFICER"
+                      ? ""
+                      : "hidden"
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Course *
+                    </label>
                     <select
-                      value={editingUser?.yearLevel || ''}
+                      value={newUser?.course_id}
+                      onChange={(e) => setNewUser({ ...newUser, course_id: e.target.value })}
+                      className="w-full border p-2 rounded"
+                    >
+                      <option value="">Select Course</option>
+                      {newUser?.role !== "PROGRAM_HEAD" ? (
+                        <>
+                          {filteredCourses.map((course) => (
+                            <option key={course.id} value={course.id}>
+                              {course.name}
+                            </option>
+                          ))}
+                        </>
+                      ) : (
+                        <>
+                          {courses.map((course) => (
+                            <option key={course.id} value={course.id}>
+                              {course.name}
+                            </option>
+                          ))}
+                        </>
+                      )}
+                    </select>
+                  </div>
+                  <div
+                    className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) ||
+                      newUser?.role === "MODERATOR" ||
+                      roleOnlyNeedIsDepartment.includes(newUser?.role) ||
+                      roleOnlyNeedIsCourse.includes(newUser?.role) ||
+                      newUser.role === "PERSONNEL"
+                      ? "hidden"
+                      : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Year Level
+                    </label>
+                    <select
+                      value={newUser.year_level}
                       onChange={(e) =>
-                        setEditingUser({ ...editingUser, yearLevel: e.target.value })
+                        setNewUser({ ...newUser, year_level: e.target.value })
                       }
                       className="w-full border p-2 rounded"
-                      disabled={staffRoles.includes(editingUser?.role)}
                     >
                       <option value="">Select Year Level</option>
                       {yearLevels.map((year) => (
@@ -842,47 +1316,143 @@ function UserList() {
                       ))}
                     </select>
                   </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Department Club</label>
-                    <select
-                      value={editingUser?.departmentClub || ''}
-                      onChange={(e) =>
-                        setEditingUser({ ...editingUser, departmentClub: e.target.value })
-                      }
-                      className="w-full border p-2 rounded"
-                    >
-                      <option value="">Select Department Club</option>
-                      {departmentalClubs.map((club) => (
-                        <option key={club} value={club}>
-                          {club}
-                        </option>
-                      ))}
-                    </select>
+                  <div
+                    className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) ||
+                      newUser?.role === "MODERATOR" ||
+                      roleOnlyNeedIsDepartment.includes(newUser?.role) ||
+                      roleOnlyNeedIsCourse.includes(newUser?.role) ||
+                      newUser.role === "PERSONNEL"
+                      ? "hidden"
+                      : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Department Club
+                    </label>
+                    <div className="flex gap-2">
+                      <select
+                        value={newUser?.department_club_id}
+                        onChange={(e) =>
+                          setNewUser({
+                            ...newUser,
+                            department_club_id: e.target.value,
+                          })
+                        }
+                        className="w-full border p-2 rounded"
+                      >
+                        <option value="">Select Department Club</option>
+                        {clubs
+                          .filter((club) => club.type === "DEPARTMENT")
+                          .map((club) => (
+                            <option key={club.id} value={club.id}>
+                              {club.name}
+                            </option>
+                          ))}
+                      </select>
+                      <select
+                        value={newUser?.department_club_role}
+                        onChange={(e) =>
+                          setNewUser({
+                            ...newUser,
+                            department_club_role: e.target.value,
+                          })
+                        }
+                        className={`w-40 border p-2 rounded ${newUser.role === "STUDENT" ? "hidden" : ""
+                          }`}
+                      >
+                        <option value="">Select Role</option>
+                        {clubRoles.map((role) => (
+                          <option key={role.value} value={role.value}>
+                            {role.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Social Club</label>
-                    <select
-                      value={editingUser?.socialClub || ''}
-                      onChange={(e) =>
-                        setEditingUser({ ...editingUser, socialClub: e.target.value })
-                      }
-                      className="w-full border p-2 rounded"
-                    >
-                      <option value="">Select Social Club</option>
-                      {socialClubs.map((club) => (
-                        <option key={club} value={club}>
-                          {club}
-                        </option>
-                      ))}
-                    </select>
+                  <div
+                    className={`mb-4 ${rolesNoNeedOrganization.includes(newUser?.role) ||
+                      newUser?.role === "MODERATOR" ||
+                      roleOnlyNeedIsDepartment.includes(newUser?.role) ||
+                      roleOnlyNeedIsCourse.includes(newUser?.role) ||
+                      newUser.role === "PERSONNEL"
+                      ? "hidden"
+                      : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Social Club
+                    </label>
+                    <div className="flex gap-2">
+                      <select
+                        value={newUser?.social_club_id}
+                        onChange={(e) =>
+                          setNewUser({
+                            ...newUser,
+                            social_club_id: e.target.value,
+                          })
+                        }
+                        className="w-full border p-2 rounded"
+                      >
+                        <option value="">Select Social Club</option>
+                        {clubs
+                          .filter((club) => club.type === "SOCIAL")
+                          .map((club) => (
+                            <option key={club.id} value={club.id}>
+                              {club.name}
+                            </option>
+                          ))}
+                      </select>
+                      <select
+                        value={newUser?.social_club_role}
+                        onChange={(e) =>
+                          setNewUser({
+                            ...newUser,
+                            social_club_role: e.target.value,
+                          })
+                        }
+                        className={`w-40 border p-2 rounded ${newUser.role === "STUDENT" ? "hidden" : ""
+                          }`}
+                      >
+                        <option value="">Select Role</option>
+                        {clubRoles.map((role) => (
+                          <option key={role.value} value={role.value}>
+                            {role.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div
+                    className={`mb-4 ${newUser.role !== "MODERATOR" ? "hidden" : ""
+                      }`}
+                  >
+                    <label className="block text-sm font-medium mb-1">
+                      Club
+                    </label>
+                    <div className="flex gap-2">
+                      <select
+                        value={newUser?.moderator_club_id}
+                        onChange={(e) =>
+                          setNewUser({
+                            ...newUser,
+                            moderator_club_id: e.target.value,
+                          })
+                        }
+                        className="w-full border p-2 rounded"
+                      >
+                        <option value="">Select Social Club</option>
+                        {clubs.map((club) => (
+                          <option key={club.id} value={club.id}>
+                            {club.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   <div className="col-span-2 flex justify-end">
                     <button
                       type="button"
-                      onClick={() => {
-                        setIsEditModalOpen(false);
-                        setEditingUser(null);
-                      }}
+                      onClick={() => setIsEditModalOpen(false)}
                       className="px-4 py-2 bg-gray-200 rounded mr-2"
                     >
                       Cancel
@@ -896,6 +1466,57 @@ function UserList() {
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          )}
+          {isSignatureModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
+                <h2 className="text-lg font-semibold mb-4">Upload Signature</h2>
+                <div className="mb-4">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    onChange={handleSignatureUpload}
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Select Signature Image
+                  </button>
+                </div>
+                {previewUrl && (
+                  <div className="mb-4">
+                    <p className="text-sm font-medium mb-2">Preview:</p>
+                    <img
+                      src={previewUrl}
+                      alt="Signature Preview"
+                      className="max-w-full h-auto border rounded"
+                    />
+                  </div>
+                )}
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => {
+                      setIsSignatureModalOpen(false);
+                      setSignature(null);
+                      setPreviewUrl("");
+                      setSelectedUserId(null);
+                    }}
+                    className="px-4 py-2 bg-gray-200 rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSignatureSave}
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                  >
+                    Save
+                  </button>
+                </div>
               </div>
             </div>
           )}

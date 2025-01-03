@@ -5,18 +5,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from "../../api/AxiosConfig";
 import Fingerprint from '../Fingerprint/Fingerprint';
+import { getSignature } from "../../services/LetterUtil";
 
-const getSignature = (data, neededRole) => {
-  return data?.signed_people?.filter((item) => item.role === neededRole)[0]?.signature ? data?.signed_people?.filter((item) => item.role === neededRole)[0]?.signature : null
-}
-
-function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
+function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChange, setSignedPeople, setSignaturePreview }) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [communicationLetter, setCommunicationLetter] = useState(null);
   const [captureFingerprint, setCaptureFingerprint] = useState(false);
+  const [signature, setSignature] = useState(null);
 
   if (!user) {
     navigate("/user/moderator-transaction");
@@ -34,7 +32,6 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
         }
         const response = await axios.get(`/communication-letters/${letter.id}`);
         setCommunicationLetter(response.data?.data);
-        console.log(response.data?.data);
       } catch (error) {
         if (error.status === 404) {
           dispatch(showModal({ message: error.response?.data?.message }));
@@ -78,7 +75,7 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
         </div>
 
         {/* Mayor's Signature (Always shown) */}
-        <div className="mt-6 text-center">
+        <div className={`mt-6 text-center ${user?.role !== "STUDENT_OFFICER" ? 'hidden' : ''}`}>
           <p className="font-semibold">Prepared by:</p>
           {communicationLetter && getSignature(communicationLetter, "STUDENT_OFFICER") ? <>
             <img
@@ -93,7 +90,7 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
         </div>
 
         {/* Moderator's Signature (Always shown) */}
-        <div className="mt-6 text-center">
+        <div className={`mt-6 text-center ${user?.role !== "MODERATOR" ? 'hidden' : ''}`}>
           <p className="font-semibold">Noted by:</p>
           {communicationLetter && getSignature(communicationLetter, "MODERATOR") ? <>
             <img
@@ -108,12 +105,12 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
         </div>
 
         {/* DSA Signature Section */}
-        <div className="mt-6 text-center">
+        <div className={`mt-6 text-center ${user?.role !== "DSA" ? 'hidden' : ''}`}>
           <p className="font-semibold">Noted by:</p>
           <div className="mt-4">
             <button
               onClick={() => setCaptureFingerprint(true)}
-              className={`${getSignature(communicationLetter, "DSA") ? "hidden" : ""} flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto`}
+              className={`${getSignature(communicationLetter, "DSA") || signature ? "hidden" : ""} flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto`}
             >
               <FingerPrintIcon className="w-6 h-6" />
               <span>Capture Fingerprint</span>
@@ -122,17 +119,26 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
           {communicationLetter && getSignature(communicationLetter, "DSA") ? <>
             <img
               src={getSignature(communicationLetter, "DSA")}
-              alt="Mayor's Signature"
+              alt="DSA's Signature"
               className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
               style={{ maxHeight: '150px', maxWidth: '300px' }}
             />
-          </> : <></>}
+          </> : <>
+            {signature && (
+              <img
+                src={signature}
+                alt="DSA's Signature"
+                className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                style={{ maxHeight: '150px', maxWidth: '300px' }}
+              />
+            )}
+          </>}
           <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
           <p>Director of Student Affairs</p>
         </div>
 
         {/* President's Signature Section */}
-        <div className="mt-6 text-center">
+        <div className={`mt-6 text-center ${user?.role !== "PRESIDENT" ? 'hidden' : ''}`}>
           <p className="font-semibold">Approved by:</p>
           <div className="mt-4">
             <button
@@ -146,18 +152,30 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
           {communicationLetter && getSignature(communicationLetter, "PRESIDENT") ? <>
             <img
               src={getSignature(communicationLetter, "PRESIDENT")}
-              alt="Mayor's Signature"
+              alt="PRESIDENT's Signature"
               className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
               style={{ maxHeight: '150px', maxWidth: '300px' }}
             />
-          </> : <></>}
+          </> : <>
+            {signature && (
+              <img
+                src={signature}
+                alt="DSA's Signature"
+                className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                style={{ maxHeight: '150px', maxWidth: '300px' }}
+              />
+            )}
+          </>}
           <p className="mt-2 font-bold">REV. FR. JESSIE P. PASQUIN, DCC</p>
           <p>President</p>
         </div>
       </div>
 
       {captureFingerprint && (
-        <Fingerprint onOkClick={() => setCaptureFingerprint(false)} />
+        <Fingerprint
+          onOkClick={() => setCaptureFingerprint(false)}
+          setSignature={setSignature}
+          setSignaturePreview={setSignaturePreview} />
       )}
     </>
   );

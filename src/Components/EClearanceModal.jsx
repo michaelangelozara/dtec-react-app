@@ -1,13 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from "../api/AxiosConfig";
 import { showModal } from '../states/slices/ModalSlicer';
+import { FingerPrintIcon } from '@heroicons/react/24/outline';
+import Fingerprint from "../Components/Fingerprint/Fingerprint";
 
-function EClearanceModal({ show, onClose, clearance, onSignatureChange, signaturePreview, onApprove, toggle }) {
+function EClearanceModal({ show, onClose, clearance, onSignatureChange, signaturePreview, onApprove, toggle, setSignaturePreview }) {
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [fingerprintData, setFingerprintData] = useState(null);
+  const [captureFingerprint, setCaptureFingerprint] = useState(false);
+  const [signature, setSignature] = useState(null);
 
   if (!user) {
     navigate("/oic/dashboard")
@@ -28,8 +33,26 @@ function EClearanceModal({ show, onClose, clearance, onSignatureChange, signatur
     fetchData();
   }, []);
 
+  // const handleCaptureFingerprint = async () => {
+  //   try {
+  //     // Simulating fingerprint capture - replace with actual fingerprint SDK integration
+  //     const mockFingerprintData = {
+  //       timestamp: new Date().toISOString(),
+  //       fingerprintId: Math.random().toString(36).substring(7),
+  //     };
+  //     setFingerprintData(mockFingerprintData);
+  //     onSignatureChange({
+  //       target: {
+  //         files: [],
+  //         fingerprintData: mockFingerprintData
+  //       }
+  //     });
+  //   } catch (error) {
+  //     dispatch(showModal({ message: "Failed to capture fingerprint" }));
+  //   }
+  // };
 
-  const studentName = clearance?.student?.first_name + " " + clearance?.student?.middle_name[0] + ". " + clearance?.student?.lastname
+  const studentName = clearance?.student?.first_name + " " + clearance?.student?.middle_name[0] + ". " + clearance?.student?.lastname;
   const schoolYear = clearance?.school_year;
 
   return (
@@ -56,24 +79,19 @@ function EClearanceModal({ show, onClose, clearance, onSignatureChange, signatur
 
           <div className="mb-6">
             <p className="text-sm text-gray-600 mb-2">Noted by:</p>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Attach Signature
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={onSignatureChange}
-                className="w-full"
-              />
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setCaptureFingerprint(true)}
+                className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
+              >
+                <FingerPrintIcon className="w-6 h-6" />
+                <span>Capture Fingerprint</span>
+              </button>
             </div>
-            {signaturePreview && (
-              <div className="mt-2">
-                <img
-                  src={signaturePreview}
-                  alt="Signature Preview"
-                  className="max-h-20 border rounded p-2"
-                />
+            {fingerprintData && (
+              <div className="mt-4 text-center">
+                <p className="text-green-600 font-semibold">✓ Fingerprint captured successfully</p>
+                <p className="text-sm text-gray-500">Timestamp: {new Date(fingerprintData.timestamp).toLocaleString()}</p>
               </div>
             )}
             <input
@@ -97,11 +115,17 @@ function EClearanceModal({ show, onClose, clearance, onSignatureChange, signatur
               className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
               disabled={clearance.clearance_signoffs?.filter((c) => c.role === user?.role)[0]?.status === "COMPLETED"}
             >
-              Approve with Signature
+              Approve with Fingerprint
             </button>
           </div>
         </div>
       </div>
+      {captureFingerprint && (
+        <Fingerprint
+          onOkClick={() => setCaptureFingerprint(false)}
+          setSignature={setSignature}
+          setSignaturePreview={setSignaturePreview} />
+      )}
     </div>
   );
 }

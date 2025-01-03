@@ -446,8 +446,8 @@ function OICDashboard() {
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {activeTab === "letters" ? <>
-                        {filteredLetter.map((item) => (
-                          <tr key={item.id} className="hover:bg-gray-50">
+                        {filteredLetter.map((item, index) => (
+                          <tr key={index} className="hover:bg-gray-50">
                             <td className="p-3">{item.date_requested}</td>
                             <td className="p-3">{item.cml ? item.name_of_transaction + " (" + item.cml + ")" : item.name_of_transaction}</td>
                             <td className="p-3">{item.name_of_transaction}</td>
@@ -550,6 +550,7 @@ function OICDashboard() {
                 onSignatureChange={handleSignatureChange}
                 signaturePreview={signaturePreview}
                 onApprove={handleApprove}
+                setSignaturePreview={setSignaturePreview}
               />
             )}
             {isDetailsOpen && activeTab === 'clearances' && (
@@ -561,6 +562,7 @@ function OICDashboard() {
                 signaturePreview={signaturePreview}
                 onApprove={handleApprove}
                 toggle={toggle}
+                setSignaturePreview={setSignaturePreview}
               />
             )}
           </div>

@@ -57,6 +57,7 @@ function PersonnelClearanceForm({ clearance, setSigCanvas, saveSignature, handle
     // const [sigCanvas, setSigCanvas] = useState(null);
     const { user, status } = useSelector((state) => state.user);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const formFields = [
         { label: 'LIBRARY/MULTIMEDIA', key: 'LIBRARIAN' },

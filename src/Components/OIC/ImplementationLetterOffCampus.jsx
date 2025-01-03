@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FingerPrintIcon } from '@heroicons/react/24/outline';
 import signature from './try.png';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from "../../api/AxiosConfig";
+import { getSignature } from '../../services/LetterUtil';
+import Fingerprint from '../Fingerprint/Fingerprint';
 
-function ImplementationLetterOffCampus({ letter, setSignedPeople }) {
+function ImplementationLetterOffCampus({
+  letter,
+  signaturePreview,
+  onSignatureChange,
+  setSignedPeople,
+  setSignaturePreview }) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [implementationLetter, setImplementationLetter] = useState(null);
-
-  const handleCaptureFingerprint = () => {
-
-  };
+  const [captureFingerprint, setCaptureFingerprint] = useState(false);
+  const [signature, setSignature] = useState(null);
 
   if (!user) {
     navigate("/user/moderator-transaction");
@@ -30,7 +35,7 @@ function ImplementationLetterOffCampus({ letter, setSignedPeople }) {
             `/generic-letters/on-click/${letter.id}?type=${letter.type}`
           );
         }
-        const response = await axios.get(`/communication-letters/${letter.id}`);
+        const response = await axios.get(`/implementation-letter-off-campuses/${letter.id}`);
         setImplementationLetter(response.data?.data);
       } catch (error) {
         if (error.status === 404) {
@@ -50,6 +55,8 @@ function ImplementationLetterOffCampus({ letter, setSignedPeople }) {
     }
   }, [implementationLetter]);
 
+  console.log(implementationLetter);
+
   return (
     <div className="space-y-4">
       <h2 className="text-center text-2xl font-bold mb-8 underline">
@@ -60,7 +67,7 @@ function ImplementationLetterOffCampus({ letter, setSignedPeople }) {
       <div>
         <label className="block font-semibold mb-2">I. TITLE OF THE ACTIVITY</label>
         <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
-          {letter.content?.activityName}
+          {implementationLetter?.name_of_activity}
         </div>
       </div>
 
@@ -69,21 +76,21 @@ function ImplementationLetterOffCampus({ letter, setSignedPeople }) {
           II. BRIEF DESCRIPTION AND / OR RATIONALE OF THE OUTREACH ACTIVITY / SERVICE
         </label>
         <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50 whitespace-pre-line">
-          {letter.content?.rationale}
+          {implementationLetter?.description}
         </div>
       </div>
 
       <div>
         <label className="block font-semibold mb-2">III. TARGET GROUP AND REASONS FOR CHOOSING IT</label>
         <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50 whitespace-pre-line">
-          {letter.content?.participants}
+          {implementationLetter?.reason}
         </div>
       </div>
 
       <div>
         <label className="block font-semibold mb-2">IV. DATE AND TIME OF IMPLEMENTATION</label>
         <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
-          {letter.content?.dateTime}
+          {implementationLetter?.date_time}
         </div>
       </div>
 
@@ -100,11 +107,11 @@ function ImplementationLetterOffCampus({ letter, setSignedPeople }) {
               </tr>
             </thead>
             <tbody>
-              {letter.content?.activities?.map((activity, index) => (
+              {implementationLetter?.caoos?.map((activity, index) => (
                 <tr key={index}>
                   <td className="border border-gray-300 p-2">{activity.activity}</td>
                   <td className="border border-gray-300 p-2">{activity.objective}</td>
-                  <td className="border border-gray-300 p-2">{activity.output}</td>
+                  <td className="border border-gray-300 p-2">{activity.expectedOutput}</td>
                   <td className="border border-gray-300 p-2">{activity.committee}</td>
                 </tr>
               ))}
@@ -116,18 +123,12 @@ function ImplementationLetterOffCampus({ letter, setSignedPeople }) {
       <div>
         <label className="block font-semibold mb-2">VI. PROGRAM OR FLOW OF ACTIVITIES</label>
         <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
-          <ul className="list-disc pl-4">
-            {letter.content?.programFlow?.map((item, index) => (
-              <li key={index} className="mb-2">
-                <span className="font-bold">{item.time}</span>: {item.activity}
-              </li>
-            ))}
-          </ul>
+          {implementationLetter?.program_or_flow}
         </div>
       </div>
 
       {/* Mayor's Signature */}
-      <div className="mt-6 text-center">
+      <div className={`mt-6 text-center ${user?.role !== "STUDENT_OFFICER" ? 'hidden' : ''}`}>
         <p className="font-semibold">Prepared by:</p>
         <img
           src={signature}
@@ -140,7 +141,7 @@ function ImplementationLetterOffCampus({ letter, setSignedPeople }) {
       </div>
 
       {/* Moderator's Signature */}
-      <div className="mt-6 text-center">
+      <div className={`mt-6 text-center ${user?.role !== "STUDENT_OFFICER" ? 'hidden' : ''}`}>
         <p className="font-semibold">Noted by:</p>
         <img
           src={signature}
@@ -153,34 +154,44 @@ function ImplementationLetterOffCampus({ letter, setSignedPeople }) {
       </div>
 
       {/* DSA Signature Section */}
-      <div className="mt-6 text-center">
+      <div className={`mt-6 text-center ${user?.role !== "COMMUNITY" ? 'hidden' : ''}`}>
         <p className="font-semibold">Noted by:</p>
-        {signatures.dsa ? (
+        <div className={`mt-4 ${user?.role !== "COMMUNITY" ? "hidden" : ""}`}>
+          <button
+            onClick={() => setCaptureFingerprint(true)}
+            disabled={user?.role !== "COMMUNITY"}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
+          >
+            <FingerPrintIcon className="w-6 h-6" />
+            <span>Capture Fingerprint</span>
+          </button>
+        </div>
+        {implementationLetter && getSignature(implementationLetter, "COMMUNITY") ? <>
           <img
-            src={signature}
-            alt="DSA Signature"
+            src={getSignature(implementationLetter, "COMMUNITY")}
+            alt="DSA's Signature"
             className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
             style={{ maxHeight: '150px', maxWidth: '300px' }}
           />
-        ) : (
-          <div className="mt-4">
-            <button
-              onClick={() => handleCaptureFingerprint('dsa')}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
-            >
-              <FingerPrintIcon className="w-6 h-6" />
-              <span>Capture Fingerprint</span>
-            </button>
-          </div>
-        )}
-        <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
-        <p>Director of Student Affairs</p>
+        </> : <>
+          {signature && (
+            <img
+              src={signature}
+              alt="COMMUNITY's Signature"
+              className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+              style={{ maxHeight: '150px', maxWidth: '300px' }}
+            />
+          )}
+        </>}
+
+        <p className="mt-2 font-bold">REV. FR. DARYLL DHAN L. BILBAO, DCC</p>
+        <p>Community Development and Services Officer</p>
       </div>
 
       {/* CDSO Head Signature Section */}
-      <div className="mt-6 text-center">
+      <div className={`mt-6 text-center ${user?.role !== "OFFICE_HEAD" ? 'hidden' : ''}`}>
         <p className="font-semibold">Approved by:</p>
-        {signatures.cdsHead ? (
+        {/* {signatures.cdsHead ? (
           <img
             src={signature}
             alt="CDSO Head Signature"
@@ -197,10 +208,16 @@ function ImplementationLetterOffCampus({ letter, setSignedPeople }) {
               <span>Capture Fingerprint</span>
             </button>
           </div>
-        )}
+        )} */}
         <p className="mt-2 font-bold">REV. FR. DARYLL DHAN L. BILBAO, DCC</p>
         <p>Office Head, CDSO</p>
       </div>
+      {captureFingerprint && (
+        <Fingerprint
+          onOkClick={() => setCaptureFingerprint(false)}
+          setSignature={setSignature}
+          setSignaturePreview={setSignaturePreview} />
+      )}
     </div>
   );
 }

@@ -120,14 +120,11 @@ function ClearanceRequestForm() {
         const response = await axios.get("/clearances/new-clearance");
         setClearance(response.data?.data);
       } catch (error) {
-        if(error.status === 403){
-          dispatch(showModal({message: error.response?.data?.message}))
-        }
       }
     }
 
     fetchData();
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     if (clearance && clearance?.student_signature && clearance?.status === "PENDING") {
@@ -225,7 +222,7 @@ function ClearanceRequestForm() {
                         <div className="flex justify-between items-center">
                           <span className="font-bold">{label}:</span>
                           <span className={`ml-2 ${clearance?.clearance_signoffs?.filter((cs) => cs.role === key)[0]?.status === "COMPLETED" ? `text-green-600` : `text-red-600`}`}>
-                          {clearance?.clearance_signoffs?.filter((cs) => cs.role === key)[0]?.status}
+                            {clearance?.clearance_signoffs?.filter((cs) => cs.role === key)[0]?.status}
                           </span>
                         </div>
                         <div className="mt-2">

@@ -130,7 +130,7 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange, set
           </div>
 
           {/* Signatures Section */}
-          <div className="mt-6 text-center">
+          <div className={`mt-6 text-center ${user?.role !== "STUDENT_OFFICER" ? 'hidden' : ''}`}>
             <p className="font-semibold">Prepared by:</p>
             <img
               alt="Mayor's Signature"
@@ -142,7 +142,7 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange, set
             <p className="text-sm mt-2">Mayor, BLC A.Y. 2023-2024</p>
           </div>
 
-          <div className="mt-6">
+          <div className={`mt-6 ${user?.role !== "MODERATOR" ? 'hidden' : ''}`}>
             <div className="text-center">
               <p className="font-semibold">Noted by:</p>
               <div className="mt-4">
@@ -177,7 +177,7 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange, set
             </div>
           </div>
 
-          <div className="mt-6 text-center">
+          <div className={`mt-6 text-center ${user?.role !== "DSA" ? 'hidden' : ''}`}>
             <p className="font-semibold">Approved by:</p>
             <div className="mt-4">
               <label className="block font-semibold mb-2">Attach Signature</label>

@@ -6,14 +6,14 @@ import configAxios from "../../api/AxiosConfig";
 import { useDispatch } from "react-redux";
 import { showModal } from "../../states/slices/ModalSlicer";
 
-function Fingerprint({ onOkClick }) {
+function Fingerprint({ onOkClick , setSignature, setSignaturePreview}) {
     const dispatch = useDispatch();
 
     const [isConnected, setIsConnected] = useState(false);
-    const [signatureImg, setSignatureImg] = useState(null);
     const [stompClient, setStompClient] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [validatedFingerprint, setValidatedFingerprint] = useState(null);
+    const [eSignature, setESignature] = useState(null);
     const [myData, setMyData] = useState({
         ip: null,
         fingerprints: null
@@ -94,25 +94,28 @@ function Fingerprint({ onOkClick }) {
     useEffect(() => {
         if (stompClient && isConnected && myData && !isLoading) {
             const payload = JSON.stringify(myData);
+            console.log(payload);
             stompClient.send('/app/validate.fingerprint', {}, payload);
         }
     }, [stompClient, myData, isConnected]);
 
     useEffect(() => {
-        const fetchData = async() => {
+        const fetchData = async () => {
             try {
                 const response = await configAxios.get("/users/my-e-signature/e-signature");
-                console.log(response)
+                setESignature(response.data?.data?.signature)
+                setSignature(response.data?.data?.signature);
+                setSignaturePreview(response.data?.data?.signature);
             } catch (error) {
-                if(error.status === 404){
+                if (error.status === 404) {
                     console.log(error);
-                    dispatch(showModal({message : error?.response?.data?.message}))
+                    dispatch(showModal({ message: error?.response?.data?.message }))
                 }
             }
         }
 
-        if(validatedFingerprint){
-            if(validatedFingerprint.ip === myData.ip){
+        if (validatedFingerprint) {
+            if (validatedFingerprint.ip === myData.ip) {
                 fetchData();
             }
         }
@@ -124,9 +127,9 @@ function Fingerprint({ onOkClick }) {
                 <h2 className="text-xl font-semibold text-gray-800">E-Signature</h2>
             </div>
             <div className="w-full mb-6">
-                {signatureImg ? (
+                {eSignature ? (
                     <img
-                        src={signatureImg}
+                        src={eSignature}
                         alt="E-Signature"
                         className="w-full h-48 object-contain border border-gray-300 rounded"
                     />

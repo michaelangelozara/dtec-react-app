@@ -298,7 +298,7 @@ function ModeratorTransaction() {
                           <td className="p-3">{transaction.fields.requested_by}</td>
                           <td className="p-3">
                             <span className={`${getStatusColor(transaction.fields.status)} px-2 py-1 rounded text-sm`}>
-                              {transaction.fields.status === "COMPLETED" || transaction.fields.status === "DECLINED" ? transaction.fields.status : transaction.signed_people?.filter(sp => sp.role === user?.role)[0].status}
+                              {transaction.fields?.status === "COMPLETED" || transaction.fields?.status === "DECLINED" ? transaction.fields.status : transaction.signed_people?.filter(sp => sp.role === user?.role)[0]?.status}
                             </span>
                           </td>
                           <td className="p-3">{transaction.fields.last_update ? transaction.fields.last_update : "N/A"}</td>

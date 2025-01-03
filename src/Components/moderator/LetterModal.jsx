@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ImplementationLetter from '../moderator/CommunicationLetterInCampus';
+import ImplementationLetter from '../moderator/ImplementationLetter(InCampus)';
 import ImplementationLetterOffCampus from '../moderator/ImplementationLetterOffCampus';
 import CommunicationLetterInCampus from '../moderator/CommunicationLetterInCampus';
 import CommunicationLetterOffCampus from '../moderator/CommunicationLetterOffCampus';
