@@ -28,7 +28,7 @@ const roles = [
   { label: "DSA", value: "DSA" },
   { label: "Finance", value: "FINANCE" },
   { label: "President", value: "PRESIDENT" },
-  { label: "Office Head", value: "OFFICE_HEAD" },
+  { label: "CDSO", value: "OFFICE_HEAD" },
   { label: "Guidance", value: "GUIDANCE" },
   { label: "DEAN", value: "DEAN" },
   { label: "Cashier", value: "CASHIER" },
@@ -70,18 +70,21 @@ const rolesNoNeedOrganization = [
   "LIBRARIAN",
   "SCHOOL_NURSE",
   "REGISTRAR",
-  "SCIENCE_LAB",
-  "COMPUTER_SCIENCE_LAB",
-  "ELECTRONICS_LAB",
-  "CRIM_LAB",
-  "HRM_LAB",
-  "NURSING_LAB",
   "ACCOUNTING_CLERK",
   "CUSTODIAN",
   "VPAF",
   "VPA",
   "MULTIMEDIA",
 ];
+
+const labInChargeRoles = [
+  "SCIENCE_LAB",
+  "COMPUTER_SCIENCE_LAB",
+  "ELECTRONICS_LAB",
+  "CRIM_LAB",
+  "HRM_LAB",
+  "NURSING_LAB"
+]
 
 const roleOnlyNeedIsDepartment = ["DEAN"];
 
@@ -279,7 +282,7 @@ function UserList() {
     }
 
     try {
-      const response = await axios.post(`/admin/update-user/${selectedUser?.id}`, newUser);
+      const response = await axios.put(`/admin/update-user/${selectedUser?.id}`, newUser);
       if (response.status === 200) {
         dispatch(showModal({ message: response?.data?.message }))
       }
@@ -646,7 +649,7 @@ function UserList() {
                             >
                               <FaKey />
                             </button>
-                            <div className={`relative dropdown-container ${user?.role === "STUDENT" || user?.role === "STUDENT_OFFICER" || user?.role === "MODERATOR" ? 'hidden' : ''}`}>
+                            <div className={`relative dropdown-container ${user?.role === "STUDENT" || user?.role === "STUDENT_OFFICER" || user?.role === "MODERATOR" || user?.role === "PERSONNEL" ? 'hidden' : ''}`}>
                               <button
                                 className="text-green-500 hover:text-green-700"
                                 title="Enroll"
@@ -809,7 +812,7 @@ function UserList() {
                       }
                       className="w-full border p-2 rounded"
                     >
-                      <option value="">Select Department</option>
+                      <option value="">Select Type</option>
                       <option value="ACADEMIC">Academic</option>
                       <option value="NON_ACADEMIC">Non Academic</option>
                     </select>
@@ -845,6 +848,8 @@ function UserList() {
                       newUser?.role === "STUDENT" ||
                       newUser?.role === "STUDENT_OFFICER" ||
                       newUser?.role === "DEAN" ||
+                      newUser?.role === "PROGRAM_HEAD" ||
+                      labInChargeRoles.includes(newUser?.role) ||
                       (newUser?.role === "PERSONNEL" &&
                         newUser?.type_of_personnel === "ACADEMIC")
                     )
@@ -872,7 +877,8 @@ function UserList() {
                       newUser?.type_of_personnel === "ACADEMIC" ||
                       newUser.role === "MODERATOR" ||
                       newUser.role === "STUDENT" ||
-                      newUser.role === "STUDENT_OFFICER"
+                      newUser.role === "STUDENT_OFFICER" ||
+                      labInChargeRoles.includes(newUser?.role)
                       ? ""
                       : "hidden"
                       }`}
@@ -887,23 +893,11 @@ function UserList() {
                       className="w-full border p-2 rounded"
                     >
                       <option value="">Select Course</option>
-                      {newUser?.role !== "PROGRAM_HEAD" ? (
-                        <>
-                          {filteredCourses.map((course) => (
-                            <option key={course.id} value={course.id}>
-                              {course.name}
-                            </option>
-                          ))}
-                        </>
-                      ) : (
-                        <>
-                          {courses.map((course) => (
-                            <option key={course.id} value={course.id}>
-                              {course.name}
-                            </option>
-                          ))}
-                        </>
-                      )}
+                      {filteredCourses.map((course) => (
+                        <option key={course.id} value={course.id}>
+                          {course.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div
@@ -911,6 +905,7 @@ function UserList() {
                       newUser?.role === "MODERATOR" ||
                       roleOnlyNeedIsDepartment.includes(newUser?.role) ||
                       roleOnlyNeedIsCourse.includes(newUser?.role) ||
+                      labInChargeRoles.includes(newUser?.role) ||
                       newUser.role === "PERSONNEL"
                       ? "hidden"
                       : ""
@@ -939,6 +934,7 @@ function UserList() {
                       newUser?.role === "MODERATOR" ||
                       roleOnlyNeedIsDepartment.includes(newUser?.role) ||
                       roleOnlyNeedIsCourse.includes(newUser?.role) ||
+                      labInChargeRoles.includes(newUser?.role) ||
                       newUser.role === "PERSONNEL"
                       ? "hidden"
                       : ""
@@ -990,6 +986,7 @@ function UserList() {
                       newUser?.role === "MODERATOR" ||
                       roleOnlyNeedIsDepartment.includes(newUser?.role) ||
                       roleOnlyNeedIsCourse.includes(newUser?.role) ||
+                      labInChargeRoles.includes(newUser?.role) ||
                       newUser.role === "PERSONNEL"
                       ? "hidden"
                       : ""
