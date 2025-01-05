@@ -12,7 +12,7 @@ import Modal from "../../Components/modal/Modal";
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 import axios from "../../api/AxiosConfig";
 
-import LetterModal from "../../Components/moderator/LetterModal";
+import LetterModal from "../../Components/CompletedLetterComponent/LetterModal";
 import { showModal } from "../../states/slices/ModalSlicer";
 
 function StatusCard({ count, title, icon, onClick, isActive }) {

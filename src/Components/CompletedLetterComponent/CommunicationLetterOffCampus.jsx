@@ -51,7 +51,7 @@ function CommunicationLetterOffCampus({
     }
   }, [communicationLetter]);
 
-  console.log(communicationLetter);
+  const signedPerson = communicationLetter?.signed_people?.filter((sp) => sp.role === user?.role)[0];
 
   return (
     <>
@@ -79,13 +79,13 @@ function CommunicationLetterOffCampus({
           </div>
 
           {/* Signatures Section */}
-          <div className={`mt-6 text-center ${user?.role !== "STUDENT_OFFICER" ? 'hidden' : ''}`}>
+          <div className="mt-6 text-center">
             <p className="font-semibold">Prepared by:</p>
             <img
               alt="Mayor's Signature"
               className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
               style={{ maxHeight: "150px", maxWidth: "300px" }}
-              src={communicationLetter.student_officer_signature}
+              src={getSignature(communicationLetter, "STUDENT_OFFICER") || ''}
             />
             <p className="mt-2 font-bold">
               {communicationLetter.student_officer}
@@ -93,89 +93,47 @@ function CommunicationLetterOffCampus({
             <p className="text-sm mt-2">Mayor, BLC A.Y. 2023-2024</p>
           </div>
 
-          <div className={`mt-6 ${user?.role !== "MODERATOR" ? 'hidden' : ''}`}>
+          <div className="mt-6">
             <div className="text-center">
               <p className="font-semibold">Noted by:</p>
-              <div className="mt-4">
-                {getSignature(communicationLetter, "MODERATOR") ? <>
 
-                  <img
-                    alt="MODERATOR's Signature"
-                    className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                    style={{ maxHeight: "150px", maxWidth: "300px" }}
-                    src={getSignature(communicationLetter, "MODERATOR") || ''}
-                  />
-                </> : <>
-                  <>
-                    <label className="block font-semibold mb-2">
-                      Attach Signature
-                    </label>
-                    <input
-                      type="file"
-                      className="border-gray-300 border-2 p-2 rounded-md w-full"
-                      accept="image/*"
-                      onChange={onSignatureChange}
-                      disabled={user.role !== "MODERATOR"}
-                    />
-                    <img
-                      alt="MODERATOR's Signature"
-                      className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                      style={{ maxHeight: "150px", maxWidth: "300px" }}
-                      src={signaturePreview}
-                    />
-                  </>
-                </>}
-              </div>
-              {/* {signaturePreview ||
-                (signedPerson.status === "EVALUATED" && (
-                  <div className="mt-4">
-                    <p className="font-semibold">Signature Preview:</p>
-                    <img
-                      alt="Mayor's Signature"
-                      className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                      style={{ maxHeight: "150px", maxWidth: "300px" }}
-                    />
-                  </div>
-                ))} */}
-              <input
-                type="text"
-                className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center"
-                placeholder="Name of Club Moderator"
-                disabled
-                defaultValue={communicationLetter.moderator}
+              <img
+                alt="Mayor's Signature"
+                className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                style={{ maxHeight: "150px", maxWidth: "300px" }}
+                src={getSignature(communicationLetter, "MODERATOR") || ''}
               />
               <p className="text-sm mt-2">MODERATOR, CLUB, A.Y. 2024-2025</p>
             </div>
           </div>
 
-          <div className={`mt-6 text-center ${user?.role !== "DSA" ? 'hidden' : ''}`}>
+          <div className="mt-6 text-center">
             <p className="font-semibold">Noted by:</p>
-            {communicationLetter.dsa_signature !== "N/A" && (
-              <div className="mt-4">
-                <p className="font-semibold">Signature Preview:</p>
-                <img
-                  alt="Signature Preview"
-                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                  style={{ maxHeight: "150px", maxWidth: "300px" }}
-                />
-              </div>
-            )}
+
+            <div className="mt-4">
+              <p className="font-semibold">Signature Preview:</p>
+              <img
+                src={getSignature(communicationLetter, "DSA") || ''}
+                alt="Signature Preview"
+                className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                style={{ maxHeight: "150px", maxWidth: "300px" }}
+              />
+            </div>
             <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
             <p>DIRECTOR OF STUDENT AFFAIRS</p>
           </div>
 
-          <div className={`mt-6 text-center ${user?.role !== "OFFICE_HEAD" ? 'hidden' : ''}`}>
+          <div className="mt-6 text-center">
             <p className="font-semibold">Approved by:</p>
-            {communicationLetter.office_head_signature !== "N/A" && (
-              <div className="mt-4">
-                <p className="font-semibold">Signature Preview:</p>
-                <img
-                  alt="Signature Preview"
-                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                  style={{ maxHeight: "150px", maxWidth: "300px" }}
-                />
-              </div>
-            )}
+            <div className="mt-4">
+              <p className="font-semibold">Signature Preview:</p>
+              <img
+                src={getSignature(communicationLetter, "OFFICE_HEAD") || ''}
+                alt="Signature Preview"
+                className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                style={{ maxHeight: "150px", maxWidth: "300px" }}
+              />
+            </div>
             <p className="mt-2 font-bold">
               REV. FR. DARYLL DHAN L. BILBAO, DCC
             </p>

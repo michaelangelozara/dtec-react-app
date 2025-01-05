@@ -58,9 +58,6 @@ function CommunicationLetterOffCampus({
     }
   }, [communicationLetter]);
 
-  // const dsa = communicationLetter?.signed_people?.filter((sp) => sp.role === "DSA")[0];
-  // const officeHead = communicationLetter?.signed_people?.filter((sp) => sp.role === "OFFICE_HEAD")[0];
-
   return (
     <>
       {!isLoading && communicationLetter && (
@@ -68,7 +65,7 @@ function CommunicationLetterOffCampus({
           <div>
             <label className="block font-semibold mb-2">DATE:</label>
             <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
-              {letter.content?.date}
+              {communicationLetter?.date}
             </div>
           </div>
 
@@ -82,7 +79,7 @@ function CommunicationLetterOffCampus({
           <div>
             <label className="block font-semibold mb-2">LETTER CONTENT:</label>
             <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50 min-h-[200px] whitespace-pre-line">
-              {letter.content?.letterContent}
+              {communicationLetter?.letter_of_content}
             </div>
           </div>
 
@@ -115,32 +112,37 @@ function CommunicationLetterOffCampus({
           {/* DSA Signature Section */}
           <div className={`mt-6 text-center ${user?.role !== "DSA" ? 'hidden' : ''}`}>
             <p className="font-semibold">Noted by:</p>
-            <div className={`mt-4 ${user?.role !== "DSA" ? "hidden" : ""}`}>
-              <button
-                onClick={() => setCaptureFingerprint(true)}
-                disabled={user?.role !== "DSA"}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
-              >
-                <FingerPrintIcon className="w-6 h-6" />
-                <span>Capture Fingerprint</span>
-              </button>
-            </div>
 
             {communicationLetter && getSignature(communicationLetter, "DSA") ? <>
               <img
-                src={getSignature(communicationLetter, "DSA")}
+                src={getSignature(communicationLetter, "DSA") || ''}
                 alt="DSA's Signature"
                 className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
                 style={{ maxHeight: '150px', maxWidth: '300px' }}
               />
             </> : <>
+
               {signature && (
-                <img
-                  src={signature}
-                  alt="DSA's Signature"
-                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                  style={{ maxHeight: '150px', maxWidth: '300px' }}
-                />
+                <>
+                  {!signature && (
+                    <div className={`mt-4 ${user?.role !== "DSA" ? "hidden" : ""}`}>
+                      <button
+                        onClick={() => setCaptureFingerprint(true)}
+                        disabled={user?.role !== "DSA"}
+                        className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
+                      >
+                        <FingerPrintIcon className="w-6 h-6" />
+                        <span>Capture Fingerprint</span>
+                      </button>
+                    </div>
+                  )}
+                  <img
+                    src={signature}
+                    alt="DSA's Signature"
+                    className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                    style={{ maxHeight: '150px', maxWidth: '300px' }}
+                  />
+                </>
               )}
             </>}
             <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
@@ -150,20 +152,22 @@ function CommunicationLetterOffCampus({
           {/* CDSO Head Signature Section */}
           <div className={`mt-6 text-center ${user?.role !== "OFFICE_HEAD" ? 'hidden' : ''}`}>
             <p className="font-semibold">Approved by:</p>
-            <div className={`mt-4 ${user?.role !== "OFFICE_HEAD" ? "hidden" : ""}`}>
-              <button
-                onClick={() => setCaptureFingerprint(true)}
-                disabled={user?.role !== "OFFICE_HEAD"}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
-              >
-                <FingerPrintIcon className="w-6 h-6" />
-                <span>Capture Fingerprint</span>
-              </button>
-            </div>
+            {!signature && (
+              <div className={`mt-4 ${user?.role !== "OFFICE_HEAD" ? "hidden" : ""}`}>
+                <button
+                  onClick={() => setCaptureFingerprint(true)}
+                  disabled={user?.role !== "OFFICE_HEAD"}
+                  className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
+                >
+                  <FingerPrintIcon className="w-6 h-6" />
+                  <span>Capture Fingerprint</span>
+                </button>
+              </div>
+            )}
             {communicationLetter && getSignature(communicationLetter, "OFFICE_HEAD") ? <>
               <img
                 src={getSignature(communicationLetter, "OFFICE_HEAD")}
-                alt="DSA's Signature"
+                alt="OFFICE_HEAD's Signature"
                 className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
                 style={{ maxHeight: '150px', maxWidth: '300px' }}
               />

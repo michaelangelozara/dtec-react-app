@@ -63,7 +63,6 @@ function Fingerprint({ onOkClick , setSignature, setSignaturePreview}) {
         client.connect(
             {},
             (frame) => {
-                console.log('Connected:', frame);
                 setIsConnected(true);
                 setStompClient(client);
 

@@ -15,6 +15,7 @@ import Modal from "../../Components/modal/Modal";
 import { officeInChargeRole } from "../../services/UserUtil";
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 import { navigateRouteByRole } from "../../services/RouteUtil";
+import { getUserEvaluation } from "../../services/LetterUtil";
 
 const statusesForLetter = [
   { label: "For Evaluation", value: "FOR_EVALUATION" },
@@ -165,6 +166,11 @@ function OICDashboard() {
 
   const handleApprove = async () => {
     try {
+      if (!signaturePreview) {
+        dispatch(showModal({ message: "No Signature Found" }))
+        return;
+      }
+
       let response;
       if (activeTab === "letters") {
         response = await axios.post(`/generic-letters/sign-letter/${selectedLetter.id}?type=${selectedLetter.type}`, {
@@ -186,7 +192,9 @@ function OICDashboard() {
         dispatch(showModal({ message: error.response?.data?.message }));
       }
     } finally {
-      closeModal();
+      if (signaturePreview) {
+        closeModal();
+      }
     }
   };
 
@@ -211,7 +219,7 @@ function OICDashboard() {
       try {
         const response = await axios.get(`/generic-letters?s=${entriesPerPage}`);
         setLetter(response.data?.data)
-        console.log(response.data?.data);
+        console.log(response.data?.data)
       } catch (error) {
       }
     }
@@ -449,7 +457,7 @@ function OICDashboard() {
                         {filteredLetter.map((item, index) => (
                           <tr key={index} className="hover:bg-gray-50">
                             <td className="p-3">{item.date_requested}</td>
-                            <td className="p-3">{item.cml ? item.name_of_transaction + " (" + item.cml + ")" : item.name_of_transaction}</td>
+                            <td className="p-3">{item.cml ? item.name_of_transaction + " (" + item.cml + ")" : item.letter_type}</td>
                             <td className="p-3">{item.name_of_transaction}</td>
                             <td className="p-3">{item.requested_by}</td>
                             <td className="p-3">
@@ -461,6 +469,7 @@ function OICDashboard() {
                             <td className="p-3">{item.status === "COMPLETED" ? item.last_update : "N/A"}</td>
                             <td className="p-3">
                               <button
+                                disabled={getUserEvaluation(item, user?.role) === "EVALUATED"}
                                 className="bg-green-800 text-white text-sm px-4 py-2 rounded hover:bg-green-900"
                                 onClick={() => openModalForLetter(item)}
                               >

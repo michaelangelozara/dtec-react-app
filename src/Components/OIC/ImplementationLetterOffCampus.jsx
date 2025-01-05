@@ -55,8 +55,6 @@ function ImplementationLetterOffCampus({
     }
   }, [implementationLetter]);
 
-  console.log(implementationLetter);
-
   return (
     <div className="space-y-4">
       <h2 className="text-center text-2xl font-bold mb-8 underline">
@@ -141,7 +139,7 @@ function ImplementationLetterOffCampus({
       </div>
 
       {/* Moderator's Signature */}
-      <div className={`mt-6 text-center ${user?.role !== "STUDENT_OFFICER" ? 'hidden' : ''}`}>
+      <div className={`mt-6 text-center ${user?.role !== "MODERATOR" ? 'hidden' : ''}`}>
         <p className="font-semibold">Noted by:</p>
         <img
           src={signature}
@@ -183,32 +181,40 @@ function ImplementationLetterOffCampus({
             />
           )}
         </>}
-
         <p className="mt-2 font-bold">REV. FR. DARYLL DHAN L. BILBAO, DCC</p>
         <p>Community Development and Services Officer</p>
       </div>
 
       {/* CDSO Head Signature Section */}
-      <div className={`mt-6 text-center ${user?.role !== "OFFICE_HEAD" ? 'hidden' : ''}`}>
+      <div className={`mt-6 text-center ${user?.role !== "PRESIDENT" ? 'hidden' : ''}`}>
         <p className="font-semibold">Approved by:</p>
-        {/* {signatures.cdsHead ? (
+        <div className={`mt-4 ${user?.role !== "PRESIDENT" ? "hidden" : ""}`}>
+          <button
+            onClick={() => setCaptureFingerprint(true)}
+            disabled={user?.role !== "PRESIDENT"}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
+          >
+            <FingerPrintIcon className="w-6 h-6" />
+            <span>Capture Fingerprint</span>
+          </button>
+        </div>
+        {implementationLetter && getSignature(implementationLetter, "PRESIDENT") ? <>
           <img
-            src={signature}
-            alt="CDSO Head Signature"
+            src={getSignature(implementationLetter, "PRESIDENT")}
+            alt="DSA's Signature"
             className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
             style={{ maxHeight: '150px', maxWidth: '300px' }}
           />
-        ) : (
-          <div className="mt-4">
-            <button
-              onClick={() => handleCaptureFingerprint('cdsHead')}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
-            >
-              <FingerPrintIcon className="w-6 h-6" />
-              <span>Capture Fingerprint</span>
-            </button>
-          </div>
-        )} */}
+        </> : <>
+          {signature && (
+            <img
+              src={signature}
+              alt="PRESIDENT's Signature"
+              className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+              style={{ maxHeight: '150px', maxWidth: '300px' }}
+            />
+          )}
+        </>}
         <p className="mt-2 font-bold">REV. FR. DARYLL DHAN L. BILBAO, DCC</p>
         <p>Office Head, CDSO</p>
       </div>

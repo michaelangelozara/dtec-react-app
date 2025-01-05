@@ -130,93 +130,71 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange, set
             </div>
           </div>
 
-          {/* Signatures Section */}
-          <div className={`mt-6 text-center ${user?.role !== "STUDENT_OFFICER" ? 'hidden' : ''}`}>
-            <p className="font-semibold">Prepared by:</p>
-            <img
-              alt="Mayor's Signature"
-              className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-              style={{ maxHeight: '150px', maxWidth: '300px' }}
-              src={implementationLetter.student_officer_signature}
-            />
-            <p className="mt-2 font-bold">{implementationLetter.student_officer}</p>
-            <p className="text-sm mt-2">Mayor, BLC A.Y. 2023-2024</p>
-          </div>
+          <div className="space-y-4">
+            {/* Basic Information */}
+            {/* Other sections omitted for brevity */}
 
-          <div className={`mt-6 ${user?.role !== "MODERATOR" ? 'hidden' : ''}`}>
-            <div className="text-center">
-              <p className="font-semibold">Noted by:</p>
-              <div className="mt-4">
-                <label className="block font-semibold mb-2">Attach Signature</label>
-                <input
-                  type="file"
-                  className="border-gray-300 border-2 p-2 rounded-md w-full"
-                  accept="image/*"
-                  onChange={onSignatureChange}
-                  disabled={user.role !== "MODERATOR"}
-                />
+            {/* Signatures Section */}
+            <div className="mt-6 text-center">
+              <p className="font-semibold">Prepared by:</p>
+              <img
+                alt="Mayor's Signature"
+                className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                style={{
+                  maxHeight: '150px',
+                  maxWidth: '300px',
+                  minHeight: '150px',
+                  minWidth: '300px',
+                  objectFit: 'contain',
+                }}
+                src={getSignature(implementationLetter, "STUDENT_OFFICER") || ''}
+              />
+              <p className="mt-2 font-bold">{implementationLetter.student_officer}</p>
+              <p className="text-sm mt-2">Mayor, BLC A.Y. 2023-2024</p>
+            </div>
+
+            <div className="mt-6">
+              <div className="text-center">
+                <p className="font-semibold">Noted by:</p>
+                <div className="mt-6 flex justify-center items-center flex-col">
+                  <p className="text-sm font-medium mb-2">Signature Preview:</p>
+                  <img
+                    src={getSignature(implementationLetter, "MODERATOR") || ''}
+                    alt="Moderator Signature"
+                    className="border rounded p-2 mx-auto"
+                    style={{
+                      maxHeight: '150px',
+                      maxWidth: '300px',
+                      minHeight: '150px',
+                      minWidth: '300px',
+                      objectFit: 'contain',
+                    }}
+                  />
+                </div>
+                <p className="text-sm mt-2">MODERATOR, CLUB, A.Y. 2024-2025</p>
               </div>
-
-              {!signaturePreview && getSignature(implementationLetter, "MODERATOR") && (
-                <div className="mt-6 flex justify-center items-center flex-col">
-                  <p className="text-sm font-medium mb-2">Signature Preview:</p>
-                  <img
-                    src={signaturePreview}
-                    alt="Mayor Signature"
-                    className="max-h-20 max-w-full border rounded p-2 mx-auto"
-                    style={{ display: 'block' }}
-                  />
-                </div>
-              )}
-
-              {signaturePreview && !getSignature(implementationLetter, "MODERATOR") && (
-                <div className="mt-6 flex justify-center items-center flex-col">
-                  <p className="text-sm font-medium mb-2">Signature Preview:</p>
-                  <img
-                    src={signaturePreview}
-                    alt="Mayor Signature"
-                    className="max-h-20 max-w-full border rounded p-2 mx-auto"
-                    style={{ display: 'block' }}
-                  />
-                </div>
-              )}
-
-              <input
-                type="text"
-                className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center"
-                placeholder="Name of Club Moderator"
-                defaultValue={implementationLetter.moderator}
-                disabled
-              />
-              <p className="text-sm mt-2">MODERATOR, CLUB, A.Y. 2024-2025</p>
             </div>
-          </div>
 
-          <div className={`mt-6 text-center ${user?.role !== "DSA" ? 'hidden' : ''}`}>
-            <p className="font-semibold">Approved by:</p>
-            <div className="mt-4">
-              <label className="block font-semibold mb-2">Attach Signature</label>
-              <input
-                type="file"
-                className="border-gray-300 border-2 p-2 rounded-md w-full"
-                accept="image/*"
-                onChange={onSignatureChange}
-                disabled={user.role !== "DSA"}
-              />
-            </div>
-            {signaturePreview || implementationLetter.dsa_signature !== "N/A" && (
+            <div className="mt-6 text-center">
+              <p className="font-semibold">Approved by:</p>
               <div className="mt-4">
                 <p className="font-semibold">Signature Preview:</p>
                 <img
-                  src={signaturePreview}
+                  src={getSignature(implementationLetter, "DSA") || ''}
                   alt="Signature Preview"
                   className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                  style={{ maxHeight: '150px', maxWidth: '300px' }}
+                  style={{
+                    maxHeight: '150px',
+                    maxWidth: '300px',
+                    minHeight: '150px',
+                    minWidth: '300px',
+                    objectFit: 'contain',
+                  }}
                 />
               </div>
-            )}
-            <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
-            <p>Director of Student Affairs</p>
+              <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
+              <p>Director of Student Affairs</p>
+            </div>
           </div>
         </div>
       )}

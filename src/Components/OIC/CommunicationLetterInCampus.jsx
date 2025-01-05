@@ -56,7 +56,7 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
         <div>
           <label className="block font-semibold mb-2">DATE:</label>
           <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
-            {letter.content?.date}
+            {communicationLetter?.date}
           </div>
         </div>
 
@@ -70,7 +70,7 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
         <div>
           <label className="block font-semibold mb-2">LETTER CONTENT:</label>
           <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50 min-h-[200px] whitespace-pre-line">
-            {letter.content?.letterContent}
+            {communicationLetter?.letter_of_content}
           </div>
         </div>
 

@@ -27,7 +27,6 @@ const roles = [
   { label: "Moderator", value: "MODERATOR" },
   { label: "DSA", value: "DSA" },
   { label: "Finance", value: "FINANCE" },
-  { label: "Community", value: "COMMUNITY" },
   { label: "President", value: "PRESIDENT" },
   { label: "Office Head", value: "OFFICE_HEAD" },
   { label: "Guidance", value: "GUIDANCE" },
@@ -64,7 +63,6 @@ const rolesNoNeedOrganization = [
   "OFFICE_IN_CHARGE",
   "DSA",
   "FINANCE",
-  "COMMUNITY",
   "PRESIDENT",
   "OFFICE_HEAD",
   "GUIDANCE",
@@ -135,7 +133,7 @@ function UserList() {
     type_of_personnel: null,
     office: null,
   });
-  const [pageRange, setPageRange] = useState([0, 20]);
+  const [pageRange, setPageRange] = useState([0, 50]);
   const itemsPerPage = 15;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -158,7 +156,7 @@ function UserList() {
       if (a.role === b.role) return 0;
       return a.role === "ADMIN" ? -1 : 1; // Sort 'admin' before 'user'
     });
-  }, [filteredUsers, newUser?.role]);
+  }, [filteredUsers, newUser?.role, isSuccessAdded]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -293,6 +291,7 @@ function UserList() {
       setIsEditModalOpen(false);
       setEditingUser(null);
       resetUserFields();
+      addedUserToggle();
     }
   };
 
@@ -310,7 +309,7 @@ function UserList() {
       first_name: "",
       middle_name: "",
       lastname: "",
-      role: "STUDENT",
+      role: "SELECT ALL",
       username: "",
       email: "",
       department_id: 0,

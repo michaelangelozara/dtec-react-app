@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { FingerPrintIcon } from '@heroicons/react/24/outline';
-import signature from './try.png';
 import axios from "../../api/AxiosConfig";
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -101,16 +100,6 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange, set
           {implementationLetter?.participants}
         </div>
       </div>
-
-      {/* Content Sections */}
-      {/* {['RATIONALE', 'OBJECTIVES', 'SOURCES OF FUND', 'PROJECTED EXPENSES', 'EXPECTED OUTPUT'].map((field, index) => (
-        <div key={index}>
-          <label className="block font-semibold mb-2">{field}:</label>
-          <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50 whitespace-pre-line min-h-[100px]">
-            {letter.content?.[field.toLowerCase().replace(/ /g, '')]}
-          </div>
-        </div>
-      ))} */}
 
       <div>
         <label className="block font-semibold mb-2">RATIONALE</label>

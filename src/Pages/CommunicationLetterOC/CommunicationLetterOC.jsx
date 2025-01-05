@@ -171,6 +171,7 @@ function CommunicationLetter() {
                         type="text"
                         className="w-full border-gray-300 border-2 p-2 rounded-md mt-2"
                         placeholder="Name of Club Mayor"
+                        disabled
                         defaultValue={user?.first_name + " " + user?.middle_name + " " + user?.lastname}
                       />
                       <p >MAYOR, CLUB, A.Y. 2024-2025</p>

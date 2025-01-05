@@ -95,9 +95,15 @@ function ModeratorTransaction() {
   const handleSignatureChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const validTypes = ['image/jpeg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        console.error('Unsupported file type');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSignaturePreview(reader.result);
+        setSignaturePreview(reader.result); // Set the base64 string
       };
       reader.readAsDataURL(file);
     } else {
