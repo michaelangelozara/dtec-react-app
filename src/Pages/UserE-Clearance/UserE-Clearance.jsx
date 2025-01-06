@@ -28,10 +28,6 @@ function EClearance() {
     if (!user) {
       dispatch(fetchUser());
     }
-
-    if (user && !studentAndPersonnelRole.includes(user?.role)) {
-      navigate(navigateRouteByRole(user));
-    }
   }, [dispatch, user, status]);
 
   return (

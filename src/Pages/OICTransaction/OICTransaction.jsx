@@ -183,8 +183,9 @@ function OICDashboard() {
           }
         );
       }
-      if (response.status === 201) {
-        dispatch(showModal({ message: response.data?.message }));
+      console.log(response);
+      if (response.status === 201 || response.status === 200) {
+        dispatch(showModal({ message: response.data?.data }));
         toggle();
       }
     } catch (error) {
@@ -491,6 +492,7 @@ function OICDashboard() {
                             <td className="p-3">{item.status === "COMPLETED" ? item.last_modified : "N/A"}</td>
                             <td className="p-3">
                               <button
+                                disabled={getUserEvaluation(item, user?.role) === "COMPLETED"}
                                 className="bg-green-800 text-white text-sm px-4 py-2 rounded hover:bg-green-900"
                                 onClick={() => openModalForClearance(item)}
                               >

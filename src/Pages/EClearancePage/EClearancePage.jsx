@@ -9,9 +9,7 @@ import { showModal } from '../../states/slices/ModalSlicer';
 import { useDispatch, useSelector } from 'react-redux';
 import Modal from '../../Components/modal/Modal';
 import { fetchUser } from '../../states/slices/UserSlicer';
-import { navigateRouteByRole } from '../../services/RouteUtil';
 import { useNavigate } from 'react-router-dom';
-import { studentAndPersonnelRole } from '../../services/UserUtil';
 import PersonnelClearanceForm from "../../Pages/Personnel/PersonnelClearanceForm";
 
 function ClearanceRequestForm() {
@@ -135,16 +133,6 @@ function ClearanceRequestForm() {
   const closeModal = () => {
     setIsModalOpen(false);
   };
-
-  useEffect(() => {
-    if (!user) {
-      dispatch(fetchUser());
-    }
-
-    if (user && !studentAndPersonnelRole.includes(user.role)) {
-      navigate(navigateRouteByRole(user));
-    }
-  }, [dispatch, user, status]);
 
   return (
     <>

@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { showModal } from '../../states/slices/ModalSlicer';
 import { useNavigate } from 'react-router-dom';
 
-function PersonnelClearanceForm({ clearance, setSigCanvas, saveSignature, handlePrint, handleCancel }) {    
+function PersonnelClearanceForm({ clearance, setSigCanvas, saveSignature, handlePrint, handleCancel }) {
     const [signatures, setSignatures] = useState({
         libraryMultimedia: null,
         scienceLab: null,
@@ -98,12 +98,9 @@ function PersonnelClearanceForm({ clearance, setSigCanvas, saveSignature, handle
 
     useEffect(() => {
         if (!user) {
-            dispatch(fetchUser());
+            dispatch(fetchUser())
         }
 
-        if (user && !studentAndPersonnelRole.includes(user.role)) {
-            navigate(navigateRouteByRole(user));
-        }
     }, [dispatch, user, status]);
 
     return (
@@ -131,7 +128,7 @@ function PersonnelClearanceForm({ clearance, setSigCanvas, saveSignature, handle
                     <h2 className="text-center text-2xl font-bold mb-8">Certificate of Clearance</h2>
 
                     <p className="text-center mb-6">
-                        This is to certify that <strong>LOZADA, MARK JOSEPH L.</strong>, a faculty member of <strong>CAS-ED</strong>,
+                        This is to certify that <strong>{user?.middle_name ? user?.first_name + " " + user?.middle_name[0] + ". " + user?.lastname : user?.first_name + " " + user?.lastname}</strong>, a faculty member of <strong>CAS-ED</strong>,
                         has complied with all the requirements and is cleared of all responsibilities under my charge
                         this First Semester, A.Y. 2024 - 2025:
                     </p>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { FaUserCircle, FaBell } from "react-icons/fa";
@@ -6,9 +6,22 @@ import Banner from "../../Images/banner.svg";
 import DT from "../../Images/DT.svg";
 import EC from "../../Images/EC.svg";
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUser } from "../../states/slices/UserSlicer";
+
 
 function OICDashboard() {
   const navigate = useNavigate();
+  const { user, status } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+
+  useEffect(() => {
+    if (!user) {
+      dispatch(fetchUser())
+    }
+
+  }, [dispatch, user, status]);
 
   return (
     <>
@@ -22,7 +35,7 @@ function OICDashboard() {
         {/* Welcome Message */}
         <div className="py-10 px-10">
           <h1 className="text-3xl font-bold text-gray-800">
-            Welcome, Office In Charge!
+            Welcome, {user?.middle_name ? user?.first_name + " " + user?.middle_name[0] + ". " + user?.lastname : user?.first_name + " " + user?.lastname}!
           </h1>
           <p className="mt-2 text-gray-600">Select your Transaction</p>
           <hr className="mt-4 border-gray-300" />
@@ -38,7 +51,7 @@ function OICDashboard() {
             Transactions
           </button>
           <button
-            onClick={() => navigate("/personnel/clearance-form")}
+            onClick={() => navigate("/user/e-clearance")}
             className="text-2xl flex-col w-80 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-6 px-10 rounded-lg flex items-center"
           >
             <img

@@ -66,10 +66,6 @@ function StudentClearanceTracking() {
     if (!user) {
       dispatch(fetchUser());
     }
-
-    if (user && !studentAndPersonnelRole.includes(user.role)) {
-      navigate(navigateRouteByRole(user));
-    }
   }, [dispatch, user, status]);
 
   return (
@@ -83,7 +79,7 @@ function StudentClearanceTracking() {
           <PrimaryNavBar />
 
           <div className="py-6 px-10">
-            <h1 className="text-3xl font-bold text-gray-800">Welcome, {user?.first_name} {user?.lastname}!</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Welcome, {user?.middle_name ? user?.first_name + " " + user?.middle_name[0] + ". " + user?.lastname : user?.first_name + " " + user?.lastname}!</h1>
             <p className="mt-2 text-gray-600">Clearance Status Tracking</p>
             <hr className="mt-4 border-gray-300" />
           </div>
