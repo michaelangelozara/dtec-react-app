@@ -55,6 +55,7 @@ function ImplementationLetterOffCampus({
     }
   }, [implementationLetter]);
 
+  console.log(user);
   return (
     <div className="space-y-4">
       <h2 className="text-center text-2xl font-bold mb-8 underline">
@@ -152,21 +153,21 @@ function ImplementationLetterOffCampus({
       </div>
 
       {/* DSA Signature Section */}
-      <div className={`mt-6 text-center ${user?.role !== "COMMUNITY" ? 'hidden' : ''}`}>
+      <div className={`mt-6 text-center ${user?.role !== "OFFICE_HEAD" ? 'hidden' : ''}`}>
         <p className="font-semibold">Noted by:</p>
-        <div className={`mt-4 ${user?.role !== "COMMUNITY" ? "hidden" : ""}`}>
+        <div className={`mt-4 ${user?.role !== "OFFICE_HEAD" ? "hidden" : ""}`}>
           <button
             onClick={() => setCaptureFingerprint(true)}
-            disabled={user?.role !== "COMMUNITY"}
+            disabled={user?.role !== "OFFICE_HEAD"}
             className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
           >
             <FingerPrintIcon className="w-6 h-6" />
             <span>Capture Fingerprint</span>
           </button>
         </div>
-        {implementationLetter && getSignature(implementationLetter, "COMMUNITY") ? <>
+        {implementationLetter && getSignature(implementationLetter, "OFFICE_HEAD") ? <>
           <img
-            src={getSignature(implementationLetter, "COMMUNITY")}
+            src={getSignature(implementationLetter, "OFFICE_HEAD")}
             alt="DSA's Signature"
             className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
             style={{ maxHeight: '150px', maxWidth: '300px' }}
@@ -181,7 +182,7 @@ function ImplementationLetterOffCampus({
             />
           )}
         </>}
-        <p className="mt-2 font-bold">REV. FR. DARYLL DHAN L. BILBAO, DCC</p>
+        <p className="mt-2 font-bold">{user?.office_head}</p>
         <p>Community Development and Services Officer</p>
       </div>
 
@@ -215,8 +216,8 @@ function ImplementationLetterOffCampus({
             />
           )}
         </>}
-        <p className="mt-2 font-bold">REV. FR. DARYLL DHAN L. BILBAO, DCC</p>
-        <p>Office Head, CDSO</p>
+        <p className="mt-2 font-bold">{user?.president}</p>
+        <p>NDTC President</p>
       </div>
       {captureFingerprint && (
         <Fingerprint

@@ -3,11 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { showModal } from '../../states/slices/ModalSlicer';
 import axios from "../../api/AxiosConfig";
+import { fetchUser } from '../../states/slices/UserSlicer';
+import { getSignature } from '../../services/LetterUtil';
 
 function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);
   const [communicationLetter, setCommunicationLetter] = useState(null);
-  const { user } = useSelector((state) => state.user);
+  const { user, status } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -15,6 +17,12 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
     navigate("/user/moderator-transaction")
     return;
   }
+
+  useEffect(() => {
+    if (!user) {
+      dispatch(fetchUser());
+    }
+  }, [user, status, dispatch]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +63,7 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
           </div>
 
           <div className="mb-4">
-            <div className="font-bold">REV. FR. JESSIE P. PASQUIN, DCC</div>
+            <div className="font-bold">{user?.president}</div>
             <div>President</div>
             <div>Notre Dame of Tacurong College</div>
             <div>City of Tacurong</div>
@@ -68,62 +76,60 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
             </div>
           </div>
 
-          {/* Signatures Section */}
-          <div className="mt-6 text-center">
-            <p className="font-semibold">Prepared by:</p>
-            <img
-              alt="Mayor's Signature"
-              className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-              style={{ maxHeight: '150px', maxWidth: '300px' }}
-              src={communicationLetter.student_officer_signature}
-            />
-            <p className="mt-2 font-bold">{communicationLetter.student_officer}</p>
-            <p className="text-sm mt-2">Mayor, BLC A.Y. 2023-2024</p>
-          </div>
-
           <div className="mt-6">
             <div className="text-center">
               <p className="font-semibold">Noted by:</p>
-              <div className="mt-4">
-                <label className="block font-semibold mb-2">Attach Signature</label>
-                <input
-                  type="file"
-                  className="border-gray-300 border-2 p-2 rounded-md w-full"
-                  accept="image/*"
-                  onChange={onSignatureChange}
+              {getSignature(communicationLetter, "MODERATOR") ? <>
+
+                <img
+                  alt="MODERATOR's Signature"
+                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                  style={{ maxHeight: "150px", maxWidth: "300px" }}
+                  src={getSignature(communicationLetter, "MODERATOR") || ''}
                 />
-              </div>
-              {signaturePreview && (
-                <div className="mt-4">
-                  <p className="font-semibold">Signature Preview:</p>
-                  <img
-                    src={signaturePreview}
-                    alt="Signature Preview"
-                    className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                    style={{ maxHeight: '150px', maxWidth: '300px' }}
+              </> : <>
+                <>
+                  <label className="block font-semibold mb-2">
+                    Attach Signature
+                  </label>
+                  <input
+                    type="file"
+                    className="border-gray-300 border-2 p-2 rounded-md w-full"
+                    accept="image/*"
+                    onChange={onSignatureChange}
+                    disabled={user.role !== "MODERATOR"}
                   />
-                </div>
-              )}
+                  <img
+                    alt="MODERATOR's Signature"
+                    className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                    style={{ maxHeight: "150px", maxWidth: "300px" }}
+                    src={signaturePreview}
+                  />
+                </>
+              </>}
+
               <input
                 type="text"
                 className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center"
                 placeholder="Name of Club Moderator"
+                disabled
+                defaultValue={user?.middle_name ? user?.first_name + " " + user?.middle_name[0] + ". " + user?.lastname : user?.first_name + " " + user?.lastname}
               />
-              <p className="text-sm mt-2">MODERATOR, CLUB, A.Y. 2024-2025</p>
+              <p className="text-sm mt-2">MODERATOR, {user?.officer_at}, A.Y. 2024-2025</p>
             </div>
           </div>
 
-          <div className="mt-6 text-center">
+          {/* <div className={`mt-6 text-center ${user?.role !== "DSA" ? 'hidden' : ''}`}>
             <p className="font-semibold">Noted by:</p>
-            <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
+            <p className="mt-2 font-bold">{user?.dsa}</p>
             <p>DIRECTOR OF STUDENT AFFAIRS</p>
           </div>
 
           <div className="mt-6 text-center">
             <p className="font-semibold">Approved by:</p>
-            <p className="mt-2 font-bold">REV. FR. JESSIE P. PASQUIN, DCC</p>
+            <p className="mt-2 font-bold">{user?.president}</p>
             <p>PRESIDENT, NDTC</p>
-          </div>
+          </div> */}
         </div>
       )}
     </>

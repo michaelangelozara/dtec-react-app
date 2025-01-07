@@ -141,18 +141,27 @@ function OICDashboard() {
   const currentItems = filteredLetter.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredLetter.length / entriesPerPage);
 
-  // Counts for status cards
-  const pendingCount = currentData.filter(item =>
-    activeTab === 'letters' ?
-      item.transactionStatus === "For Evaluation" :
-      item.clearance_signoffs?.filter((item) => item.role === user?.role)[0]?.status === "IN_PROGRESS"
-  ).length;
+  // // Counts for status cards
+  // const pendingCount = currentData.filter(item =>
+  //   activeTab === 'letters' ?
+  //     item.transactionStatus === "For Evaluation" :
+  //     item.clearance_signoffs?.filter((item) => item.role === user?.role)[0]?.status === "IN_PROGRESS"
+  // ).length;
 
-  const approvedCount = currentData.filter(item =>
-    activeTab === 'letters' ?
-      item.transactionStatus === "Approved" :
-      item.clearance_signoffs?.filter((item) => item.role === user?.role)[0]?.status === "PENDING"
-  ).length;
+  // const approvedCount = currentData.filter(item =>
+  //   activeTab === 'letters' ?
+  //     item.transactionStatus === "Approved" :
+  //     item.clearance_signoffs?.filter((item) => item.role === user?.role)[0]?.status === "PENDING"
+  // ).length;
+
+  const pendingCountForLetter = letters?.filter((t) => activeTab === "letters" ? t.signed_people?.filter((sp) => sp.role === user?.role)[0]?.status === "FOR_EVALUATION" : '').length;
+  const approvedCountForLetter = letters?.filter((t) => activeTab === "letters" ? t.fields.status === "COMPLETED" : '').length;
+
+  const pendingCountForClearance = clearances?.filter((c) => activeTab === "clearances" && c.status === "PENDING").length;
+  const approvedCountForClearance = clearances?.filter((c) => activeTab === "clearances" && c.status === "COMPLETED").length;
+
+
+  console.log(letters);
 
   // Event handlers
   const handleCardClick = (status) => {
@@ -171,6 +180,17 @@ function OICDashboard() {
       reader.readAsDataURL(file);
     }
   };
+
+  const getStatusNameForClearance = (item) => {
+    const data = item.clearance_signoffs?.filter((s) => s.role === user?.role)[0]?.status;
+    if (data === "PENDING") {
+      return "Pending";
+    } else if (data === "IN_PROGRESS") {
+      return "In Progress";
+    } else {
+      return "Completed";
+    }
+  }
 
   const openModalForLetter = (letter) => {
     setSelectedLetter(letter);
@@ -333,15 +353,16 @@ function OICDashboard() {
             <div className="px-10 flex justify-between items-start">
               <div className="flex space-x-4">
                 <StatusCard
-                  count={pendingCount}
-                  title={activeTab === 'letters' ? "FOR EVALUATION" : "In Progress"}
+                  // count={pendingCountForLetter}
+                  count={activeTab === 'letters' ? pendingCountForLetter : pendingCountForClearance}
+                  title={activeTab === 'letters' ? "FOR EVALUATION" : "PENDING"}
                   icon={PendingIcon}
                   onClick={() => handleCardClick(activeTab === 'letters' ? "For Evaluation" : "In Progress")}
                   isActive={selectedStatus === (activeTab === 'letters' ? "For Evaluation" : "In Progress")}
                 />
                 <StatusCard
-                  count={approvedCount}
-                  title={activeTab === 'letters' ? "FOR EVALUATION" : "Pending"}
+                  count={activeTab === 'letters' ? approvedCountForLetter : approvedCountForClearance}
+                  title={activeTab === 'letters' ? "COMPLETED" : "COMPLETED"}
                   icon={ApprovedIcon}
                   onClick={() => handleCardClick("Approved")}
                   isActive={selectedStatus === "Approved"}
@@ -506,7 +527,7 @@ function OICDashboard() {
                             <td className="p-3">
                               <button
                                 disabled={getUserEvaluation(item, user?.role) === "EVALUATED"}
-                                className="bg-green-800 text-white text-sm px-4 py-2 rounded hover:bg-green-900"
+                                className={`${item.status === "COMPLETED" ? 'bg-gray-500' : 'bg-green-800'} text-white text-sm px-4 py-2 rounded ${item.status !== 'COMPLETED' ? 'hover:bg-green-900' : ''}`}
                                 onClick={() => openModalForLetter(item)}
                               >
                                 <FaEye className="inline mr-1" />
@@ -522,14 +543,13 @@ function OICDashboard() {
                             <td className="p-3">{item.type}</td>
                             <td className="p-3">{item.user?.first_name} {item.user?.middle_name[0]}. {item.user?.lastname}</td>
                             <td className="p-3">{item.type === "STUDENT_CLEARANCE" ? item.user?.course?.short_name + " - " + item.user?.year_level : "N/A"}</td>
-                            <td className="p-3">{item.clearance_signoffs?.filter((s) => s.role === user?.role)[0]?.status}</td>
+                            <td className={`p-3`}><span className={`${getStatusNameForClearance(item) === 'Pending' ? 'bg-blue-400' : getStatusNameForClearance(item) === 'In Progress' ? 'bg-yellow-500' : 'bg-green-500'}`}>{getStatusNameForClearance(item)}</span></td>
                             <td className="p-3">N/A</td>
                             <td className="p-3">{item.status === "COMPLETED" ? item.last_modified : "N/A"}</td>
                             <td className="p-3">
                               <button
                                 disabled={getUserEvaluation(item, user?.role) === "COMPLETED"}
-                                className="bg-green-800 text-white text-sm px-4 py-2 rounded hover:bg-green-900"
-                                onClick={() => openModalForClearance(item)}
+                                className={`${item.status === "COMPLETED" ? 'bg-gray-500' : 'bg-green-800'} text-white text-sm px-4 py-2 rounded ${item.status !== 'COMPLETED' ? 'hover:bg-green-900' : ''}`} onClick={() => openModalForClearance(item)}
                               >
                                 <FaEye className="inline mr-1" />
                                 View

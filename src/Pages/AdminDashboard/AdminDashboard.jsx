@@ -57,6 +57,7 @@ function AdminDashboard() {
         }
       }
     } catch (error) {
+      console.log(error);
       if (error.status === 404) {
         dispatch(showModal({ message: error.response?.data?.message }));
       }

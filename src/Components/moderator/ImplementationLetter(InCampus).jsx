@@ -146,41 +146,35 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange, set
           <div className={`mt-6 ${user?.role !== "MODERATOR" ? 'hidden' : ''}`}>
             <div className="text-center">
               <p className="font-semibold">Noted by:</p>
-              <div className="mt-4">
-                <label className="block font-semibold mb-2">Attach Signature</label>
-                <input
-                  type="file"
-                  className="border-gray-300 border-2 p-2 rounded-md w-full"
-                  accept="image/*"
-                  onChange={onSignatureChange}
-                  disabled={user.role !== "MODERATOR"}
+              {getSignature(implementationLetter, "MODERATOR") ? <>
+
+                <img
+                  alt="MODERATOR's Signature"
+                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                  style={{ maxHeight: "150px", maxWidth: "300px" }}
+                  src={getSignature(implementationLetter, "MODERATOR") || ''}
                 />
-              </div>
-
-              {!signaturePreview && getSignature(implementationLetter, "MODERATOR") && (
-                <div className="mt-6 flex justify-center items-center flex-col">
-                  <p className="text-sm font-medium mb-2">Signature Preview:</p>
-                  <img
-                    src={signaturePreview}
-                    alt="Mayor Signature"
-                    className="max-h-20 max-w-full border rounded p-2 mx-auto"
-                    style={{ display: 'block' }}
+              </> : <>
+                <>
+                  <label className="block font-semibold mb-2">
+                    Attach Signature
+                  </label>
+                  <input
+                    type="file"
+                    className="border-gray-300 border-2 p-2 rounded-md w-full"
+                    accept="image/*"
+                    onChange={onSignatureChange}
+                    disabled={user.role !== "MODERATOR"}
                   />
-                </div>
-              )}
-
-              {signaturePreview && !getSignature(implementationLetter, "MODERATOR") && (
-                <div className="mt-6 flex justify-center items-center flex-col">
-                  <p className="text-sm font-medium mb-2">Signature Preview:</p>
                   <img
+                    alt="MODERATOR's Signature"
+                    className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                    style={{ maxHeight: "150px", maxWidth: "300px" }}
                     src={signaturePreview}
-                    alt="Mayor Signature"
-                    className="max-h-20 max-w-full border rounded p-2 mx-auto"
-                    style={{ display: 'block' }}
                   />
-                </div>
-              )}
-
+                </>
+              </>}
+            
               <input
                 type="text"
                 className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center"
@@ -188,7 +182,7 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange, set
                 defaultValue={implementationLetter.moderator}
                 disabled
               />
-              <p className="text-sm mt-2">MODERATOR, CLUB, A.Y. 2024-2025</p>
+              <p className="text-sm mt-2">MODERATOR, {user?.officer_at}, A.Y. 2024-2025</p>
             </div>
           </div>
 

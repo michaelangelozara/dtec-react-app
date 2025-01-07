@@ -40,7 +40,7 @@ function EClearanceModal({ show, onClose, clearance, onSignatureChange, signatur
           <h2 className="text-2xl font-bold text-center mb-6">Certificate of Clearance</h2>
 
           <div className="text-center mb-6">
-            <p>This is to certify that <strong>{clearance?.user?.middle_name? clearance?.user?.first_name + " " + clearance?.user?.middle_name[0] + ". " + clearance?.user?.lastname : clearance?.user?.first_name + " " + clearance?.user?.lastname}</strong>, a {clearance.yearLevel} {clearance.course} student,
+            <p>This is to certify that <strong>{clearance?.user?.middle_name ? clearance?.user?.first_name + " " + clearance?.user?.middle_name[0] + ". " + clearance?.user?.lastname : clearance?.user?.first_name + " " + clearance?.user?.lastname}</strong>, a {clearance.yearLevel} {clearance.course} student,
               has complied with all the requirements and is cleared of all responsibilities
               under my charge this <strong>{clearance?.school_year}</strong>.</p>
           </div>
@@ -57,6 +57,11 @@ function EClearanceModal({ show, onClose, clearance, onSignatureChange, signatur
 
           <div className="mb-6">
             <p className="text-sm text-gray-600 mb-2">Noted by:</p>
+            <div className='w-full flex justify-center'>
+              {signature && !captureFingerprint && (
+                <img src={signature} alt="" />
+              )}
+            </div>
             <div className="mt-4 text-center">
               <button
                 onClick={() => setCaptureFingerprint(true)}

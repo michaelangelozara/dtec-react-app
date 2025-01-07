@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from "../../api/AxiosConfig";
 import { showModal } from '../../states/slices/ModalSlicer';
+import { getSignature } from '../../services/LetterUtil';
 
 function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +43,7 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
       setSignedPeople(budgetProposal.signed_people);
     }
   }, [budgetProposal]);
-
+  console.log(budgetProposal);
   return (
     <>
       {budgetProposal && !isLoading && (
@@ -117,7 +118,7 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
           </div>
 
           {/* Signatures Section */}
-          <div className="mt-6 text-center">
+          <div className={`mt-6 text-center ${user?.role !== 'STUDENT_OFFICER' ? 'hidden' : ''}`}>
             <p className="font-semibold">Prepared by:</p>
             <img
               alt="Mayor's Signature"
@@ -132,7 +133,35 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
           <div className="mt-6">
             <div className="text-center">
               <p className="font-semibold">Noted by:</p>
-              <div className="mt-4">
+              {getSignature(budgetProposal, "MODERATOR") ? <>
+
+                <img
+                  alt="MODERATOR's Signature"
+                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                  style={{ maxHeight: "150px", maxWidth: "300px" }}
+                  src={getSignature(budgetProposal, "MODERATOR") || ''}
+                />
+              </> : <>
+                <>
+                  <label className="block font-semibold mb-2">
+                    Attach Signature
+                  </label>
+                  <input
+                    type="file"
+                    className="border-gray-300 border-2 p-2 rounded-md w-full"
+                    accept="image/*"
+                    onChange={onSignatureChange}
+                    disabled={user.role !== "MODERATOR"}
+                  />
+                  <img
+                    alt="MODERATOR's Signature"
+                    className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                    style={{ maxHeight: "150px", maxWidth: "300px" }}
+                    src={signaturePreview}
+                  />
+                </>
+              </>}
+              {/* <div className={`mt-4 ${budgetProposal?.moderator_signature ? 'hidden' : ''}`}>
                 <label className="block font-semibold mb-2">Attach Signature</label>
                 <input
                   type="file"
@@ -141,17 +170,17 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
                   onChange={onSignatureChange}
                 />
               </div>
-              {signaturePreview && (
+              {signaturePreview || budgetProposal.moderator_signature && (
                 <div className="mt-4">
                   <p className="font-semibold">Signature Preview:</p>
                   <img
-                    src={signaturePreview}
+                    src={signaturePreview || budgetProposal.moderator_signature}
                     alt="Signature Preview"
                     className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
                     style={{ maxHeight: '150px', maxWidth: '300px' }}
                   />
                 </div>
-              )}
+              )} */}
               <input
                 type="text"
                 className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center"
@@ -159,11 +188,11 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
                 disabled
                 defaultValue={user.first_name + " " + user.middle_name + " " + user.lastname}
               />
-              <p className="text-sm mt-2">Moderator, BLC A.Y. 2023-2024</p>
+              <p className="text-sm mt-2">Moderator, {user?.officer_at} A.Y. 2023-2024</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 mt-8">
+          {/* <div className="grid grid-cols-2 gap-8 mt-8">
             <div>
               <p className="font-bold mb-2">BENJIE E. TAHUM, LPT, MAED-TESL</p>
               <p>Director of Student Affairs</p>
@@ -178,7 +207,7 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
             <p className="font-semibold">Approved by:</p>
             <p className="mt-2 font-bold">REV. FR. JESSIE P. PASQUIN, DCC</p>
             <p>President</p>
-          </div>
+          </div> */}
         </div>
       )}
     </>
