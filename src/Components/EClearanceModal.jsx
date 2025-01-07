@@ -7,7 +7,7 @@ import { FingerPrintIcon } from '@heroicons/react/24/outline';
 import Fingerprint from "../Components/Fingerprint/Fingerprint";
 
 function EClearanceModal({ show, onClose, clearance, onSignatureChange, signaturePreview, onApprove, toggle, setSignaturePreview }) {
-  const { user } = useSelector((state) => state.user);
+  const { user, status } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [fingerprintData, setFingerprintData] = useState(null);
@@ -33,28 +33,6 @@ function EClearanceModal({ show, onClose, clearance, onSignatureChange, signatur
     fetchData();
   }, []);
 
-  // const handleCaptureFingerprint = async () => {
-  //   try {
-  //     // Simulating fingerprint capture - replace with actual fingerprint SDK integration
-  //     const mockFingerprintData = {
-  //       timestamp: new Date().toISOString(),
-  //       fingerprintId: Math.random().toString(36).substring(7),
-  //     };
-  //     setFingerprintData(mockFingerprintData);
-  //     onSignatureChange({
-  //       target: {
-  //         files: [],
-  //         fingerprintData: mockFingerprintData
-  //       }
-  //     });
-  //   } catch (error) {
-  //     dispatch(showModal({ message: "Failed to capture fingerprint" }));
-  //   }
-  // };
-
-  const studentName = clearance?.student?.first_name + " " + clearance?.student?.middle_name[0] + ". " + clearance?.student?.lastname;
-  const schoolYear = clearance?.school_year;
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg w-full max-w-2xl">
@@ -62,9 +40,9 @@ function EClearanceModal({ show, onClose, clearance, onSignatureChange, signatur
           <h2 className="text-2xl font-bold text-center mb-6">Certificate of Clearance</h2>
 
           <div className="text-center mb-6">
-            <p>This is to certify that <strong>{studentName}</strong>, a {clearance.yearLevel} {clearance.course} student,
+            <p>This is to certify that <strong>{clearance?.user?.middle_name? clearance?.user?.first_name + " " + clearance?.user?.middle_name[0] + ". " + clearance?.user?.lastname : clearance?.user?.first_name + " " + clearance?.user?.lastname}</strong>, a {clearance.yearLevel} {clearance.course} student,
               has complied with all the requirements and is cleared of all responsibilities
-              under my charge this <strong>{schoolYear}</strong>.</p>
+              under my charge this <strong>{clearance?.school_year}</strong>.</p>
           </div>
 
           <div className="mb-6">
