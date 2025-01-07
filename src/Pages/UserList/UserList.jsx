@@ -298,12 +298,19 @@ function UserList() {
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this user?"
     );
     if (confirmed) {
-      setUsers(users.filter((user) => user.id !== id));
+      try {
+        const response = await axios.delete(`/admin/users/delete-user/${id}`);
+        if (response.status === 200) {
+          dispatch(showModal({ message: response?.data?.message }))
+          addedUserToggle();
+        }
+      } catch (error) {
+      }
     }
   };
 
@@ -331,11 +338,6 @@ function UserList() {
   const handleResetPassword = (userId) => {
     // Implement password reset logic here
     alert(`Password reset requested for user ${userId}`);
-  };
-
-  const handleESignatureSave = (userId) => {
-    // Implement fingerprint enrollment logic here
-    alert(`Fingerprint enrollment requested for user ${userId}`);
   };
 
   const handleEnrollSignature = (userId) => {

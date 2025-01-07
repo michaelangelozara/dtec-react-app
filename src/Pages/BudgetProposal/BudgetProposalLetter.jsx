@@ -87,7 +87,7 @@ function BudgetProposalLetter() {
         }, 2000);
       }
     } catch (error) {
-      if (error.status === 400 || error.status === 403) {
+      if (error.status === 400 || error.status === 403 || error.status === 400) {
         dispatch(showModal({ message: error.response?.data?.message }));
       }
     }
@@ -252,7 +252,7 @@ function BudgetProposalLetter() {
                           defaultValue={user?.role === "STUDENT_OFFICER" ? user?.first_name + " " + user?.middle_name + " " + user?.lastname : ""}
                           disabled
                         />
-                        <p>Mayor, BLC A.Y. 2023-2024</p>
+                        <p>Mayor, {user?.officer_at} A.Y. 2023-2024</p>
                       </div>
                     </div>
 
@@ -270,9 +270,10 @@ function BudgetProposalLetter() {
                           type="text"
                           className="w-full border-b-2"
                           placeholder="Enter name"
+                          defaultValue={user?.moderator}
                           disabled
                         />
-                        <p>Moderator, BLC A.Y. 2023-2024</p>
+                        <p>Moderator, {user?.officer_at} A.Y. 2023-2024</p>
                       </div>
                     </div>
                   </div>
@@ -280,18 +281,18 @@ function BudgetProposalLetter() {
                   {/* Additional Signatures */}
                   <div className="grid grid-cols-2 gap-8 mt-8">
                     <div>
-                      <p className="font-bold mb-2">BENJIE E. TAHUM, LPT, MAED-TESL</p>
+                      <p className="font-bold mb-2">{user?.dsa}</p>
                       <p>Director of Student Affairs</p>
                     </div>
                     <div>
-                      <p className="font-bold mb-2">VANESSA CLAIRE C. ESPAÑA, CPA</p>
+                      <p className="font-bold mb-2">{user?.finance}</p>
                       <p>Finance Officer</p>
                     </div>
                   </div>
 
                   <div className="mt-8">
                     <p className="font-bold mb-2">Approved by:</p>
-                    <p className="font-bold">REV. FR. JESSIE P. PASQUIN, DCC</p>
+                    <p className="font-bold">{user?.president}</p>
                     <p>President</p>
                   </div>
 

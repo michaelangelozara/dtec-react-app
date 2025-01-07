@@ -113,6 +113,16 @@ function CommunicationLetterOffCampus({
           <div className={`mt-6 text-center ${user?.role !== "DSA" ? 'hidden' : ''}`}>
             <p className="font-semibold">Noted by:</p>
 
+            <div className={`mt-4 ${user?.role !== "DSA" ? "hidden" : ""}`}>
+              <button
+                onClick={() => setCaptureFingerprint(true)}
+                disabled={user?.role !== "DSA"}
+                className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
+              >
+                <FingerPrintIcon className="w-6 h-6" />
+                <span>Capture Fingerprint</span>
+              </button>
+            </div>
             {communicationLetter && getSignature(communicationLetter, "DSA") ? <>
               <img
                 src={getSignature(communicationLetter, "DSA") || ''}
@@ -121,28 +131,13 @@ function CommunicationLetterOffCampus({
                 style={{ maxHeight: '150px', maxWidth: '300px' }}
               />
             </> : <>
-
               {signature && (
-                <>
-                  {!signature && (
-                    <div className={`mt-4 ${user?.role !== "DSA" ? "hidden" : ""}`}>
-                      <button
-                        onClick={() => setCaptureFingerprint(true)}
-                        disabled={user?.role !== "DSA"}
-                        className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors mx-auto"
-                      >
-                        <FingerPrintIcon className="w-6 h-6" />
-                        <span>Capture Fingerprint</span>
-                      </button>
-                    </div>
-                  )}
-                  <img
-                    src={signature}
-                    alt="DSA's Signature"
-                    className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                    style={{ maxHeight: '150px', maxWidth: '300px' }}
-                  />
-                </>
+                <img
+                  src={signature}
+                  alt="DSA's Signature"
+                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                  style={{ maxHeight: '150px', maxWidth: '300px' }}
+                />
               )}
             </>}
             <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>

@@ -322,7 +322,7 @@ function ImplementationProgramForm() {
                       defaultValue={user?.role === "STUDENT_OFFICER" ? user.first_name + " " + user.middle_name + " " + user.lastname : ""}
                       disabled
                     />
-                    <p className="text-sm mt-2">POSITION, CLUB, A.Y. 2024-2025</p>
+                    <p className="text-sm mt-2">MAYOR, {user?.officer_at}, A.Y. 2024-2025</p>
                   </div>
                 </div>
 
@@ -333,15 +333,16 @@ function ImplementationProgramForm() {
                     type="text"
                     className="w-full border-gray-300 border-2 p-2 rounded-md mt-2 text-center"
                     placeholder="Name of Club Moderator"
+                    defaultValue={user?.moderator}
                     disabled
                   />
-                  <p className="text-sm mt-2">MODERATOR, CLUB, A.Y. 2024-2025</p>
+                  <p className="text-sm mt-2">MODERATOR, {user?.officer_at}, A.Y. 2024-2025</p>
                 </div>
 
                 {/* Approved By */}
                 <div className="mt-6 text-center">
                   <p className="font-semibold">Approved by:</p>
-                  <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
+                  <p className="mt-2 font-bold">{user?.dsa}</p>
                   <p>Director of Student Affairs</p>
                 </div>
 

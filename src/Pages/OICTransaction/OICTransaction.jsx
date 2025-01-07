@@ -17,6 +17,32 @@ import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 import { navigateRouteByRole } from "../../services/RouteUtil";
 import { getUserEvaluation } from "../../services/LetterUtil";
 
+const rolesDontNeedLetter = [
+  "SCHOOL_NURSE",
+  "GUIDANCE",
+  "DEAN",
+  "CASHIER",
+  "LIBRARIAN",
+  "SCHOOL_NURSE",
+  "PROGRAM_HEAD",
+  "REGISTRAR",
+  "ACCOUNTING_CLERK",
+  "CUSTODIAN",
+  "VPAF",
+  "VPA",
+  "MULTIMEDIA",
+  "SCIENCE_LAB",
+  "COMPUTER_SCIENCE_LAB",
+  "ELECTRONICS_LAB",
+  "CRIM_LAB",
+  "HRM_LAB",
+  "NURSING_LAB"
+];
+
+const rolesDontNeedClearance = [
+  "OFFICE_HEAD"
+];
+
 const statusesForLetter = [
   { label: "For Evaluation", value: "FOR_EVALUATION" },
   { label: "In Progress", value: "IN_PROGRESS" },
@@ -183,9 +209,9 @@ function OICDashboard() {
           }
         );
       }
-      console.log(response);
-      if (response.status === 201 || response.status === 200) {
-        dispatch(showModal({ message: response.data?.data }));
+
+      if (response.status === 201) {
+        dispatch(showModal({ message: response.data?.message }));
         toggle();
       }
     } catch (error) {
@@ -214,6 +240,16 @@ function OICDashboard() {
       default: return "bg-gray-100 text-gray-800";
     }
   };
+
+  useEffect(() => {
+    if (user && rolesDontNeedLetter.includes(user?.role)) {
+      setActiveTab("clearances");
+    } else if (user && rolesDontNeedClearance.includes(user?.role)) {
+      setActiveTab("letters");
+    } else {
+      setActiveTab("letters");
+    }
+  }, [user, status]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -276,7 +312,7 @@ function OICDashboard() {
             <div className="px-10 mb-6">
               <div className="flex space-x-4 border-b">
                 <button
-                  className={`py-2 px-4 ${activeTab === 'letters' ?
+                  className={`${rolesDontNeedLetter.includes(user?.role) ? 'hidden' : ''} py-2 px-4 ${activeTab === 'letters' ?
                     'border-b-2 border-green-800 text-green-800' :
                     'text-gray-500'}`}
                   onClick={() => setActiveTab('letters')}
@@ -284,7 +320,7 @@ function OICDashboard() {
                   Letters
                 </button>
                 <button
-                  className={`py-2 px-4 ${activeTab === 'clearances' ?
+                  className={`py-2 px-4 ${rolesDontNeedClearance.includes(user?.role) ? 'hidden' : ''} ${activeTab === 'clearances' ?
                     'border-b-2 border-green-800 text-green-800' :
                     'text-gray-500'}`}
                   onClick={() => setActiveTab('clearances')}

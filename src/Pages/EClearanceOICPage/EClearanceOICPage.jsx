@@ -237,99 +237,99 @@ function OfficeInChargeForm() {
 
                 <div className="grid grid-cols-2 gap-x-8 gap-y-6">
 
-            {laboratoryFields.map(({ label, key }) => (
-              <div key={key} className="flex flex-col">
-                <div className="flex justify-between items-center">
-                  <span className="font-bold">{label}:</span>
-                  <span className={`ml-2 ${signatures[key] ? 'text-green-600' : 'text-red-600'}`}>
-                    {signatures[key] ? 'Signed' : 'Pending'}
-                  </span>
-                </div>
-                <div className={`mt-2 text-gray-500 border ${signatures[key] ? '' : 'border-gray-300'} p-2 rounded-md relative`}>
-                  {signatures[key] ? (
-                    <div className="relative">
-                      <img
-                        src={signatures[key]}
-                        alt="Signature"
-                        className="h-20 mx-auto"
-                        onContextMenu={disableRightClick}
-                      />
-                      {/* Watermark overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-50 text-red-500 text-xl font-bold">
-                        CONFIDENTIAL
+                  {laboratoryFields.map(({ label, key }) => (
+                    <div key={key} className="flex flex-col">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold">{label}:</span>
+                        <span className={`ml-2 ${signatures[key] ? 'text-green-600' : 'text-red-600'}`}>
+                          {signatures[key] ? 'Signed' : 'Pending'}
+                        </span>
+                      </div>
+                      <div className={`mt-2 text-gray-500 border ${signatures[key] ? '' : 'border-gray-300'} p-2 rounded-md relative`}>
+                        {signatures[key] ? (
+                          <div className="relative">
+                            <img
+                              src={signatures[key]}
+                              alt="Signature"
+                              className="h-20 mx-auto"
+                              onContextMenu={disableRightClick}
+                            />
+                            {/* Watermark overlay */}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-50 text-red-500 text-xl font-bold">
+                              CONFIDENTIAL
+                            </div>
+                          </div>
+                        ) : (
+                          'No signature yet (Pending)'
+                        )}
+                      </div>
+                      <div className="mt-4">
+                        <label className="block text-sm font-bold mb-2">Signature ({label}):</label>
+                        <SignatureCanvas
+                          ref={sigCanvasRefs[key]}
+                          penColor="black"
+                          canvasProps={{
+                            width: getCanvasWidth(),
+                            height: 200,
+                            className: 'border w-full p-2 rounded',
+                          }}
+                        />
+                        <div className="mt-2 mb-2 flex space-x-4">
+                          <button
+                            type="button"
+                            onClick={() => clearSignature(sigCanvasRefs[key].current)}
+                            className="bg-gray-500 text-white font-bold py-2 px-4 rounded"
+                          >
+                            Clear
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => saveSignature(key, sigCanvasRefs[key].current)}
+                            className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+                          >
+                            Save Signature
+                          </button>
+                        </div>
+                        <div className="border border-gray-300 p-2 rounded-md mt-2">
+                          <label className="font-bold">Notes:</label>
+                          <textarea
+                            value={notes[key]}
+                            onChange={(e) => saveNotes(key, e.target.value)}
+                            className="w-full mt-1 p-2 border rounded-md"
+                            rows="3"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => saveNotes(key, notes[key])}
+                            className="mt-2 bg-blue-500 text-white font-bold py-2 px-4 rounded"
+                          >
+                            Save Note
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  ) : (
-                    'No signature yet (Pending)'
-                  )}
-                </div>
-                <div className="mt-4">
-                  <label className="block text-sm font-bold mb-2">Signature ({label}):</label>
-                  <SignatureCanvas
-                    ref={sigCanvasRefs[key]}
-                    penColor="black"
-                    canvasProps={{
-                      width: getCanvasWidth(),
-                      height: 200,
-                      className: 'border w-full p-2 rounded',
-                    }}
-                  />
-                  <div className="mt-2 mb-2 flex space-x-4">
-                    <button
-                      type="button"
-                      onClick={() => clearSignature(sigCanvasRefs[key].current)}
-                      className="bg-gray-500 text-white font-bold py-2 px-4 rounded"
-                    >
-                      Clear
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => saveSignature(key, sigCanvasRefs[key].current)}
-                      className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
-                    >
-                      Save Signature
-                    </button>
-                  </div>
-                  <div className="border border-gray-300 p-2 rounded-md mt-2">
-                    <label className="font-bold">Notes:</label>
-                    <textarea
-                      value={notes[key]}
-                      onChange={(e) => saveNotes(key, e.target.value)}
-                      className="w-full mt-1 p-2 border rounded-md"
-                      rows="3"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => saveNotes(key, notes[key])}
-                      className="mt-2 bg-blue-500 text-white font-bold py-2 px-4 rounded"
-                    >
-                      Save Note
-                    </button>
-                  </div>
+                  ))}
                 </div>
               </div>
-            ))}
+              <div className="mt-8 flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="bg-red-500 text-white font-bold py-2 px-4 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDone}
+                  className="bg-green-500 text-white font-bold py-2 px-4 rounded"
+                >
+                  Done
+                </button>
+
+              </div>
+            </div>
           </div>
-          </div>
-          <div className="mt-8 flex justify-end space-x-4">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="bg-red-500 text-white font-bold py-2 px-4 rounded"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleDone}
-              className="bg-green-500 text-white font-bold py-2 px-4 rounded"
-            >
-              Done
-            </button>
-          
-        </div>
-      </div>
-      </div>
         </div>
       </div>
     </>

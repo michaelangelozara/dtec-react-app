@@ -21,6 +21,9 @@ function OICDashboard() {
       dispatch(fetchUser())
     }
 
+    if (user && user?.is_first_time_login) {
+      navigate("/first-time-login/update-password");
+    }
   }, [dispatch, user, status]);
 
   return (

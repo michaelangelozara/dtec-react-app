@@ -107,7 +107,6 @@ function ClearanceRequestForm() {
       } catch (error) {
       } finally {
         closeSignatureModal();
-        setIsModalOpen(true); // Show Terms of Use and Legal Warning modal
       }
     }
   };
@@ -127,12 +126,20 @@ function ClearanceRequestForm() {
   useEffect(() => {
     if (clearance && clearance?.student_signature && clearance?.status === "PENDING") {
       dispatch(showModal({ message: "Your Clearance is In-Progress" }));
+      setTimeout(() => {
+        navigate("/user/e-clearance");
+      }, 2000);
     }
   }, [clearance]);
 
   const closeModal = () => {
     setIsModalOpen(false);
+    saveSignature();
   };
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  }
 
   return (
     <>
@@ -280,8 +287,8 @@ function ClearanceRequestForm() {
                     Cancel
                   </button>
                   <button
+                    onClick={openModal}
                     className="bg-green-800 text-white py-2 px-4 rounded"
-                    onClick={saveSignature}
                   >
                     Save Signature
                   </button>
@@ -318,10 +325,11 @@ function ClearanceRequestForm() {
         </> : <>
           <PersonnelClearanceForm
             setSigCanvas={setSigCanvas}
-            saveSignature={saveSignature}
+            saveSignature={closeModal}
             clearance={clearance}
             handlePrint={handlePrint}
             handleCancel={handleCancel}
+            handleOpenTermsAndCondition={openModal}
           />
         </>}
       </div>

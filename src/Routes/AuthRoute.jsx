@@ -18,7 +18,7 @@ export const authRoutes = [
     element: <RegisterPage />
   },
   {
-    path: "/first-time-login",
+    path: "/first-time-login/update-password",
     element: <FirstTimeLoginPage />
   },
   {

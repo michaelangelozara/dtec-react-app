@@ -128,7 +128,7 @@ function CommunicationLetter() {
 
               {/* Receiver Information */}
               <div className="mb-4">
-                <p className="font-bold">REV. FR. JESSIE P. PASQUIN, DCC</p>
+                <p className="font-bold">{user?.president}</p>
                 <p>President</p>
                 <p>Notre Dame of Tacurong College</p>
                 <p>City of Tacurong</p>
@@ -181,7 +181,7 @@ function CommunicationLetter() {
                         disabled
                         defaultValue={user?.first_name + " " + user?.middle_name + " " + user?.lastname}
                       />
-                      <p >MAYOR, CLUB, A.Y. 2024-2025</p>
+                      <p >MAYOR, {user?.officer_at}, A.Y. 2024-2025</p>
                     </div>
                   </div>
 
@@ -189,20 +189,20 @@ function CommunicationLetter() {
                   <div>
                     <p className="font-semibold">Noted by:</p>
                     <div className=" mt-2">
-                      <p className="font-bold mt-2" >NAME OF CLUB MODERATOR</p>
+                      <p className="font-bold mt-2" >{user?.moderator}</p>
                     </div>
-                    <p >MODERATOR, CLUB, A.Y. 2024-2025</p>
+                    <p >MODERATOR, {user?.officer_at}, A.Y. 2024-2025</p>
                   </div>
 
                   <div>
                     <p className="font-semibold">Noted by:</p>
-                    <p className="font-bold mt-2">ENGR. LOUIE ANGELO G. VILLEGAS, PCPE, MOE-CPE</p>
+                    <p className="font-bold mt-2">{user?.dsa}</p>
                     <p>DIRECTOR OF STUDENT AFFAIRS</p>
                   </div>
 
                   <div>
                     <p className="font-semibold">Approved by:</p>
-                    <p className="font-bold mt-2">REV. FR. JESSIE P. PASQUIN, DCC</p>
+                    <p className="font-bold mt-2">{user?.president}</p>
                     <p>PRESIDENT, NDTC</p>
                   </div>
                 </div>

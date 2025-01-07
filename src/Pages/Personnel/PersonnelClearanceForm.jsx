@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { showModal } from '../../states/slices/ModalSlicer';
 import { useNavigate } from 'react-router-dom';
 
-function PersonnelClearanceForm({ clearance, setSigCanvas, saveSignature, handlePrint, handleCancel }) {
+function PersonnelClearanceForm({ clearance, setSigCanvas, saveSignature, handlePrint, handleCancel, handleOpenTermsAndCondition }) {
     const [signatures, setSignatures] = useState({
         libraryMultimedia: null,
         scienceLab: null,
@@ -93,6 +93,9 @@ function PersonnelClearanceForm({ clearance, setSigCanvas, saveSignature, handle
     useEffect(() => {
         if (clearance && clearance?.student_signature && clearance?.status === "PENDING") {
             dispatch(showModal({ message: "Your Clearance is In-Progress" }));
+            setTimeout(() => {
+                navigate("/user/e-clearance");
+            }, 2000);
         }
     }, [clearance]);
 
@@ -241,8 +244,8 @@ function PersonnelClearanceForm({ clearance, setSigCanvas, saveSignature, handle
                                     Cancel
                                 </button>
                                 <button
+                                    onClick={() => setIsModalOpen(true)}
                                     className="bg-green-800 text-white py-2 px-4 rounded"
-                                    onClick={saveSignature}
                                 >
                                     Save Signature
                                 </button>
@@ -268,7 +271,10 @@ function PersonnelClearanceForm({ clearance, setSigCanvas, saveSignature, handle
                             </p>
                             <button
                                 className="bg-green-800 text-white py-2 px-4 rounded"
-                                onClick={closeModal}
+                                onClick={() => {
+                                    saveSignature();
+                                    setIsModalOpen(false);
+                                }}
                             >
                                 I Agree
                             </button>

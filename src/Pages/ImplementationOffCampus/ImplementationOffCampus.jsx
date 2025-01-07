@@ -348,21 +348,21 @@ function ImplementationLetterOffCampus() {
                     defaultValue={user.role === "STUDENT_OFFICER" ? user.first_name + " " + user.middle_name + " " + user.lastname : ""}
                     disabled
                   />
-                  <p className="text-sm mt-2">POSITION, CLUB, A.Y. 2024-2025</p>
+                  <p className="text-sm mt-2">POSITION, {user?.officer_at}, A.Y. 2024-2025</p>
                 </div>
               </div>
 
               {/* Noted By */}
               <div className="mt-6 text-center">
                 <p className="font-semibold">Noted by:</p>
-                <p className="mt-2">REV. FR. DARYLL DHAN L. BILBAO, DCC</p>
+                <p className="mt-2">{user?.office_head}</p>
                 <p>Community Development and Services Officer</p>
               </div>
 
               {/* Approved By */}
               <div className="mt-6 text-center">
                 <p className="font-semibold">Approved by:</p>
-                <p className="mt-2">REV. FR. JESSIE P. PASQUIN, DCC</p>
+                <p className="mt-2">{user?.president}</p>
                 <p>NDTC President</p>
               </div>
 
