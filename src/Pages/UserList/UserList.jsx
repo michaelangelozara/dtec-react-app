@@ -335,14 +335,15 @@ function UserList() {
     });
   };
 
-  const handleResetPassword = (userId) => {
-    // Implement password reset logic here
-    alert(`Password reset requested for user ${userId}`);
-  };
-
-  const handleEnrollSignature = (userId) => {
-    // Implement signature enrollment logic here
-    alert(`Signature enrollment requested for user ${userId}`);
+  const handleResetPassword = async (userId) => {
+    if(!userId) return;
+    try {
+      const response = await axios.put(`/admin/users/reset-password?id=${userId}`);
+      if(response.status === 200){
+        dispatch(showModal({message : response?.data?.data}))
+      }
+    } catch (error) {
+    }
   };
 
   const handleRoleChange = (e) => {
