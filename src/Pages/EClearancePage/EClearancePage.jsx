@@ -129,6 +129,12 @@ function ClearanceRequestForm() {
       setTimeout(() => {
         navigate("/user/e-clearance");
       }, 2000);
+    } else if(clearance && clearance?.student_signature && clearance?.status === "COMPLETED"){
+      if(clearance.type === "STUDENT_CLEARANCE"){
+        dispatch(showModal({ message: "Please Claim your Permit at Cashier" }));
+      }else{
+        dispatch(showModal({ message: "Clearance is Completed" }));
+      }
     }
   }, [clearance]);
 
