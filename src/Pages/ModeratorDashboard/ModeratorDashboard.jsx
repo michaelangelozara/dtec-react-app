@@ -48,7 +48,7 @@ function ModeratorDashboard() {
                 <img src={DT} alt="Transactions" className="ml-4 w-6 h-6 mb-4" />
                 Transactions
               </button>
-              <button onClick={() => navigate('/user/my-transactions')} className="text-2xl flex-col w-80 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-6 px-10 rounded-lg flex items-center">
+              <button onClick={() => navigate('/user/e-clearance')} className="text-2xl flex-col w-80 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-6 px-10 rounded-lg flex items-center">
                 <img src={EC} alt="E-Clearance" className="items-center w-7 h-7 ml-3 mb-4" />
                 E-Clearance
               </button>

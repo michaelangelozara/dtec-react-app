@@ -7,6 +7,8 @@ import { navigateRouteByRole } from '../../services/RouteUtil';
 import { fetchUser } from '../../states/slices/UserSlicer';
 import { studentAndPersonnelRole } from '../../services/UserUtil';
 import axios from "../../api/AxiosConfig";
+import { showModal } from '../../states/slices/ModalSlicer';
+import Modal from "../../Components/modal/Modal";
 
 function StatusCard({ count, title, icon, onClick, isActive }) {
   return (
@@ -63,6 +65,18 @@ function StudentClearanceTracking() {
   }, []);
 
   useEffect(() => {
+      if (clearance && clearance?.student_signature && clearance?.status === "PENDING") {
+        dispatch(showModal({ message: "Your Clearance is In-Progress" }));
+      } else if(clearance && clearance?.student_signature && clearance?.status === "COMPLETED"){
+        if(clearance.type === "STUDENT_CLEARANCE"){
+          dispatch(showModal({ message: "Please Claim your Permit at Cashier" }));
+        }else{
+          dispatch(showModal({ message: "Clearance is Completed" }));
+        }
+      }
+    }, [clearance]);
+
+  useEffect(() => {
     if (!user) {
       dispatch(fetchUser());
     }
@@ -71,7 +85,7 @@ function StudentClearanceTracking() {
   return (
     <>
       <Helmet>
-        <title>Student Clearance Tracking</title>
+        <title>Clearance Tracking</title>
       </Helmet>
 
       {status === "Succeeded" && (
@@ -124,6 +138,7 @@ function StudentClearanceTracking() {
               </div>
             </div>
           </div>
+          <Modal />
         </div>
       )}
     </>
