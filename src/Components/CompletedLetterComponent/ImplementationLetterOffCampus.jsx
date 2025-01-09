@@ -125,7 +125,7 @@ function ImplementationLetterOffCampus({ letter, signaturePreview, onSignatureCh
               src={getSignature(implementationLetter, "STUDENT_OFFICER") || ''}
             />
             <p className="mt-2 font-bold">{implementationLetter.student_officer}</p>
-            <p className="text-sm mt-2">Mayor, BLC A.Y. 2023-2024</p>
+            <p className="text-sm mt-2">Mayor, {user?.officer_at} A.Y. 2023-2024</p>
           </div>
 
           <div className="mt-6">
@@ -134,13 +134,13 @@ function ImplementationLetterOffCampus({ letter, signaturePreview, onSignatureCh
               <div className="mt-4">
                 <p className="font-semibold">Signature Preview:</p>
                 <img
-                  src={getSignature(implementationLetter, "COMMUNITY") || ''}
+                  src={getSignature(implementationLetter, "OFFICE_HEAD") || ''}
                   alt="Signature Preview"
                   className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
                   style={{ maxHeight: '150px', maxWidth: '300px' }}
                 />
               </div>
-              <p className="mt-2 font-bold">REV. FR. DARYLL DHAN L. BILBAO, DCC</p>
+              <p className="mt-2 font-bold">{user?.office_head}</p>
               <p>Community Development and Services Officer</p>
             </div>
           </div>
@@ -156,7 +156,7 @@ function ImplementationLetterOffCampus({ letter, signaturePreview, onSignatureCh
                   style={{ maxHeight: '150px', maxWidth: '300px' }}
                 />
               </div>
-            <p className="mt-2 font-bold">REV. FR. JESSIE P. PASQUIN, DCC</p>
+            <p className="mt-2 font-bold">{user?.president}</p>
             <p>NDTC President</p>
           </div>
         </div>
