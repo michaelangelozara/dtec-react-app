@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { FaUserCircle, FaBell } from 'react-icons/fa';
-import Banner from '../../Images/banner.svg';
+import { FaTrash, FaFingerprint } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from '../../states/slices/UserSlicer';
 import { navigateRouteByRole } from '../../services/RouteUtil';
@@ -83,6 +82,15 @@ function ImplementationLetterOffCampus() {
     setDateAndPlace("");
     setProgramOfFlowOfActivities("");
   }
+  const fetchSignature = async() => {
+    try {
+      const response = await axios.get("/users/get-sm-e-signature");
+      setSignature(response.data?.data);
+    } catch (error) {
+      
+    }
+
+  };
 
   const handleSubmit = async () => {
     try {
@@ -322,13 +330,12 @@ function ImplementationLetterOffCampus() {
                 <div className="text-center">
                   <p className="font-semibold">Prepared by:</p>
                   <div className="mt-2">
-                    <label className="block font-semibold mb-2">Attach Signature</label>
-                    <input
-                      type="file"
-                      className="border-gray-300 border-2 p-2 rounded-md"
-                      accept="image/*"
-                      onChange={handleSignatureChange}
-                    />
+                    <button
+                      onClick={() => fetchSignature()}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
+                    >
+                      <FaFingerprint /> Attach Signature
+                    </button>
                   </div>
                   {signature && (
                     <div className="mt-4">
@@ -343,7 +350,7 @@ function ImplementationLetterOffCampus() {
                   )}
                   <input
                     type="text"
-                    className="w-full border-gray-300 border-2 p-2 rounded-md mt-2 text-center"
+                    className="w-full border-gray-300 border-2 p-2 rounded-md mt-2 text-center font-bold"
                     placeholder="Name of Club Mayor"
                     defaultValue={user.role === "STUDENT_OFFICER" ? user.first_name + " " + user.middle_name + " " + user.lastname : ""}
                     disabled
@@ -355,14 +362,14 @@ function ImplementationLetterOffCampus() {
               {/* Noted By */}
               <div className="mt-6 text-center">
                 <p className="font-semibold">Noted by:</p>
-                <p className="mt-2">{user?.office_head}</p>
+                <p className="mt-2 font-bold">{user?.office_head}</p>
                 <p>Community Development and Services Officer</p>
               </div>
 
               {/* Approved By */}
               <div className="mt-6 text-center">
                 <p className="font-semibold">Approved by:</p>
-                <p className="mt-2">{user?.president}</p>
+                <p className="mt-2 font-bold">{user?.president}</p>
                 <p>NDTC President</p>
               </div>
 

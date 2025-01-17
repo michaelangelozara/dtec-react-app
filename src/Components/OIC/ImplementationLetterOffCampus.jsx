@@ -20,7 +20,7 @@ function ImplementationLetterOffCampus({
   const [implementationLetter, setImplementationLetter] = useState(null);
   const [captureFingerprint, setCaptureFingerprint] = useState(false);
   const [signature, setSignature] = useState(null);
-
+  
   if (!user) {
     navigate("/user/moderator-transaction");
     return;
@@ -55,7 +55,7 @@ function ImplementationLetterOffCampus({
     }
   }, [implementationLetter]);
 
-  console.log(user);
+  console.log(implementationLetter);
   return (
     <div className="space-y-4">
       <h2 className="text-center text-2xl font-bold mb-8 underline">

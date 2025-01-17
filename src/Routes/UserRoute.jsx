@@ -9,6 +9,8 @@ import ILIC from "../Pages/ImplementationIncampus/ImplementationIncampus";
 import ILOC from "../Pages/ImplementationOffCampus/ImplementationOffCampus";
 import CLiC from "../Pages/CommunicationLetterIC/CommunicationLetterIC";
 import CLOC from "../Pages/CommunicationLetterOC/CommunicationLetterOC";
+import PTEC from "../Pages/PermitEnterCampusForm/PermitEnterCampusForm";
+import UoF from "../Pages/UseFacilitiesForm/UseFacilitiesForm";
 import BudgetProposalLetter from "../Pages/BudgetProposal/BudgetProposalLetter";
 import ModeratorDashboard from "../Pages/ModeratorDashboard/ModeratorDashboard";
 import ModeratorTransaction from "../Pages/ModeratorTransaction/ModeratorTransaction";
@@ -58,6 +60,14 @@ export const userRoutes = [
   {
     path: "/user/communication-letter-oc",
     element: <CLOC />
+  },
+  {
+    path: "/user/permit-to-enter-campus",
+    element: <PTEC />
+  },
+  {
+    path: "/user/use-facilities",
+    element: <UoF />
   },
   {
     path: "/user/budget-proposal",

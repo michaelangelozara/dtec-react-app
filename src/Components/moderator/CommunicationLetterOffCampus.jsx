@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { showModal } from "../../states/slices/ModalSlicer";
 import axios from "../../api/AxiosConfig";
 import { getSignature } from "../../services/LetterUtil";
+import { FaFingerprint } from "react-icons/fa";
+import TorreseSig from "../../assets/images/torresesig.png";
 
 function CommunicationLetterOffCampus({
   letter,
@@ -79,7 +81,11 @@ function CommunicationLetterOffCampus({
           </div>
 
           {/* Signatures Section */}
-          <div className={`mt-6 text-center ${user?.role !== "STUDENT_OFFICER" ? 'hidden' : ''}`}>
+          <div
+            className={`mt-6 text-center ${
+              user?.role !== "STUDENT_OFFICER" ? "hidden" : ""
+            }`}
+          >
             <p className="font-semibold">Prepared by:</p>
             <img
               alt="Mayor's Signature"
@@ -93,50 +99,40 @@ function CommunicationLetterOffCampus({
             <p className="text-sm mt-2">Mayor, BLC A.Y. 2023-2024</p>
           </div>
 
-          <div className={`mt-6 ${user?.role !== "MODERATOR" ? 'hidden' : ''}`}>
+          <div className={`mt-6 ${user?.role !== "MODERATOR" ? "hidden" : ""}`}>
             <div className="text-center">
               <p className="font-semibold">Noted by:</p>
-              <div className="mt-4">
-                {getSignature(communicationLetter, "MODERATOR") ? <>
-
-                  <img
-                    alt="MODERATOR's Signature"
-                    className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                    style={{ maxHeight: "150px", maxWidth: "300px" }}
-                    src={getSignature(communicationLetter, "MODERATOR") || ''}
-                  />
-                </> : <>
-                  <>
-                    <label className="block font-semibold mb-2">
-                      Attach Signature
-                    </label>
-                    <input
-                      type="file"
-                      className="border-gray-300 border-2 p-2 rounded-md w-full"
-                      accept="image/*"
-                      onChange={onSignatureChange}
-                      disabled={user.role !== "MODERATOR"}
-                    />
-                    <img
-                      alt="MODERATOR's Signature"
-                      className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                      style={{ maxHeight: "150px", maxWidth: "300px" }}
-                      src={signaturePreview}
-                    />
-                  </>
-                </>}
-              </div>
-              {/* {signaturePreview ||
-                (signedPerson.status === "EVALUATED" && (
-                  <div className="mt-4">
-                    <p className="font-semibold">Signature Preview:</p>
-                    <img
-                      alt="Mayor's Signature"
-                      className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                      style={{ maxHeight: "150px", maxWidth: "300px" }}
-                    />
-                  </div>
-                ))} */}
+              {getSignature(communicationLetter, "MODERATOR") ? (
+                <img
+                  alt="MODERATOR's Signature"
+                  className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                  style={{ maxHeight: "150px", maxWidth: "300px" }}
+                  src={getSignature(communicationLetter, "MODERATOR")}
+                />
+              ) : (
+                <>
+                  <button
+                    onClick={() =>
+                      onSignatureChange({ target: { files: [TorreseSig] } })
+                    }
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
+                    disabled={user.role !== "MODERATOR"}
+                  >
+                    <FaFingerprint /> Attach Signature
+                  </button>
+                  {signaturePreview && (
+                    <div className="mt-4">
+                      <p className="font-semibold">Signature Preview:</p>
+                      <img
+                        alt="MODERATOR's Signature"
+                        className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                        style={{ maxHeight: "150px", maxWidth: "300px" }}
+                        src={signaturePreview}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
               <input
                 type="text"
                 className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center"
@@ -144,11 +140,15 @@ function CommunicationLetterOffCampus({
                 disabled
                 defaultValue={communicationLetter.moderator}
               />
-              <p className="text-sm mt-2">MODERATOR, CLUB, A.Y. 2024-2025</p>
+              <p className="text-sm mt-2">Moderator, Club, A.Y. 2024-2025</p>
             </div>
           </div>
 
-          <div className={`mt-6 text-center ${user?.role !== "DSA" ? 'hidden' : ''}`}>
+          <div
+            className={`mt-6 text-center ${
+              user?.role !== "DSA" ? "hidden" : ""
+            }`}
+          >
             <p className="font-semibold">Noted by:</p>
             {communicationLetter.dsa_signature !== "N/A" && (
               <div className="mt-4">
@@ -164,7 +164,11 @@ function CommunicationLetterOffCampus({
             <p>DIRECTOR OF STUDENT AFFAIRS</p>
           </div>
 
-          <div className={`mt-6 text-center ${user?.role !== "OFFICE_HEAD" ? 'hidden' : ''}`}>
+          <div
+            className={`mt-6 text-center ${
+              user?.role !== "OFFICE_HEAD" ? "hidden" : ""
+            }`}
+          >
             <p className="font-semibold">Approved by:</p>
             {communicationLetter.office_head_signature !== "N/A" && (
               <div className="mt-4">

@@ -42,6 +42,9 @@ const roles = [
   { label: "VPAF", value: "VPAF" },
   { label: "VPA", value: "VPA" },
   { label: "Multimedia", value: "MULTIMEDIA" },
+  { label: "Auxiliary Service Head", value: "AUXILIARY_SERVICE_HEAD" },
+  { label: "PPLO", value: "PPLO" },
+  { label: "Chapel", value: "CHAPEL" },
 
   { label: "Science Lab", value: "SCIENCE_LAB" },
   { label: "Computer Lab", value: "COMPUTER_SCIENCE_LAB" },
@@ -75,6 +78,9 @@ const rolesNoNeedOrganization = [
   "VPAF",
   "VPA",
   "MULTIMEDIA",
+  "AUXILIARY_SERVICE_HEAD",
+  "PPLO",
+  "CHAPEL",
 ];
 
 const labInChargeRoles = [
@@ -652,7 +658,7 @@ function UserList() {
                             >
                               <FaKey />
                             </button>
-                            <div className={`relative dropdown-container ${user?.role === "STUDENT" || user?.role === "STUDENT_OFFICER" || user?.role === "MODERATOR" || user?.role === "PERSONNEL" ? 'hidden' : ''}`}>
+                            <div className={`relative dropdown-container ${user?.role === "STUDENT" || user?.role === "ADMIN" || user?.role === "PERSONNEL" ? 'hidden' : ''}`}>
                               <button
                                 className="text-green-500 hover:text-green-700"
                                 title="Enroll"
@@ -772,7 +778,7 @@ function UserList() {
                   </div>
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
-                      User ID *
+                      {newUser.role === "STUDENT" || newUser.role === "STUDENT_OFFICER"? "Student ID" : "Employment ID"}
                     </label>
                     <input
                       type="text"
@@ -1150,7 +1156,7 @@ function UserList() {
                   </div>
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
-                      User ID *
+                    {newUser.role === "STUDENT" || newUser.role === "STUDENT_OFFICER"? "Student ID" : "Employment ID"}
                     </label>
                     <input
                       type="text"

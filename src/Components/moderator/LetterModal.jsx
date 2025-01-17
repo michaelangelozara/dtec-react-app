@@ -4,13 +4,15 @@ import ImplementationLetterOffCampus from '../moderator/ImplementationLetterOffC
 import CommunicationLetterInCampus from '../moderator/CommunicationLetterInCampus';
 import CommunicationLetterOffCampus from '../moderator/CommunicationLetterOffCampus';
 import BudgetProposalLetter from '../moderator/BudgetProposalLetter';
+import PermitToEnterModal from '../moderator/PermitToEnterModal';
+import UseFacilitiesModal from '../moderator/UseFacilitiesModal';
 import Modal from "../modal/Modal";
 import axios from "../../api/AxiosConfig";
 import { showModal } from '../../states/slices/ModalSlicer';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onApprove }) {
+function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onApprove, fetchSignature }) {
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [declineReason, setDeclineReason] = useState('');
   const { user } = useSelector((state) => state.user);
@@ -44,6 +46,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
   const handleDecline = () => {
     setShowDeclineModal(true);
   };
+
 
   const getLetterComponent = () => {
     switch (letter.type) {
@@ -94,6 +97,26 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             setSignedPeople={setSignedPeople}
           />
         );
+        case 'PERMIT_TO_ENTER':
+          return (
+            <PermitToEnterModal
+              permit={letter}
+              signaturePreview={signaturePreview}
+              onSignatureChange={onSignatureChange}
+              setSignedPeople={setSignedPeople}
+              fetchSignature={fetchSignature}
+            />
+          );
+        case 'SFEF':
+          return (
+            <UseFacilitiesModal
+              facilities={letter}
+              signaturePreview={signaturePreview}
+              onSignatureChange={onSignatureChange}
+              setSignedPeople={setSignedPeople}
+              fetchSignature={fetchSignature}
+            />
+          );
       default:
         return <div>Unsupported letter type</div>;
     }

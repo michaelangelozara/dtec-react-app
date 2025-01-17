@@ -201,7 +201,6 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
             </div>
           </div>
         </div>
-
       )}
     </>
   );

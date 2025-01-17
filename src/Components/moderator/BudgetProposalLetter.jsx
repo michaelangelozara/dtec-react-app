@@ -4,18 +4,30 @@ import { useNavigate } from 'react-router-dom';
 import axios from "../../api/AxiosConfig";
 import { showModal } from '../../states/slices/ModalSlicer';
 import { getSignature } from '../../services/LetterUtil';
+import { FaFingerprint } from 'react-icons/fa';
 
-function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, setSignedPeople }) {
+function BudgetProposalLetter({ letter, setSignedPeople }) {
   const [isLoading, setIsLoading] = useState(false);
   const [budgetProposal, setBudgetProposal] = useState(null);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [signaturePreview, setSignaturePreview] = useState("");
 
   if (!user) {
     navigate("/user/moderator-transaction")
     return;
   }
+
+  const fetchSignature = async() => {
+    try {
+      const response = await axios.get("/users/get-sm-e-signature");
+      setSignaturePreview(response.data?.data);
+    } catch (error) {
+      
+    }
+
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,7 +55,7 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
       setSignedPeople(budgetProposal.signed_people);
     }
   }, [budgetProposal]);
-  console.log(budgetProposal);
+
   return (
     <>
       {budgetProposal && !isLoading && (
@@ -118,7 +130,7 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
           </div>
 
           {/* Signatures Section */}
-          <div className={`mt-6 text-center ${user?.role !== 'STUDENT_OFFICER' ? 'hidden' : ''}`}>
+          {/* <div className={`mt-6 text-center ${user?.role !== 'STUDENT_OFFICER' ? 'hidden' : ''}`}>
             <p className="font-semibold">Prepared by:</p>
             <img
               alt="Mayor's Signature"
@@ -128,59 +140,41 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
             />
             <p className="mt-2 font-bold">{budgetProposal.student_officer}</p>
             <p className="text-sm mt-2">Mayor, BLC A.Y. 2023-2024</p>
-          </div>
+          </div> */}
 
           <div className="mt-6">
             <div className="text-center">
               <p className="font-semibold">Noted by:</p>
-              {getSignature(budgetProposal, "MODERATOR") ? <>
-
+              {getSignature(budgetProposal, "MODERATOR") ? (
                 <img
                   alt="MODERATOR's Signature"
                   className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
                   style={{ maxHeight: "150px", maxWidth: "300px" }}
-                  src={getSignature(budgetProposal, "MODERATOR") || ''}
+                  src={getSignature(budgetProposal, "MODERATOR")}
                 />
-              </> : <>
+              ) : (
                 <>
-                  <label className="block font-semibold mb-2">
-                    Attach Signature
-                  </label>
-                  <input
-                    type="file"
-                    className="border-gray-300 border-2 p-2 rounded-md w-full"
-                    accept="image/*"
-                    onChange={onSignatureChange}
+                  <button
+                    onClick={() => fetchSignature()}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
                     disabled={user.role !== "MODERATOR"}
-                  />
-                  <img
-                    alt="MODERATOR's Signature"
-                    className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                    style={{ maxHeight: "150px", maxWidth: "300px" }}
-                    src={signaturePreview}
-                  />
+                  >
+                    <FaFingerprint /> Attach Signature
+                  </button>
+                  {signaturePreview && (
+                    <div className="mt-4">
+                      <p className="font-semibold">Signature Preview:</p>
+                      <img
+                        alt="MODERATOR's Signature"
+                        className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
+                        style={{ maxHeight: "150px", maxWidth: "300px" }}
+                        src={signaturePreview}
+                      />
+                    </div>
+                  )}
                 </>
-              </>}
-              {/* <div className={`mt-4 ${budgetProposal?.moderator_signature ? 'hidden' : ''}`}>
-                <label className="block font-semibold mb-2">Attach Signature</label>
-                <input
-                  type="file"
-                  className="border-gray-300 border-2 p-2 rounded-md w-full"
-                  accept="image/*"
-                  onChange={onSignatureChange}
-                />
-              </div>
-              {signaturePreview || budgetProposal.moderator_signature && (
-                <div className="mt-4">
-                  <p className="font-semibold">Signature Preview:</p>
-                  <img
-                    src={signaturePreview || budgetProposal.moderator_signature}
-                    alt="Signature Preview"
-                    className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                    style={{ maxHeight: '150px', maxWidth: '300px' }}
-                  />
-                </div>
-              )} */}
+              )}
+
               <input
                 type="text"
                 className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center"
@@ -191,23 +185,6 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
               <p className="text-sm mt-2">Moderator, {user?.officer_at} A.Y. 2023-2024</p>
             </div>
           </div>
-
-          {/* <div className="grid grid-cols-2 gap-8 mt-8">
-            <div>
-              <p className="font-bold mb-2">BENJIE E. TAHUM, LPT, MAED-TESL</p>
-              <p>Director of Student Affairs</p>
-            </div>
-            <div>
-              <p className="font-bold mb-2">VANESSA CLAIRE C. ESPAÑA, CPA</p>
-              <p>Finance Officer</p>
-            </div>
-          </div>
-
-          <div className="mt-6 text-center">
-            <p className="font-semibold">Approved by:</p>
-            <p className="mt-2 font-bold">REV. FR. JESSIE P. PASQUIN, DCC</p>
-            <p>President</p>
-          </div> */}
         </div>
       )}
     </>

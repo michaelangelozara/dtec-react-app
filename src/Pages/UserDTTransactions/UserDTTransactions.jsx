@@ -46,7 +46,9 @@ const typeOfLetter = [
   { label: "Communication Letter (In Campus)", value: "IN_CAMPUS" },
   { label: "Communication Letter (Off Campus)", value: "OFF_CAMPUS" },
   { label: "Implementation Letter (In Campus)", value: "IMPLEMENTATION_LETTER_IN_CAMPUS" },
-  { label: "Implementation Letter (Off Campus)", value: "IMPLEMENTATION_LETTER_OFF_CAMPUS" },
+  { label: "Implementation Letter (Off Campus)", value: "IMPLEMENTATION_LETTER_OFF_CAMPUS" },  
+  { label: "Use of Facilities", value: "SFEF" },
+  { label: "Permit to Enter the Campus", value: "PERMIT_TO_ENTER" },
   { label: "Budget Proposal", value: "BUDGET_PROPOSAL" }
 ];
 
@@ -293,7 +295,15 @@ function ModeratorTransaction() {
                       {filteredTransactions.map((transaction, index) => (
                         <tr key={index} className="hover:bg-gray-50">
                           <td className="p-3">{transaction.fields.date_requested}</td>
-                          <td className="p-3">{transaction.type === "COMMUNICATION_LETTER" ? transaction.type + " (" + transaction.cml + ")" : transaction.type}</td>
+                          <td className="p-3">
+                            {transaction.type === "COMMUNICATION_LETTER" 
+                              ? transaction.type + " (" + transaction.cml + ")" 
+                              : transaction.type === "SFEF" 
+                                ? "USE OF SCHOOL FACILITIES & EQUIPMENT" 
+                                : transaction.type === "PERMIT_TO_ENTER" 
+                                  ? "PERMIT TO ENTER THE CAMPUS" 
+                                  : transaction.type}
+                          </td>
                           <td className="p-3">{transaction.fields.name_of_transaction}</td>
                           <td className="p-3">{transaction.fields.requested_by}</td>
                           <td className="p-3">

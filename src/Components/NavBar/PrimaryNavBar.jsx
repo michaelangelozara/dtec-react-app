@@ -29,8 +29,8 @@ function PrimaryNavBar() {
         <div className="bg-green-800 py-4 px-6 flex justify-between items-center">
             <img src={Banner} alt="DTEC Logo" className="h-16" />
             <div className="flex items-center space-x-4">
-                <FaBell className="text-white text-xl" />
-                <FaUserCircle className="text-white text-2xl" />
+                {/* <FaBell className="text-white text-xl" />
+                <FaUserCircle className="text-white text-2xl" /> */}
                 <img className="size-7" src={Logout} alt="Log out" onClick={logoutHandler} />
             </div>
         </div>

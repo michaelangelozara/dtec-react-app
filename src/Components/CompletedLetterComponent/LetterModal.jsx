@@ -4,6 +4,8 @@ import ImplementationLetterOffCampus from '../CompletedLetterComponent/Implement
 import CommunicationLetterInCampus from '../CompletedLetterComponent/CommunicationLetterInCampus';
 import CommunicationLetterOffCampus from '../CompletedLetterComponent/CommunicationLetterOffCampus';
 import BudgetProposalLetter from '../CompletedLetterComponent/BudgetProposalLetter';
+import PermitEnterApproval from "../CompletedLetterComponent/PermitEnterApproval";
+import UseFacilitiesFormView from "../CompletedLetterComponent/UseFacilitiesFormView";
 import Modal from "../modal/Modal";
 import axios from "../../api/AxiosConfig";
 import { showModal } from '../../states/slices/ModalSlicer';
@@ -54,6 +56,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             signaturePreview={signaturePreview}
             onSignatureChange={onSignatureChange}
             setSignedPeople={setSignedPeople}
+            setSignaturePreview={setSignaturePreview}
           />
         );
       case 'IMPLEMENTATION_LETTER_OFF_CAMPUS':
@@ -94,12 +97,30 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             setSignedPeople={setSignedPeople}
           />
         );
+        case 'PERMIT_TO_ENTER':
+          return (
+            <PermitEnterApproval
+              permit={letter}
+              signaturePreview={signaturePreview}
+              onSignatureChange={onSignatureChange}
+              setSignedPeople={setSignedPeople}
+            />
+          );
+          case 'SFEF':
+            return (
+              <UseFacilitiesFormView
+                facilities={letter}
+                signaturePreview={signaturePreview}
+                onSignatureChange={onSignatureChange}
+                setSignedPeople={setSignedPeople}
+              />
+            );
       default:
         return <div>Unsupported letter type</div>;
     }
   };
 
-  const status = signedPeople.filter(s => s.role === user.role)[0]?.status;
+  const status = signedPeople?.filter(s => s.role === user.role)[0]?.status;
 
   return (
     <>

@@ -7,14 +7,15 @@ import axios from "../../api/AxiosConfig";
 import { fetchUser } from "../../states/slices/UserSlicer";
 import { getSignature } from "../../services/LetterUtil";
 
-function CommunicationLetterInCampus({
-  letter,
-  signaturePreview,
+function PermitToEnterModal({
+  permit,
+  onSignatureChange,
   setSignedPeople,
+  fetchSignature,
+  signaturePreview
 }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [communicationLetter, setCommunicationLetter] = useState(null);
-  const [localSignaturePreview, setLocalSignaturePreview] = useState("");
+  const [permitDetails, setPermitDetails] = useState(null);
   const { user, status } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -23,7 +24,7 @@ function CommunicationLetterInCampus({
     navigate("/user/moderator-transaction");
     return;
   }
-
+  
   useEffect(() => {
     if (!user) {
       dispatch(fetchUser());
@@ -36,11 +37,11 @@ function CommunicationLetterInCampus({
         setIsLoading(true);
         if (user.role !== "STUDENT_OFFICER") {
           await axios.post(
-            `/generic-letters/on-click/${letter.id}?type=${letter.type}`
+            `/generic-letters/on-click/${permit.id}?type=${permit.type}`
           );
         }
-        const response = await axios.get(`/communication-letters/${letter.id}`);
-        setCommunicationLetter(response.data?.data);
+        const response = await axios.get(`/permit-to-enters/${permit.id}`);
+        setPermitDetails(response.data?.data);
       } catch (error) {
         if (error.status === 404) {
           dispatch(showModal({ message: error.response?.data?.message }));
@@ -54,77 +55,92 @@ function CommunicationLetterInCampus({
   }, []);
 
   useEffect(() => {
-    if (communicationLetter) {
-      setSignedPeople(communicationLetter.signed_people);
+    if (permitDetails) {
+      setSignedPeople(Array.isArray(permitDetails.signed_people) ? permitDetails.signed_people : []);
     }
-  }, [communicationLetter]);
-
-  const fetchSignature = async () => {
-    try {
-      const response = await axios.get("/users/get-sm-e-signature");
-      const signatureData = response.data?.data;
-      if (signatureData) {
-        setLocalSignaturePreview(signatureData);
-      } else {
-        dispatch(showModal({ message: 'No signature data found' }));
-      }
-    } catch (error) {
-      dispatch(showModal({ message: 'Failed to fetch signature' }));
-    }
-  };
+  }, [permitDetails]);
 
   return (
     <>
-      {communicationLetter && !isLoading && (
+      {permitDetails && !isLoading && (
         <div className="space-y-4">
           <div>
-            <label className="block font-semibold mb-2">DATE:</label>
+            <label className="block font-semibold mb-2">Requisitioner:</label>
             <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
-              {communicationLetter.date}
+              {permitDetails?.requisitioner}
             </div>
           </div>
 
-          <div className="mb-4">
-            <div className="font-bold">{user?.president}</div>
-            <div>President</div>
-            <div>Notre Dame of Tacurong College</div>
-            <div>City of Tacurong</div>
+          <div>
+            <label className="block font-semibold mb-2">Club:</label>
+            <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
+              {user?.officer_at}
+            </div>
           </div>
 
           <div>
-            <label className="block font-semibold mb-2">LETTER CONTENT:</label>
-            <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50 min-h-[200px] whitespace-pre-line">
-              {communicationLetter.letter_of_content}
+            <label className="block font-semibold mb-2">Activity/Purpose:</label>
+            <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50 whitespace-pre-line">
+              {permitDetails.activity}
+            </div>
+          </div>
+
+          <div>
+            <label className="block font-semibold mb-2">Date:</label>
+            <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
+              {permitDetails.date}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block font-semibold mb-2">Time From:</label>
+              <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
+                {permitDetails.time_from}
+              </div>
+            </div>
+            <div>
+              <label className="block font-semibold mb-2">Time To:</label>
+              <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
+                {permitDetails.time_to}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block font-semibold mb-2">Participants:</label>
+            <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50 whitespace-pre-line">
+              {permitDetails.participants}
             </div>
           </div>
 
           <div className="mt-6">
             <div className="text-center">
               <p className="font-semibold">Noted by:</p>
-              {getSignature(communicationLetter, "MODERATOR") ? (
+              {getSignature(permitDetails, "MODERATOR") ? (
                 <img
                   alt="MODERATOR's Signature"
                   className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
                   style={{ maxHeight: "150px", maxWidth: "300px" }}
-                  src={getSignature(communicationLetter, "MODERATOR")}
+                  src={getSignature(permitDetails, "MODERATOR")}
                 />
               ) : (
                 <>
                   <button
                     onClick={fetchSignature}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
+                    className={`${signaturePreview ? 'hidden' : ''} bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto`}
                     disabled={user.role !== "MODERATOR"}
                   >
                     <FaFingerprint /> Attach Signature
                   </button>
-                  {localSignaturePreview && (
-                    <div className="mb-4">
-                      <p className="text-sm font-medium mb-2">Signature Preview:</p>
+                  {signaturePreview && (
+                    <div className="mt-4">
+                      <p className="font-semibold">Signature Preview:</p>
                       <img
                         alt="MODERATOR's Signature"
                         className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                        src={localSignaturePreview}
                         style={{ maxHeight: "150px", maxWidth: "300px" }}
+                        src={signaturePreview}
                       />
                     </div>
                   )}
@@ -133,16 +149,16 @@ function CommunicationLetterInCampus({
 
               <input
                 type="text"
-                className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center font-semibold"
+                className="w-full border-gray-300 border-2 p-2 rounded-md mt-4 text-center"
                 placeholder="Name of Club Moderator"
                 disabled
                 defaultValue={
                   user?.middle_name
                     ? user?.first_name +
-                      " " +
-                      user?.middle_name[0] +
-                      ". " +
-                      user?.lastname
+                    " " +
+                    user?.middle_name[0] +
+                    ". " +
+                    user?.lastname
                     : user?.first_name + " " + user?.lastname
                 }
               />
@@ -157,4 +173,4 @@ function CommunicationLetterInCampus({
   );
 }
 
-export default CommunicationLetterInCampus;
+export default PermitToEnterModal;

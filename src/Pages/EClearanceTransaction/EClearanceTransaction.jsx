@@ -120,7 +120,10 @@ function StudentClearanceTracking() {
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {Array.isArray(clearance?.clearance_signoffs) && clearance?.is_submitted && clearance?.clearance_signoffs?.map((signoff) => (
-                      <tr key={signoff.id} className="hover:bg-gray-50">
+                      <tr 
+                        key={signoff.id} 
+                        className={`hover:bg-gray-50 ${signoff.status === "COMPLETED" ? 'bg-green-50' : ''}`}
+                      >
                         <td className="p-3">{clearance?.date_of_student_signature}</td>
                         <td className="p-3">{signoff.role}</td>
                         <td className="p-3">{signoff.office_in_charge}</td>
@@ -144,6 +147,5 @@ function StudentClearanceTracking() {
     </>
   );
 }
-
 
 export default StudentClearanceTracking;

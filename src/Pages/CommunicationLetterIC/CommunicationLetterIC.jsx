@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { FaUserCircle, FaBell, FaPen } from 'react-icons/fa';
-import Banner from '../../Images/banner.svg';
+import { FaFingerprint } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from '../../states/slices/UserSlicer';
 import { hideModal, showModal } from '../../states/slices/ModalSlicer';
@@ -15,29 +14,35 @@ function CommunicationLetter() {
   const [signaturePreview, setSignaturePreview] = useState("");
   const [letterContent, setLetterContent] = useState('');
   const [selectedDate, setSelectedDate] = useState("");
-
-
   const { user, status } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   // Handler for date change
   const handleDateChange = (event) => {
-    setSelectedDate(event.target.value);
-  };
-
-  const handleSignatureChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSignaturePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+    const selectedDate = new Date(event.target.value);
+    const currentDate = new Date();
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(currentDate.getDate() + 7);
+  
+    if (selectedDate >= sevenDaysFromNow) {
+      setSelectedDate(event.target.value);
     } else {
-      setSignaturePreview(null);
+      dispatch(showModal({ message: 'Please select a date at least 7 days from today' }));
     }
   };
+
+
+  const fetchSignature = async() => {
+    try {
+      const response = await axios.get("/users/get-sm-e-signature");
+      setSignaturePreview(response.data?.data);
+    } catch (error) {
+      
+    }
+
+  };
+
 
   const handleContentChange = (e) => {
     setLetterContent(e.target.value);
@@ -119,11 +124,12 @@ function CommunicationLetter() {
               <div className="mb-4">
                 <label className="block font-semibold mb-2">DATE:</label>
                 <input
-                  type="date"
-                  className="w-full border-gray-300 border-2 p-2 rounded-md"
-                  onChange={handleDateChange}
-                  value={selectedDate}
-                />
+                      type="date"
+                      className="w-full border-gray-300 border-2 p-2 rounded-md"
+                      onChange={handleDateChange}
+                      value={selectedDate}
+                      min={new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0]}
+                    />
               </div>
 
               {/* Receiver Information */}
@@ -152,57 +158,56 @@ function CommunicationLetter() {
 
                   {/* Prepared By Section */}
                   <div className="mt-6">
-                    <div>
-                      <p className="font-semibold">Prepared by:</p>
-                      <div className="mt-2">
-                        <label className="block font-semibold mb-2">Attach Signature</label>
-                        <input
-                          type="file"
-                          className="border-gray-300 border-2 p-2 rounded-md"
-                          accept="image/*"
-                          onChange={handleSignatureChange}
-                        />
-                      </div>
-                      {signaturePreview && (
-                        <div className="mt-4">
-                          <p className="font-semibold">Signature Preview:</p>
-                          <img
-                            src={signaturePreview}
-                            alt="Signature Preview"
-                            className="border border-gray-300 p-2 rounded-md"
-                            style={{ maxHeight: '150px', maxWidth: '300px' }}
-                          />
+                      <div>
+                        <p className="font-semibold">Prepared by:</p>
+                        <div className="mt-2">
+                          <button
+                            onClick={() => fetchSignature()}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
+                          >
+                            <FaFingerprint /> Attach Signature
+                          </button>
                         </div>
-                      )}
-                      <input
-                        type="text"
-                        className="w-full border-gray-300 border-2 p-2 rounded-md mt-2"
-                        placeholder="Name of Club Mayor"
-                        disabled
-                        defaultValue={user?.first_name + " " + user?.middle_name + " " + user?.lastname}
-                      />
-                      <p >MAYOR, {user?.officer_at}, A.Y. 2024-2025</p>
+                        {signaturePreview && (
+                          <div className="mt-4">
+                            <p className="font-semibold">Signature Preview:</p>
+                            <img
+                              src={signaturePreview}
+                              alt="Signature Preview"
+                              className="border border-gray-300 p-2 rounded-md"
+                              style={{ maxHeight: '150px', maxWidth: '300px' }}
+                            />
+                          </div>
+                        )}
+                        <input
+                          type="text"
+                          className="w-full border-gray-300 border-2 p-2 rounded-md mt-2 font-bold"
+                          placeholder="Name of Club Mayor"
+                          disabled
+                          defaultValue={user?.first_name + " " + user?.middle_name + " " + user?.lastname}
+                        />
+                        <p>MAYOR, {user?.officer_at}, A.Y. 2024-2025</p>
+                      </div>
                     </div>
-                  </div>
 
 
                   <div>
                     <p className="font-semibold">Noted by:</p>
                     <div className=" mt-2">
-                      <p className="font-bold mt-2" >{user?.moderator}</p>
+                      <p className="font-bold mt-2 font-bold" >{user?.moderator}</p>
                     </div>
                     <p >MODERATOR, {user?.officer_at}, A.Y. 2024-2025</p>
                   </div>
 
                   <div>
                     <p className="font-semibold">Noted by:</p>
-                    <p className="font-bold mt-2">{user?.dsa}</p>
+                    <p className="font-bold mt-2 font-bold">{user?.dsa}</p>
                     <p>DIRECTOR OF STUDENT AFFAIRS</p>
                   </div>
 
                   <div>
                     <p className="font-semibold">Approved by:</p>
-                    <p className="font-bold mt-2">{user?.president}</p>
+                    <p className="font-bold mt-2 font-bold">{user?.president}</p>
                     <p>PRESIDENT, NDTC</p>
                   </div>
                 </div>

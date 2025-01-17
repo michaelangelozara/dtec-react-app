@@ -24,7 +24,10 @@ export const officeInChargeRole = [
     "CUSTODIAN",
     "VPAF",
     "VPA",
-    "MULTIMEDIA"
+    "MULTIMEDIA",
+    "AUXILIARY_SERVICE_HEAD",
+    "PPLO",
+    "CHAPEL",
 ];
 
 export const personnelRole = ["SUPER_ADMIN", "ADMIN", "PERSONNEL"];

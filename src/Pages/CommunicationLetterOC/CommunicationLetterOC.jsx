@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { FaUserCircle, FaBell, FaPen } from 'react-icons/fa';
+import { FaFingerprint} from 'react-icons/fa';
 import Modal from '../../Components/modal/Modal';
 import { navigateRouteByRole } from '../../services/RouteUtil';
 import { hideModal, showModal } from '../../states/slices/ModalSlicer';
@@ -20,17 +20,27 @@ function CommunicationLetter() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleSignatureChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSignaturePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+  const handleDateChange = (event) => {
+    const selectedDate = new Date(event.target.value);
+    const currentDate = new Date();
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(currentDate.getDate() + 7);
+  
+    if (selectedDate >= sevenDaysFromNow) {
+      setSelectedDate(event.target.value);
     } else {
-      setSignaturePreview(null);
+      dispatch(showModal({ message: 'Please select a date at least 7 days from today' }));
     }
+  };
+
+  const fetchSignature = async() => {
+    try {
+      const response = await axios.get("/users/get-sm-e-signature");
+      setSignaturePreview(response.data?.data);
+    } catch (error) {
+      
+    }
+
   };
 
   const handleCancel = () => {
@@ -114,10 +124,12 @@ function CommunicationLetter() {
               <div className="mb-4">
                 <label className="block font-semibold mb-2">DATE:</label>
                 <input
-                  type="date"
-                  className="w-full border-gray-300 border-2 p-2 rounded-md"
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                />
+                    type="date"
+                    className="w-full border-gray-300 border-2 p-2 rounded-md"
+                    onChange={handleDateChange}
+                    value={selectedDate}
+                    min={new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0]}
+                  />
               </div>
 
               {/* Receiver Information */}
@@ -149,13 +161,12 @@ function CommunicationLetter() {
                     <div>
                       <p className="font-semibold">Prepared by:</p>
                       <div className="mt-2">
-                        <label className="block font-semibold mb-2">Attach Signature</label>
-                        <input
-                          type="file"
-                          className="border-gray-300 border-2 p-2 rounded-md"
-                          accept="image/*"
-                          onChange={handleSignatureChange}
-                        />
+                        <button
+                          onClick={() => fetchSignature()}
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
+                        >
+                          <FaFingerprint /> Attach Signature
+                        </button>
                       </div>
                       {signaturePreview && (
                         <div className="mt-4">
@@ -170,7 +181,7 @@ function CommunicationLetter() {
                       )}
                       <input
                         type="text"
-                        className="w-full border-gray-300 border-2 p-2 rounded-md mt-2"
+                        className="w-full border-gray-300 border-2 p-2 rounded-md mt-2 font-bold"
                         placeholder="Name of Club Mayor"
                         disabled
                         defaultValue={user?.first_name + " " + user?.middle_name + " " + user?.lastname}
@@ -183,20 +194,20 @@ function CommunicationLetter() {
                   <div>
                     <p className="font-semibold">Noted by:</p>
                     <div className=" mt-2">
-                      <p className="font-bold mt-2" >{user?.moderator}</p>
+                      <p className="font-bold mt-2 font-bold" >{user?.moderator}</p>
                     </div>
                     <p >MODERATOR, {user?.officer_at}, A.Y. 2024-2025</p>
                   </div>
 
                   <div>
                     <p className="font-semibold">Noted by:</p>
-                    <p className="font-bold mt-2">{user?.dsa}</p>
+                    <p className="font-bold mt-2 font-bold">{user?.dsa}</p>
                     <p>DIRECTOR OF STUDENT AFFAIRS</p>
                   </div>
 
                   <div>
                     <p className="font-semibold">Approved by:</p>
-                    <p className="font-bold mt-2">{user?.office_head}</p>
+                    <p className="font-bold mt-2 font-bold">{user?.office_head}</p>
                     <p>Office Head, CDSO</p>
                   </div>
                 </div>

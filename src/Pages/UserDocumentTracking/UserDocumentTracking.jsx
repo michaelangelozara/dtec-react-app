@@ -26,7 +26,7 @@ function DocumentTracking() {
 
   const handleCloseAlertModal = () => {
     setAlertModalIsOpen(false);
-    handleOpenModal(); // Reopen the transaction modal after closing the alert modal
+    handleOpenModal();
   };
 
   const handleTransactionChange = (event) => {
@@ -34,12 +34,11 @@ function DocumentTracking() {
   };
 
   const handleSubmit = () => {
-    // Redirect based on selected transaction type
     switch (selectedTransaction) {
-      case 'Implementation Letter (In-Campus)':
+      case 'Implementation Program (In-Campus)':
         navigate('/user/implementation-letter-ic');
         break;
-      case 'Implementation Letter (Off-Campus)':
+      case 'Implementation Program (Off-Campus)':
         navigate('/user/implementation-letter-oc');
         break;
       case 'Communication Letter (In-Campus)':
@@ -49,8 +48,13 @@ function DocumentTracking() {
         navigate('/user/communication-letter-oc');
         break;
       case 'Budget Proposal':
-        // Show alert modal if the Budget Proposal page is not yet available
         navigate('/user/budget-proposal');
+        break;
+      case 'Permit to Enter the Campus Outside Regular Schedules':
+        navigate('/user/permit-to-enter-campus');
+        break;
+      case 'Use of School Facilities & Equipment':
+        navigate('/user/use-facilities');
         break;
       default:
         alert("Please select a valid transaction type.");
@@ -82,7 +86,6 @@ function DocumentTracking() {
           </Helmet>
           <PrimaryNavBar />
 
-          {/* Main Content */}
           <div className="p-8">
             <div className="flex justify-between">
               <div className="flex flex-col">
@@ -96,9 +99,7 @@ function DocumentTracking() {
 
             <div className="border-b border-gray-400 w-full my-2"></div>
 
-            {/* Transaction Buttons */}
             <div className="flex flex-wrap justify-center gap-8 mt-16">
-              {/* Button Style for Equal Width */}
               <button
                 onClick={handleOpenModal}
                 className="bg-green-700 text-white font-bold py-8 px-12 rounded-lg flex flex-col items-center justify-center hover:bg-green-800 transition-colors w-72 h-45"
@@ -126,7 +127,6 @@ function DocumentTracking() {
             </div>
           </div>
 
-          {/* Modal for New Transaction */}
           <Modal
             isOpen={modalIsOpen}
             onRequestClose={handleCloseModal}
@@ -144,11 +144,13 @@ function DocumentTracking() {
                 className="border border-gray-300 p-2 rounded-lg w-full"
               >
                 <option value="">Select an option...</option>
-                <option value="Implementation Letter (In-Campus)">Implementation Letter (In-Campus)</option>
-                <option value="Implementation Letter (Off-Campus)">Implementation Letter (Off-Campus)</option>
+                <option value="Implementation Program (In-Campus)">Implementation Program (In-Campus)</option>
+                <option value="Implementation Program (Off-Campus)">Implementation Program (Off-Campus)</option>
                 <option value="Communication Letter (In-Campus)">Communication Letter (In-Campus)</option>
                 <option value="Communication Letter (Off-Campus)">Communication Letter (Off-Campus)</option>
                 <option value="Budget Proposal">Budget Proposal</option>
+                <option value="Permit to Enter the Campus Outside Regular Schedules">Permit to Enter the Campus Outside Regular Schedules</option>
+                <option value="Use of School Facilities & Equipment">Use of School Facilities & Equipment</option>
               </select>
             </div>
             <div className="flex justify-end gap-4 w-full">
@@ -169,7 +171,6 @@ function DocumentTracking() {
         </>
       )}
 
-      {/* Modal Styles */}
       <style>
         {`
           .modal-overlay {

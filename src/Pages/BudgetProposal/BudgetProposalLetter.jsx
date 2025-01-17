@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { FaPlus, FaTrash } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaFingerprint } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
@@ -15,6 +15,7 @@ function BudgetProposalLetter() {
   const { user, status } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [signaturePreview, setSignaturePreview] = useState("");
 
   const [formData, setFormData] = useState({
     name: '',
@@ -26,16 +27,42 @@ function BudgetProposalLetter() {
     student_officer_signature: ""
   });
 
+  const handleDateChange = (event) => {
+    const selectedDate = new Date(event.target.value);
+    const currentDate = new Date();
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(currentDate.getDate() + 7);
+  
+    if (selectedDate >= sevenDaysFromNow) {
+      setFormData({ ...formData, date: event.target.value });
+    } else {
+      dispatch(showModal({ message: 'Please select a date at least 7 days from today' }));
+    }
+  };
+
+  const fetchSignature = async() => {
+    try {
+      const response = await axios.get("/users/get-sm-e-signature");
+      const signatureData = response.data?.data;
+      setSignaturePreview(signatureData);
+      setFormData({ ...formData, student_officer_signature: signatureData });
+    } catch (error) {
+      dispatch(showModal({ message: 'Failed to fetch signature' }));
+    }
+  };
+
   const handleSignatureChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData({ ...formData, student_officer_signature: reader.result })
+        setFormData({ ...formData, student_officer_signature: reader.result });
+        setSignaturePreview(reader.result);
       };
       reader.readAsDataURL(file);
     } else {
-      setFormData({ ...formData, student_officer_signature: null })
+      setFormData({ ...formData, student_officer_signature: null });
+      setSignaturePreview("");
     }
   };
 
@@ -73,6 +100,7 @@ function BudgetProposalLetter() {
       expected_expenses: [{ name: '', amount: '' }],
       student_officer_signature: ""
     });
+    setSignaturePreview("");
   }
 
   const handleSave = async () => {
@@ -92,6 +120,7 @@ function BudgetProposalLetter() {
       }
     }
   }
+
   const handleCancel = () => {
     navigate("/user/document-tracking")
   }
@@ -105,7 +134,6 @@ function BudgetProposalLetter() {
       navigate(navigateRouteByRole(user));
     }
   }, [dispatch, user, status]);
-
 
   return (
     <>
@@ -138,11 +166,12 @@ function BudgetProposalLetter() {
                     <div>
                       <label className="block font-medium mb-2">Date:</label>
                       <input
-                        type="date"
-                        className="w-full border rounded p-2"
-                        value={formData.date}
-                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                      />
+                          type="date"
+                          className="w-full border rounded p-2"
+                          value={formData.date}
+                          onChange={handleDateChange}
+                          min={new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0]}
+                        />
                     </div>
                   </div>
 
@@ -225,50 +254,41 @@ function BudgetProposalLetter() {
 
                   {/* Signatures Section */}
                   <div className="grid grid-cols-2 gap-8 mt-8">
-                    <div>
-                      <p className="font-bold">Prepared by:</p>
-                      <div className="mt-4">
-                        <label className="block text-sm font-medium mb-2">Upload Signature:</label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleSignatureChange(e)}
-                          className="w-full border p-2 rounded mb-2"
-                        />
-                        {formData.student_officer_signature && (
-                          <div className="mb-4">
-                            <p className="text-sm font-medium mb-2">Signature Preview:</p>
-                            <img
-                              src={formData.student_officer_signature}
-                              alt="Mayor Signature"
-                              className="max-h-20 border rounded p-2"
-                            />
-                          </div>
-                        )}
-                        <input
-                          type="text"
-                          className="w-full border-b-2"
-                          placeholder="Enter name"
-                          defaultValue={user?.role === "STUDENT_OFFICER" ? user?.first_name + " " + user?.middle_name + " " + user?.lastname : ""}
-                          disabled
-                        />
-                        <p>Mayor, {user?.officer_at} A.Y. 2023-2024</p>
+                      <div>
+                        <p className="font-bold">Prepared by:</p>
+                        <div className="mt-4">
+                          <button
+                            onClick={fetchSignature}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
+                          >
+                            <FaFingerprint /> Attach Signature
+                          </button>
+                          {signaturePreview && (
+                            <div className="mb-4">
+                              <p className="text-sm font-medium mb-2">Signature Preview:</p>
+                              <img
+                                src={signaturePreview}
+                                alt="Mayor Signature"
+                                className="max-h-20 border rounded p-2"
+                              />
+                            </div>
+                          )}
+                          <input
+                            type="text"
+                            className="w-full border-b-2 font-bold"
+                            placeholder="Enter name"
+                            defaultValue={user?.role === "STUDENT_OFFICER" ? user?.first_name + " " + user?.middle_name + " " + user?.lastname : ""}
+                            disabled
+                          />
+                          <p>Mayor, {user?.officer_at} A.Y. 2023-2024</p>
+                        </div>
                       </div>
-                    </div>
-
                     <div>
                       <p className="font-bold">Noted by:</p>
                       <div className="mt-4">
-                        <label className="block text-sm font-medium mb-2">Upload Signature:</label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="w-full border p-2 rounded mb-2"
-                          disabled
-                        />
                         <input
                           type="text"
-                          className="w-full border-b-2"
+                          className="w-full border-b-2 font-bold"
                           placeholder="Enter name"
                           defaultValue={user?.moderator}
                           disabled

@@ -82,6 +82,18 @@ function ModeratorTransaction() {
     }
   };
 
+  const fetchSignature = async () => {
+    try {
+      const response = await axios.get("/users/get-sm-e-signature");
+      setSignaturePreview(response.data?.data);
+    } catch (error) {
+      if (error.status === 404) {
+        dispatch(showModal({ message: error?.response?.data?.message }))
+      }
+    }
+
+  };
+
   const openModal = (letter) => {
     setSelectedLetter(letter);
     setIsDetailsOpen(true);
@@ -135,7 +147,6 @@ function ModeratorTransaction() {
 
   const handleModeratorSignature = async () => {
     try {
-
       const response = await axios.post(`/generic-letters/sign-letter/${selectedLetter.id}?type=${selectedLetter.type}`, {
         "signature": signaturePreview
       });
@@ -156,7 +167,6 @@ function ModeratorTransaction() {
       try {
         const response = await axios.get(`/generic-letters?s=${entriesPerPage}`);
         setFields(response.data?.data);
-        console.log(response);
       } catch (error) {
         console.log(error)
       }
@@ -347,6 +357,7 @@ function ModeratorTransaction() {
               signaturePreview={signaturePreview}
               onSignatureChange={handleSignatureChange}
               onApprove={handleModeratorSignature}
+              fetchSignature={fetchSignature}
             />
           )}
         </>

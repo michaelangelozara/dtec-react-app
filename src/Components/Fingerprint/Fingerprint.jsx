@@ -93,7 +93,6 @@ function Fingerprint({ onOkClick , setSignature, setSignaturePreview}) {
     useEffect(() => {
         if (stompClient && isConnected && myData && !isLoading) {
             const payload = JSON.stringify(myData);
-            console.log(payload);
             stompClient.send('/app/validate.fingerprint', {}, payload);
         }
     }, [stompClient, myData, isConnected]);
@@ -107,7 +106,6 @@ function Fingerprint({ onOkClick , setSignature, setSignaturePreview}) {
                 setSignaturePreview(response.data?.data?.signature);
             } catch (error) {
                 if (error.status === 404) {
-                    console.log(error);
                     dispatch(showModal({ message: error?.response?.data?.message }))
                 }
             }
