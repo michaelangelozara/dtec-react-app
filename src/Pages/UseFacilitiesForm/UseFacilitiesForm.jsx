@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 import Modal from "../../Components/modal/Modal";
 import { hideModal, showModal } from "../../states/slices/ModalSlicer";
+import { fetchUser } from "../../states/slices/UserSlicer";
 
 
 function UseFacilitiesForm() {
@@ -37,7 +38,7 @@ function UseFacilitiesForm() {
   };
 
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.user);
+  const { user, status } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
   const handleDateChange = (selectedDate) => {
@@ -52,19 +53,18 @@ function UseFacilitiesForm() {
     }
   };
 
-  const fetchSignature = async() => {
+  const fetchSignature = async () => {
     try {
       const response = await axios.get("/users/get-sm-e-signature");
       setSignaturePreview(response.data?.data);
     } catch (error) {
-      
-    }
 
+    }
   };
 
   const handleSubmit = async () => {
     try {
-      const formattedDate = date.toLocaleDateString('en-CA'); 
+      const formattedDate = date.toLocaleDateString('en-CA');
       const response = await axios.post("/sfefs/add", {
         venue: venues,
         activity: activityPurpose,
@@ -72,18 +72,19 @@ function UseFacilitiesForm() {
         time_from: timeFrom,
         time_to: timeTo,
         facilityOrEquipments: facilities,
-        signature : signaturePreview
+        signature: signaturePreview
       });
       if (response.status === 201) {
-              dispatch(showModal({ message: response.data?.message || "Permit request submitted successfully!" }));
-              setTimeout(() => {
-                navigate("/user/document-tracking");
-                dispatch(hideModal());
-                resetFields();
-              }, 2000);
-    }    } catch (error) {
-          dispatch(showModal({ message: error.response?.data?.message || "An error occurred while submitting the request" }));
-        }
+        dispatch(showModal({ message: response.data?.message || "Permit request submitted successfully!" }));
+        setTimeout(() => {
+          navigate("/user/document-tracking");
+          dispatch(hideModal());
+          resetFields();
+        }, 2000);
+      }
+    } catch (error) {
+      dispatch(showModal({ message: error.response?.data?.message || "An error occurred while submitting the request" }));
+    }
   }
 
   const handleTextAreaKeyDown = (e, setValue, currentValue) => {
@@ -127,6 +128,12 @@ function UseFacilitiesForm() {
     navigate("/user/document-tracking");
   };
 
+  useEffect(() => {
+    if (!user) {
+      dispatch(fetchUser());
+    }
+  }, [dispatch, user, status]);
+console.log(user);
   return (
     <>
       <Helmet>
@@ -160,7 +167,7 @@ function UseFacilitiesForm() {
                 type="text"
                 className="w-full border-gray-300 border-2 p-2 rounded-md"
                 disabled
-                defaultValue= {user?.first_name + " " + user?.middle_name + " " + user?.lastname}
+                value={user?.first_name + " " + user?.middle_name + " " + user?.lastname}
                 onChange={(e) => setRequisitioner(e.target.value)}
               />
             </div>
@@ -171,7 +178,7 @@ function UseFacilitiesForm() {
                 type="text"
                 className="w-full border-gray-300 border-2 p-2 rounded-md"
                 disabled
-                defaultValue={user?.officer_at}
+                value={user?.officer_at}
                 onChange={(e) => setClub(e.target.value)}
               />
             </div>
@@ -182,7 +189,7 @@ function UseFacilitiesForm() {
                 type="text"
                 className="w-full border-gray-300 border-2 p-2 rounded-md"
                 disabled
-                defaultValue={user?.role}
+                value={user?.role}
                 onChange={(e) => setPosition(e.target.value)}
               />
             </div>
@@ -305,14 +312,14 @@ function UseFacilitiesForm() {
               {/* Requested By */}
               <div className="text-center mb-6">
                 <p className="font-semibold">Requested By:</p>
-                    <div className="mt-2">
-                      <button
-                        onClick={fetchSignature}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
-                      >
-                        <FaFingerprint /> Attach Signature
-                      </button>
-                    </div>
+                <div className="mt-2">
+                  <button
+                    onClick={fetchSignature}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
+                  >
+                    <FaFingerprint /> Attach Signature
+                  </button>
+                </div>
                 {signaturePreview && (
                   <div className="mt-4">
                     <img
@@ -326,7 +333,7 @@ function UseFacilitiesForm() {
                 <input
                   type="text"
                   className="w-full border-gray-300 border-2 p-2 rounded-md mt-2 text-center font-bold"
-                  defaultValue={user?.first_name + " " + user?.middle_name + " " + user?.lastname}
+                  value={user?.first_name + " " + user?.middle_name + " " + user?.lastname}
                   disabled
                 />
                 <p className="text-sm mt-2">MAYOR, {user?.officer_at}, A.Y. 2024-2025</p>
@@ -338,7 +345,7 @@ function UseFacilitiesForm() {
                 <input
                   type="text"
                   className="w-full border-gray-300 border-2 p-2 rounded-md mt-2 text-center font-bold"
-                  defaultValue={user?.moderator}
+                  value={user?.moderator}
                   disabled
                 />
                 <p className="text-sm">MODERATOR, {user?.officer_at}, A.Y. 2024-2025</p>
@@ -396,7 +403,7 @@ function UseFacilitiesForm() {
                 <input
                   type="text"
                   className="w-full border-gray-300 border-2 p-2 rounded-md mt-2 text-center font-bold"
-                  defaultValue={user?.president}
+                  value={user?.president}
                   disabled
                 />
                 <p className="text-sm">PRESIDENT</p>

@@ -692,10 +692,10 @@ function OICDashboard() {
                                     getUserEvaluation(item, user?.role) ===
                                     "EVALUATED"
                                   }
-                                  className={`${item.status === "COMPLETED"
+                                  className={`${getUserEvaluation(item, user?.role) === "EVALUATED"
                                       ? "bg-gray-500"
                                       : "bg-green-800"
-                                    } text-white text-sm px-4 py-2 rounded ${item.status !== "COMPLETED"
+                                    } text-white text-sm px-4 py-2 rounded ${getUserEvaluation(item, user?.role) !== "EVALUATED"
                                       ? "hover:bg-green-900"
                                       : ""
                                     }`}

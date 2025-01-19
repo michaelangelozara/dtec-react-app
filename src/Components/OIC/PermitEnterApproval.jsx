@@ -120,7 +120,7 @@ function PermitEnterApproval({
       </div>
 
       {/* Requisitioner's Signature */}
-      <div className="mt-6 text-center">
+      {/* <div className="mt-6 text-center">
         <p className="font-semibold">Requested By:</p>
         {permitDetails && getSignature(permitDetails, "STUDENT_OFFICER") && (
           <img
@@ -132,10 +132,10 @@ function PermitEnterApproval({
         )}
         <p className="mt-2 font-bold">{permitDetails?.requisitioner}</p>
         <p className="text-sm mt-2">MAYOR, {permitDetails?.club} A.Y. 2023-2024</p>
-      </div>
+      </div> */}
 
       {/* Moderator's Signature */}
-      <div className={`mt-6 text-center ${user?.role !== "MODERATOR" ? 'hidden' : ''}`}>
+      {/* <div className={`mt-6 text-center ${user?.role !== "MODERATOR" ? 'hidden' : ''}`}>
         <p className="font-semibold">Noted by:</p>
         <div className={`mt-4 ${user?.role !== "MODERATOR" ? "hidden" : ""}`}>
           <button
@@ -166,7 +166,7 @@ function PermitEnterApproval({
         )}
         <p className="mt-2 font-bold">{permitDetails?.moderator}</p>
         <p className="text-sm mt-2">MODERATOR, {permitDetails?.club} A.Y. 2023-2024</p>
-      </div>
+      </div> */}
 
       {/* CDSO Signature Section */}
       <div className={`mt-6 text-center ${user?.role !== "OFFICE_HEAD" ? 'hidden' : ''}`}>
@@ -198,7 +198,7 @@ function PermitEnterApproval({
             />
           )
         )}
-        <p className="mt-2 font-bold">{permitDetails?.office_head}</p>
+        <p className="mt-2 font-bold">{user?.office_head}</p>
         <p>Community Development and Services Officer</p>
       </div>
 
@@ -232,7 +232,7 @@ function PermitEnterApproval({
             />
           )
         )}
-        <p className="mt-2 font-bold">{permitDetails?.president}</p>
+        <p className="mt-2 font-bold">{user?.president}</p>
         <p>NDTC President</p>
       </div>
 

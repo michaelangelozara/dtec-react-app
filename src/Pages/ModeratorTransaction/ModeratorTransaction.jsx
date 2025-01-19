@@ -14,6 +14,7 @@ import axios from "../../api/AxiosConfig";
 
 import LetterModal from "../../Components/moderator/LetterModal";
 import { showModal } from "../../states/slices/ModalSlicer";
+import { getUserEvaluation } from "../../services/LetterUtil";
 
 function StatusCard({ count, title, icon, onClick, isActive }) {
   return (
@@ -321,7 +322,14 @@ function ModeratorTransaction() {
                           <td className="p-3">{transaction.fields.current_location}</td>
                           <td className="p-3">
                             <button
-                              className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded flex items-center space-x-1"
+                              disabled={getUserEvaluation(transaction, user?.role) === "EVALUATED"}
+                              className={`${getUserEvaluation(transaction, user?.role) === "EVALUATED"
+                                ? "bg-gray-500"
+                                : "bg-green-800"
+                                } ${getUserEvaluation(transaction, user?.role) !== "EVALUATED"
+                                  ? "hover:bg-green-900"
+                                  : ""
+                                } text-white text-sm px-3 py-2 rounded flex items-center space-x-1`}
                               onClick={() => openModal(transaction)}
                             >
                               <FaEye className="text-sm" />
