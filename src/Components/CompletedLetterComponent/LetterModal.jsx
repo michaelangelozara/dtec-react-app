@@ -56,7 +56,6 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             signaturePreview={signaturePreview}
             onSignatureChange={onSignatureChange}
             setSignedPeople={setSignedPeople}
-            setSignaturePreview={setSignaturePreview}
           />
         );
       case 'IMPLEMENTATION_LETTER_OFF_CAMPUS':
@@ -97,31 +96,31 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             setSignedPeople={setSignedPeople}
           />
         );
-        case 'PERMIT_TO_ENTER':
-          return (
-            <PermitEnterApproval
-              permit={letter}
-              signaturePreview={signaturePreview}
-              onSignatureChange={onSignatureChange}
-              setSignedPeople={setSignedPeople}
-            />
-          );
-          case 'SFEF':
-            return (
-              <UseFacilitiesFormView
-                facilities={letter}
-                signaturePreview={signaturePreview}
-                onSignatureChange={onSignatureChange}
-                setSignedPeople={setSignedPeople}
-              />
-            );
+      case 'PERMIT_TO_ENTER':
+        return (
+          <PermitEnterApproval
+            permit={letter}
+            signaturePreview={signaturePreview}
+            onSignatureChange={onSignatureChange}
+            setSignedPeople={setSignedPeople}
+          />
+        );
+      case 'SFEF':
+        return (
+          <UseFacilitiesFormView
+            facilities={letter}
+            signaturePreview={signaturePreview}
+            onSignatureChange={onSignatureChange}
+            setSignedPeople={setSignedPeople}
+          />
+        );
       default:
         return <div>Unsupported letter type</div>;
     }
   };
 
   const status = signedPeople?.filter(s => s.role === user.role)[0]?.status;
-
+  console.log(letter);
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -154,11 +153,9 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
                 Cancel
               </button>
               <button
-                onClick={handleDecline}
-                className={`px-6 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 ${user?.role === "MODERATOR" || user?.role === "STUDENT_OFFICER" ? "hidden" : ""}`}
-                disabled={status === "EVALUATED" || letter.status === "DECLINED" || letter.status === "COMPLETED"}
+                className={`px-6 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 ${letter?.fields?.status !== "COMPLETED" ? 'hidden' : ''}`}
               >
-                Decline
+                Print
               </button>
               <button
                 onClick={onApprove}
