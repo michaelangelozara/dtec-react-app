@@ -8,6 +8,8 @@ import EC from "../../Images/EC.svg";
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from "../../states/slices/UserSlicer";
+import { showModal } from "../../states/slices/ModalSlicer";
+import Modal from "../../Components/modal/Modal";
 
 
 function OICDashboard() {
@@ -21,9 +23,6 @@ function OICDashboard() {
       dispatch(fetchUser())
     }
 
-    if (user && user?.is_first_time_login) {
-      navigate("/first-time-login/update-password");
-    }
   }, [dispatch, user, status]);
 
   return (
@@ -66,6 +65,7 @@ function OICDashboard() {
           </button>
         </div>
       </div>
+      <Modal />
     </>
   );
 }

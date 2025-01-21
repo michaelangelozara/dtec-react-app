@@ -227,6 +227,7 @@ function UserList() {
     } finally {
       setIsLoading(false);
       setIsCreateModalOpen(false);
+      resetUserFields();
     }
   };
 
@@ -342,13 +343,18 @@ function UserList() {
   };
 
   const handleResetPassword = async (userId) => {
-    if(!userId) return;
-    try {
-      const response = await axios.put(`/admin/users/reset-password?id=${userId}`);
-      if(response.status === 200){
-        dispatch(showModal({message : response?.data?.data}))
+    const confirmed = window.confirm(
+      "Are you sure you want to Reset this Account?"
+    );
+    if (confirmed) {
+      if (!userId) return;
+      try {
+        const response = await axios.put(`/admin/users/reset-password?id=${userId}`);
+        if (response.status === 200) {
+          dispatch(showModal({ message: response?.data?.data }))
+        }
+      } catch (error) {
       }
-    } catch (error) {
     }
   };
 
@@ -778,7 +784,7 @@ function UserList() {
                   </div>
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
-                      {newUser.role === "STUDENT" || newUser.role === "STUDENT_OFFICER"? "Student ID" : "Employment ID"}
+                      {newUser.role === "STUDENT" || newUser.role === "STUDENT_OFFICER" ? "Student ID" : "Employment ID"}
                     </label>
                     <input
                       type="text"
@@ -1081,7 +1087,7 @@ function UserList() {
                       onClick={handleCreateUser}
                       className="px-4 py-2 bg-green-500 text-white rounded"
                     >
-                      Create
+                      {isLoading ? 'Saving' : 'Create'}
                     </button>
                   </div>
                 </form>
@@ -1156,7 +1162,7 @@ function UserList() {
                   </div>
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
-                    {newUser.role === "STUDENT" || newUser.role === "STUDENT_OFFICER"? "Student ID" : "Employment ID"}
+                      {newUser.role === "STUDENT" || newUser.role === "STUDENT_OFFICER" ? "Student ID" : "Employment ID"}
                     </label>
                     <input
                       type="text"

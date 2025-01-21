@@ -1,10 +1,6 @@
 import { officeInChargeRole, moderatorRole } from "./UserUtil";
 
 export const navigateRouteByRole = (user) => {
-    if (user?.is_first_time_login) {
-        return "/first-time-login/update-password";
-    }
-
     const role = user?.role;
     if (role === "STUDENT" || role === "PERSONNEL") {
         return "/user/e-clearance";

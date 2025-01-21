@@ -1,23 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Modal from "../../Components/modal/Modal";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import axios from "../../api/AxiosConfig";
 import { showModal } from "../../states/slices/ModalSlicer";
-import { fetchUser } from "../../states/slices/UserSlicer";
 import { handleLogout } from "../../services/TokenUtils";
+import { useSearchParams } from "react-router-dom";
 
 function FirstTimeLogin() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const dispatch = useDispatch();
-  const { user, status } = useSelector((state) => state.user);
+
+  const [searchParams] = useSearchParams();
+  // this where the token stores that has a validity of 7 days
+  const token = searchParams.get('t');
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.put("/users/change-password", {
+      const response = await axios.put("/auth/change-password", {
         "password1": password,
-        "password2": confirmPassword
+        "password2": confirmPassword,
+        "token": token
       });
+      console.log(response);
       if (response.status === 200) {
         setTimeout(() => {
           handleLogout();
@@ -25,18 +30,12 @@ function FirstTimeLogin() {
         dispatch(showModal({ message: response?.data?.message }))
       }
     } catch (error) {
-      if (error.status === 404 || error.status === 403) {
+      console.log(error);
+      if (error.status === 404 || error.status === 403 || error.status === 401) {
         dispatch(showModal({ message: error?.response?.data?.message }))
       }
     }
   };
-
-  useEffect(() => {
-    if (!user) {
-      dispatch(fetchUser())
-    }
-
-  }, [dispatch, user, status]);
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-green-800">
