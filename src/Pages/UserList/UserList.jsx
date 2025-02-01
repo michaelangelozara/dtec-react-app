@@ -131,6 +131,7 @@ function UserList() {
     role: "SELECT ALL",
     username: "",
     email: "",
+    contact_number: "",
     department_id: 0,
     course_id: 0,
     year_level: 0,
@@ -227,7 +228,6 @@ function UserList() {
     } finally {
       setIsLoading(false);
       setIsCreateModalOpen(false);
-      resetUserFields();
     }
   };
 
@@ -246,6 +246,7 @@ function UserList() {
           role: fetchedUser.role,
           username: fetchedUser.username,
           email: fetchedUser.email,
+          contact_number: fetchedUser.contact_number,
           department_id: fetchedUser.department?.id,
           course_id: fetchedUser.course?.id,
           year_level: fetchedUser.year_level,
@@ -257,7 +258,6 @@ function UserList() {
           type_of_personnel: fetchedUser.type_of_personnel,
           office: fetchedUser.office,
         }));
-        console.log(fetchedUser);
       }
     } catch (error) {
     } finally {
@@ -294,7 +294,7 @@ function UserList() {
         dispatch(showModal({ message: response?.data?.message }))
       }
     } catch (error) {
-      if (error?.status === 409 || error?.status === 404) {
+      if (error?.status === 409 || error?.status === 404 || error?.status === 403) {
         dispatch(showModal({ message: error?.response?.data?.message }))
       }
     } finally {
@@ -329,6 +329,7 @@ function UserList() {
       role: "SELECT ALL",
       username: "",
       email: "",
+      contact_number: "",
       department_id: 0,
       course_id: 0,
       year_level: 0,
@@ -810,6 +811,20 @@ function UserList() {
                       required
                     />
                   </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Contact Number *
+                    </label>
+                    <input
+                      type="text"
+                      value={newUser.contact_number}
+                      onChange={(e) =>
+                        setNewUser({ ...newUser, contact_number: e.target.value })
+                      }
+                      className="w-full border p-2 rounded"
+                      required
+                    />
+                  </div>
                   <div
                     className={`mb-4 ${newUser?.role !== "PERSONNEL" ? "hidden" : ""
                       }`}
@@ -1077,7 +1092,10 @@ function UserList() {
                   <div className="col-span-2 flex justify-end">
                     <button
                       type="button"
-                      onClick={() => setIsCreateModalOpen(false)}
+                      onClick={() => {
+                        setIsCreateModalOpen(false);
+                        resetUserFields();
+                      }}
                       className="px-4 py-2 bg-gray-200 rounded mr-2"
                     >
                       Cancel
@@ -1180,6 +1198,20 @@ function UserList() {
                       value={newUser.email}
                       onChange={(e) =>
                         setNewUser({ ...newUser, email: e.target.value })
+                      }
+                      className="w-full border p-2 rounded"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">
+                      Contact Number *
+                    </label>
+                    <input
+                      type="text"
+                      value={newUser.contact_number}
+                      onChange={(e) =>
+                        setNewUser({ ...newUser, contact_number: e.target.value })
                       }
                       className="w-full border p-2 rounded"
                       required
@@ -1463,7 +1495,10 @@ function UserList() {
                   <div className="col-span-2 flex justify-end">
                     <button
                       type="button"
-                      onClick={() => setIsEditModalOpen(false)}
+                      onClick={() => {
+                        setIsEditModalOpen(false);
+                        resetUserFields();
+                      }}
                       className="px-4 py-2 bg-gray-200 rounded mr-2"
                     >
                       Cancel
