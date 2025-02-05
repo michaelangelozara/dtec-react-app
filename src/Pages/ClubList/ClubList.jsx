@@ -1,83 +1,85 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
-import { FaUserCircle, FaBell } from "react-icons/fa";
-import Banner from "../../Images/banner.svg";
+import { useDispatch } from "react-redux";
+import axios from "../../api/AxiosConfig";
+import Modal from "../../Components/modal/Modal";
 import PrimaryNavBar from "../../Components/NavBar/PrimaryNavBar";
-
-// Club data
-const departmentalClubs = [
-  "PSITS",
-  "FINANCE",
-  "JSWAP",
-  "ICPEP.SE",
-  "PNSA",
-  "JHARA",
-  "JPMA",
-  "JPIA",
-  "UPSCISTS",
-  "JMC",
-  "PMC"
-].map(name => ({
-  id: `dep-${name}`,
-  clubName: name,
-  clubType: "Departmental Club",
-  shortform: name,
-  logo: "https://via.placeholder.com/50" // Placeholder logo
-}));
-
-const socialClubs = [
-  "JEM",
-  "CES",
-  "ASPA",
-  "PCC",
-  "MSO",
-  "YSLC",
-  "BLC",
-  "KKB",
-  "KARATE-DO",
-  "TEATRO BALINTATAW"
-].map(name => ({
-  id: `soc-${name}`,
-  clubName: name,
-  clubType: "Social Club",
-  shortform: name,
-  logo: "https://via.placeholder.com/50" // Placeholder logo
-}));
+import { showModal } from "../../states/slices/ModalSlicer";
 
 function ClubList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("All");
-  const [clubs, setClubs] = useState([...departmentalClubs, ...socialClubs]);
+  const [clubs, setClubs] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedClub, setSelectedClub] = useState(null);
+  const [newLogo, setNewLogo] = useState("");
+  const [mount, setMount] = useState(false);
+
+  const dispatch = useDispatch();
 
   const handleEdit = (club) => {
     setSelectedClub(club);
     setIsEditModalOpen(true);
   };
 
-  const handleLogoUpdate = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const newLogo = URL.createObjectURL(e.target.files[0]);
-      setClubs(clubs.map(club => 
-        club.id === selectedClub.id 
-          ? { ...club, logo: newLogo }
-          : club
-      ));
-      setIsEditModalOpen(false);
-      setSelectedClub(null);
+  const handleLogoUpdate = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setNewLogo(reader.result); // Store Base64 string in state
+      };
     }
   };
 
   const filteredClubs = clubs.filter((club) => {
-    const matchesSearch = club.clubName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = selectedType === "All" || club.clubType === selectedType;
+    const matchesSearch = club?.name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = selectedType === "All" || club?.type === selectedType;
     return matchesSearch && matchesType;
   });
 
+  const handleUpdateLogo = async () => {
+    if (newLogo === "" || newLogo === null) {
+      dispatch(showModal({message : "Please Attach Logo!"}))
+      return;
+    }
+
+    try {
+      const response = await axios.put(`/admin/clubs/${selectedClub?.id}/update-logo`, {
+        image: newLogo
+      });
+
+      if (response.status === 200) {
+        setTimeout(() => {
+          setIsEditModalOpen(false);
+        }, 2000);
+        dispatch(showModal({ message: response?.data?.message }));
+        setMount(v => !v);
+      }
+    } catch (error) {
+      if (error.status === 403) {
+        dispatch(showModal({ message: error?.response?.data?.message }));
+      }
+    }
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/admin/clubs");
+        setClubs(response?.data?.data);
+      } catch (error) {
+
+      }
+    }
+
+    fetchData();
+  }, [mount]);
+
   return (
     <div className="min-h-screen bg-gray-100">
-      
+
       <PrimaryNavBar />
 
       {/* Heading and Search */}
@@ -90,8 +92,8 @@ function ClubList() {
             className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
           >
             <option value="All">All Types</option>
-            <option value="Departmental Club">Departmental Club</option>
-            <option value="Social Club">Social Club</option>
+            <option value="DEPARTMENT">Departmental Club</option>
+            <option value="SOCIAL">Social Club</option>
           </select>
           <input
             type="text"
@@ -132,18 +134,18 @@ function ClubList() {
                   <td className="border border-gray-300 px-4 py-2 text-sm text-gray-600">
                     <img
                       src={club.logo}
-                      alt={`${club.clubName} Logo`}
+                      alt={`${club.name} Logo`}
                       className="w-12 h-12 object-cover rounded-lg"
                     />
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-sm text-gray-600">
-                    {club.clubType}
+                    {club.type}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-sm text-gray-600">
-                    {club.clubName}
+                    {club.name}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-sm text-gray-600">
-                    {club.shortform}
+                    {club.short_name}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 text-center text-sm text-gray-600">
                     <button
@@ -174,10 +176,10 @@ function ClubList() {
       {isEditModalOpen && selectedClub && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-96">
-            <h3 className="text-lg font-semibold mb-4">Update Logo for {selectedClub.clubName}</h3>
+            <h3 className="text-lg font-semibold mb-4">Update Logo for {selectedClub.name}</h3>
             <div className="mb-4">
               <img
-                src={selectedClub.logo}
+                src={newLogo || selectedClub?.logo}
                 alt="Current Logo"
                 className="w-24 h-24 object-cover rounded-lg mx-auto"
               />
@@ -193,16 +195,27 @@ function ClubList() {
                 onClick={() => {
                   setIsEditModalOpen(false);
                   setSelectedClub(null);
+                  setNewLogo("");
                 }}
                 className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
               >
                 Cancel
               </button>
             </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={handleUpdateLogo}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
+              >
+                Update
+              </button>
+            </div>
           </div>
         </div>
       )}
+      <Modal />
     </div>
+
   );
 }
 
