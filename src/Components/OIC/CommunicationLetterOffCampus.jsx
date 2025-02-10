@@ -140,7 +140,7 @@ function CommunicationLetterOffCampus({
                 />
               )}
             </>}
-            <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
+            <p className="mt-2 font-bold">{user?.dsa}</p>
             <p>Director of Student Affairs</p>
           </div>
 
@@ -177,7 +177,7 @@ function CommunicationLetterOffCampus({
               )}
             </>}
             <p className="mt-2 font-bold">
-              REV. FR. DARYLL DHAN L. BILBAO, DCC
+            {user?.office_head}
             </p>
             <p>Office Head, CDSO</p>
           </div>

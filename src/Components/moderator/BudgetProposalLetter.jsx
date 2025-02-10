@@ -6,28 +6,27 @@ import { showModal } from '../../states/slices/ModalSlicer';
 import { getSignature } from '../../services/LetterUtil';
 import { FaFingerprint } from 'react-icons/fa';
 
-function BudgetProposalLetter({ letter, setSignedPeople }) {
+function BudgetProposalLetter({ letter, setSignedPeople, signaturePreview, fetchSignature }) {
   const [isLoading, setIsLoading] = useState(false);
   const [budgetProposal, setBudgetProposal] = useState(null);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [signaturePreview, setSignaturePreview] = useState("");
 
   if (!user) {
     navigate("/user/moderator-transaction")
     return;
   }
 
-  const fetchSignature = async() => {
-    try {
-      const response = await axios.get("/users/get-sm-e-signature");
-      setSignaturePreview(response.data?.data);
-    } catch (error) {
-      
-    }
+  // const fetchSignature = async() => {
+  //   try {
+  //     const response = await axios.get("/users/get-sm-e-signature");
+  //     setSignaturePreview(response.data?.data);
+  //   } catch (error) {
 
-  };
+  //   }
+
+  // };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -155,7 +154,7 @@ function BudgetProposalLetter({ letter, setSignedPeople }) {
               ) : (
                 <>
                   <button
-                    onClick={() => fetchSignature()}
+                    onClick={fetchSignature}
                     className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
                     disabled={user.role !== "MODERATOR"}
                   >

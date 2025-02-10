@@ -179,7 +179,7 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
             />
           )}
         </>}
-        <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
+        <p className="mt-2 font-bold">{user?.dsa}</p>
         <p>Director of Student Affairs</p>
       </div>
 
@@ -212,7 +212,7 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
             />
           )}
         </>}
-        <p className="mt-2 font-bold">VANESSA CLAIRE C. ESPAÑA, CPA</p>
+        <p className="mt-2 font-bold">{user?.finance}</p>
         <p>Finance Officer</p>
       </div>
 
@@ -245,7 +245,7 @@ function BudgetProposalLetter({ letter, signaturePreview, onSignatureChange, set
             />
           )}
         </>}
-        <p className="mt-2 font-bold">REV. FR. JESSIE P. PASQUIN, DCC</p>
+        <p className="mt-2 font-bold">{user?.president}</p>
         <p>President</p>
       </div>
 

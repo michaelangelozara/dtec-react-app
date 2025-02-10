@@ -73,12 +73,12 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange, set
         </div>
       </div>
 
-      <div>
+      {/* <div>
         <label className="block font-semibold mb-2">TITLE:</label>
         <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
           {implementationLetter?.title}
         </div>
-      </div>
+      </div> */}
 
       <div>
         <label className="block font-semibold mb-2">DATE AND TIME:</label>
@@ -191,7 +191,7 @@ function ImplementationLetter({ letter, signaturePreview, onSignatureChange, set
             />
           )}
         </>}
-        <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
+        <p className="mt-2 font-bold">{user?.dsa}</p>
         <p>Director of Student Affairs</p>
       </div>
 

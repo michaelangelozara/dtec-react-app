@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "../../api/AxiosConfig";
 import { showModal } from "../../states/slices/ModalSlicer";
 import { FaFingerprint } from "react-icons/fa";
-import TorreseSig from "../../assets/images/torresesig.png";
 
 function ImplementationLetterOffCampus({
   letter,
   signaturePreview,
   onSignatureChange,
   setSignedPeople,
+  fetchSignature
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [implementationLetter, setImplementationLetter] = useState(null);
@@ -178,9 +178,7 @@ function ImplementationLetterOffCampus({
               ) : (
                 <>
                   <button
-                    onClick={() =>
-                      onSignatureChange({ target: { files: [TorreseSig] } })
-                    }
+                    onClick={fetchSignature}
                     className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
                     disabled={user.role !== "COMMUNITY"}
                   >

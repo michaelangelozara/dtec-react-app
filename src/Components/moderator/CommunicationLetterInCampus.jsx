@@ -11,10 +11,10 @@ function CommunicationLetterInCampus({
   letter,
   signaturePreview,
   setSignedPeople,
+  fetchSignature
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [communicationLetter, setCommunicationLetter] = useState(null);
-  const [localSignaturePreview, setLocalSignaturePreview] = useState("");
   const { user, status } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -59,19 +59,19 @@ function CommunicationLetterInCampus({
     }
   }, [communicationLetter]);
 
-  const fetchSignature = async () => {
-    try {
-      const response = await axios.get("/users/get-sm-e-signature");
-      const signatureData = response.data?.data;
-      if (signatureData) {
-        setLocalSignaturePreview(signatureData);
-      } else {
-        dispatch(showModal({ message: 'No signature data found' }));
-      }
-    } catch (error) {
-      dispatch(showModal({ message: 'Failed to fetch signature' }));
-    }
-  };
+  // const fetchSignature = async () => {
+  //   try {
+  //     const response = await axios.get("/users/get-sm-e-signature");
+  //     const signatureData = response.data?.data;
+  //     if (signatureData) {
+  //       setLocalSignaturePreview(signatureData);
+  //     } else {
+  //       dispatch(showModal({ message: 'No signature data found' }));
+  //     }
+  //   } catch (error) {
+  //     dispatch(showModal({ message: 'Failed to fetch signature' }));
+  //   }
+  // };
 
   return (
     <>
@@ -117,13 +117,13 @@ function CommunicationLetterInCampus({
                   >
                     <FaFingerprint /> Attach Signature
                   </button>
-                  {localSignaturePreview && (
+                  {signaturePreview && (
                     <div className="mb-4">
                       <p className="text-sm font-medium mb-2">Signature Preview:</p>
                       <img
                         alt="MODERATOR's Signature"
                         className="mx-auto border border-gray-300 p-2 rounded-md mt-2"
-                        src={localSignaturePreview}
+                        src={signaturePreview}
                         style={{ maxHeight: "150px", maxWidth: "300px" }}
                       />
                     </div>

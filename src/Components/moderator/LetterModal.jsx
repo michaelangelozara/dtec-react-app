@@ -57,6 +57,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             signaturePreview={signaturePreview}
             onSignatureChange={onSignatureChange}
             setSignedPeople={setSignedPeople}
+            fetchSignature={fetchSignature}
           />
         );
       case 'IMPLEMENTATION_LETTER_OFF_CAMPUS':
@@ -66,6 +67,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             signaturePreview={signaturePreview}
             onSignatureChange={onSignatureChange}
             setSignedPeople={setSignedPeople}
+            fetchSignature={fetchSignature}
           />
         );
       case 'COMMUNICATION_LETTER':
@@ -76,6 +78,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
               signaturePreview={signaturePreview}
               onSignatureChange={onSignatureChange}
               setSignedPeople={setSignedPeople}
+              fetchSignature={fetchSignature}
             />
           );
         } else {
@@ -85,6 +88,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
               signaturePreview={signaturePreview}
               onSignatureChange={onSignatureChange}
               setSignedPeople={setSignedPeople}
+              fetchSignature={fetchSignature}
             />
           );
         }
@@ -95,6 +99,7 @@ function LetterModal({ letter, onClose, signaturePreview, onSignatureChange, onA
             signaturePreview={signaturePreview}
             onSignatureChange={onSignatureChange}
             setSignedPeople={setSignedPeople}
+            fetchSignature={fetchSignature}
           />
         );
         case 'PERMIT_TO_ENTER':

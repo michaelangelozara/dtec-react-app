@@ -133,7 +133,7 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
               />
             )}
           </>}
-          <p className="mt-2 font-bold">BENJIE E. TAHUM, LPT, MAED-TESL</p>
+          <p className="mt-2 font-bold">{user?.dsa}</p>
           <p>Director of Student Affairs</p>
         </div>
 
@@ -166,7 +166,7 @@ function CommunicationLetterInCampus({ letter, signaturePreview, onSignatureChan
               />
             )}
           </>}
-          <p className="mt-2 font-bold">REV. FR. JESSIE P. PASQUIN, DCC</p>
+          <p className="mt-2 font-bold">{user?.president}</p>
           <p>President</p>
         </div>
       </div>

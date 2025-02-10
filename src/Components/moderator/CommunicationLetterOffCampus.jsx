@@ -12,6 +12,7 @@ function CommunicationLetterOffCampus({
   signaturePreview,
   onSignatureChange,
   setSignedPeople,
+  fetchSignature
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [communicationLetter, setCommunicationLetter] = useState(null);
@@ -112,9 +113,7 @@ function CommunicationLetterOffCampus({
               ) : (
                 <>
                   <button
-                    onClick={() =>
-                      onSignatureChange({ target: { files: [TorreseSig] } })
-                    }
+                    onClick={fetchSignature}
                     className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
                     disabled={user.role !== "MODERATOR"}
                   >

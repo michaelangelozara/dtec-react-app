@@ -5,13 +5,13 @@ import axios from "../../api/AxiosConfig";
 import { showModal } from "../../states/slices/ModalSlicer";
 import { getSignature } from "../../services/LetterUtil";
 import { FaFingerprint } from "react-icons/fa";
-import TorreseSig from "../../assets/images/torresesig.png";
 
 function ImplementationLetter({
   letter,
   signaturePreview,
   onSignatureChange,
   setSignedPeople,
+  fetchSignature
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [implementationLetter, setImplementationLetter] = useState(null);
@@ -24,6 +24,7 @@ function ImplementationLetter({
     return;
   }
 
+ 
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -88,12 +89,12 @@ function ImplementationLetter({
             </div>
           </div>
 
-          <div>
+          {/* <div>
             <label className="block font-semibold mb-2">TITLE:</label>
             <div className="w-full border-gray-300 border-2 p-2 rounded-md bg-gray-50">
               {implementationLetter.title}
             </div>
-          </div>
+          </div> */}
 
           <div>
             <label className="block font-semibold mb-2">DATE AND TIME:</label>
@@ -155,9 +156,8 @@ function ImplementationLetter({
 
           {/* Signatures Section */}
           <div
-            className={`mt-6 text-center ${
-              user?.role !== "STUDENT_OFFICER" ? "hidden" : ""
-            }`}
+            className={`mt-6 text-center ${user?.role !== "STUDENT_OFFICER" ? "hidden" : ""
+              }`}
           >
             <p className="font-semibold">Prepared by:</p>
             <img
@@ -185,9 +185,7 @@ function ImplementationLetter({
               ) : (
                 <>
                   <button
-                    onClick={() =>
-                      onSignatureChange({ target: { files: [TorreseSig] } })
-                    }
+                    onClick={fetchSignature}
                     className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 mx-auto"
                     disabled={user.role !== "MODERATOR"}
                   >
@@ -221,9 +219,8 @@ function ImplementationLetter({
           </div>
 
           <div
-            className={`mt-6 text-center ${
-              user?.role !== "DSA" ? "hidden" : ""
-            }`}
+            className={`mt-6 text-center ${user?.role !== "DSA" ? "hidden" : ""
+              }`}
           >
             <p className="font-semibold">Approved by:</p>
             <div className="mt-4">
